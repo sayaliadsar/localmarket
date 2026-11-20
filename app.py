@@ -4,8 +4,11 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "localmarket_secret_123"
-DB = "localmarket.db"
-UPLOAD_FOLDER = "static/uploads"
+
+# Render sathi absolute path - hech main fix aahe
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, "localmarket.db")
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED = {'png','jpg','jpeg','webp','avif'}
@@ -27,7 +30,7 @@ def save_file(file):
     while os.path.exists(path):
         path = os.path.join(app.config['UPLOAD_FOLDER'], f"{base}_{i}{e}"); i+=1
     file.save(path)
-    return "/" + path.replace("\\","/")
+    return "/static/uploads/" + os.path.basename(path)
 
 def init_db():
     conn = get_db()
@@ -185,4 +188,6 @@ def admin_delete_user(uid):
     conn.execute("DELETE FROM users WHERE id=?", (uid,))
     conn.commit(); conn.close(); return redirect('/admin')
 
-if __name__=='__main__': app.run(debug=True)
+if __name__=='__main__':
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
