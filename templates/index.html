@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalMarket - Mohone</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="logo">🛒 Local<span>Market</span> <small>Mohone</small></div>
+        <div class="search-box">
+            <form method="GET" action="/">
+                <input type="text" name="q" value="{{ q or '' }}" placeholder="Shodh - Kurti, Kirana, Mobile...">
+                <button type="submit">🔍</button>
+            </form>
+        </div>
+        <div class="top-right">
+            {% if user %}
+            <button class="bell" onclick="document.getElementById('notifBox').classList.toggle('show')">🔔 {% if notifs
+                %}<span class="dot">{{ notifs|length }}</span>{% endif %}</button>
+            <div id="notifBox" class="notif-box">
+                {% if notifs %}
+                {% for n in notifs %}<p>{{ n['message'] }}</p>{% endfor %}
+                {% else %}<p>Kahi notification nahi</p>{% endif %}
+            </div>
+            <img src="{{ user['profile_pic'] or 'https://via.placeholder.com/40' }}" class="top-pic"
+                onclick="openProfileModal('me')">
+            <span class="hi">Hi, {{ user['name'] }}</span>
+            {% if user['is_admin'] %}<a href="/admin" class="admin-btn">Admin Panel</a>{% endif %}
+            <button class="btn-small" onclick="openProfileModal('me')">My Profile / Edit</button>
+            <a href="/logout" class="btn-small red">Logout</a>
+            {% else %}
+            <button onclick="document.getElementById('loginModal').style.display='flex'">Login</button>
+            <button onclick="document.getElementById('regModal').style.display='flex'" class="btn-green">Register /
+                Store Ughad</button>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if session.get('blocked_msg') %}
+    <div class="blocked-alert">{{ session.get('blocked_msg') }}</div>
+    {% endif %}
+
+    <div class="cats">
+        <a href="/?cat=All" class="{{ 'active' if cat=='All' or not cat else '' }}">All</a>
+        <a href="/?cat=Clothes" class="{{ 'active' if cat=='Clothes' else '' }}">👗 Clothes</a>
+        <a href="/?cat=Kirana" class="{{ 'active' if cat=='Kirana' else '' }}">🛒 Kirana</a>
+        <a href="/?cat=Mobile" class="{{ 'active' if cat=='Mobile' else '' }}">📱 Mobile</a>
+        <a href="/?cat=Food" class="{{ 'active' if cat=='Food' else '' }}">🍔 Food</a>
+        <a href="/?cat=Electronics" class="{{ 'active' if cat=='Electronics' else '' }}">💡 Electronics</a>
+        <a href="/?cat=Other" class="{{ 'active' if cat=='Other' else '' }}">📦 Other</a>
+        {% if user %}<button onclick="document.getElementById('addModal').style.display='flex'" class="add-btn">+
+            Product Add Kara</button>{% endif %}
+    </div>
+
+    <main class="grid">
+        {% for p in products %}
+        <div class="card">
+            <div class="card-img-box">
+                <img src="{{ p['image'] }}" alt="{{ p['title'] }}">
+                <span class="cat-tag">{{ p['category'] }}</span>
+                {% if p['owner_blocked'] %}<span class="blocked-tag">BLOCKED STORE</span>{% endif %}
+            </div>
+            <div class="store-row" onclick="openStoreProfile({{ p['id'] }})">
+                <img src="{{ p['owner_pic'] or 'https://via.placeholder.com/40' }}" class="store-pic">
+                <div class="store-info">
+                    <b>{{ p['store_name'] }} {% if p['owner_blocked'] %}🚫{% else %}✅{% endif %}</b>
+                    <small>⭐ {{ p['rating'] }} • {{ p['owner_loc'] or 'Mohone' }} • Profile Paha 👆</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <h3>{{ p['title'] }}</h3>
+                <p class="desc">{{ p['description'] }}</p>
+                <div class="price-row">
+                    <b class="price">₹{{ p['price'] }}</b>
+                    <span class="open">🕙 {{ p['owner_open'] or '9 AM - 9 PM' }}</span>
+                </div>
+                <div class="btn-row">
+                    <a href="tel:{{ p['owner_phone'] }}" class="call-btn">📞 Call</a>
+                    <a href="https://wa.me/91{{ p['owner_phone'] }}?text=Hi, {{ p['title'] }} pahije" target="_blank"
+                        class="wa-btn">WhatsApp</a>
+                </div>
+                {% if user and (user['is_admin'] or user['id']==p['user_id']) %}
+                <a href="/delete/{{ p['id'] }}" class="del-btn" onclick="return confirm('Delete karaycha?')">🗑️
+                    Delete</a>
+                {% endif %}
+            </div>
+            <div id="store-data-{{ p['id'] }}" style="display:none" data-name="{{ p['store_name'] }}"
+                data-pic="{{ p['owner_pic'] or 'https://via.placeholder.com/100' }}" data-phone="{{ p['owner_phone'] }}"
+                data-loc="{{ p['owner_loc'] or 'Mohone, Maharashtra' }}"
+                data-open="{{ p['owner_open'] or '9 AM - 9 PM' }}"
+                data-bio="{{ p['owner_bio'] or 'Local trusted store from Mohone.' }}" data-rating="{{ p['rating'] }}">
+            </div>
+        </div>
+        {% else %}
+        <p style="grid-column:1/-1;text-align:center;padding:40px">Kahi product nahi. Pahila product add kara.</p>
+        {% endfor %}
+    </main>
+
+    <div id="storeModal" class="modal">
+        <div class="modal-card profile-card">
+            <span class="close" onclick="closeAll()">✕</span>
+            <img id="sPic" src="" class="big-pic">
+            <h2 id="sName"></h2>
+            <p><span class="badge">✅ Verified Local Store</span> <span id="sRating"></span></p>
+            <p id="sBio" class="bio-text"></p>
+            <div class="info-list">
+                <p>📞 <b id="sPhone"></b></p>
+                <p>📍 <span id="sLoc"></span></p>
+                <p>🕙 <span id="sOpen"></span></p>
+            </div>
+            <div class="btn-row">
+                <a id="sCall" href="#" class="call-btn">📞 Call Kara</a>
+                <a id="sWa" href="#" target="_blank" class="wa-btn">WhatsApp Kara</a>
+            </div>
+        </div>
+    </div>
+
+    {% if user %}
+    <div id="myProfileModal" class="modal">
+        <div class="modal-card">
+            <span class="close" onclick="closeAll()">✕</span>
+            <h2>My Profile - Edit</h2>
+            <form action="/update_profile" method="POST" enctype="multipart/form-data">
+                <label>Profile Photo (Gallery madhun nivda)</label>
+                <input type="file" name="profile_pic" accept="image/*">
+                {% if user['profile_pic'] %}<img src="{{ user['profile_pic'] }}"
+                    style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin:8px 0">{% endif %}
+                <input type="text" name="name" value="{{ user['name'] }}" placeholder="Nav" required>
+                <input type="text" name="store_name" value="{{ user['store_name'] }}" placeholder="Store Name">
+                <input type="text" name="phone" value="{{ user['phone'] }}" placeholder="Mobile No" required>
+                <input type="text" name="location" value="{{ user['location'] }}" placeholder="Location - Mohone">
+                <input type="text" name="opening" value="{{ user['opening'] }}" placeholder="Opening - 9 AM - 9 PM">
+                <textarea name="bio" placeholder="Bio - Tumchya store baddal liha">{{ user['bio'] }}</textarea>
+                <button type="submit" class="btn-green full">Save Profile</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="addModal" class="modal">
+        <div class="modal-card">
+            <span class="close" onclick="closeAll()">✕</span>
+            <h2>Product Add Kara</h2>
+            <form action="/add" method="POST" enctype="multipart/form-data">
+                <label>Product Photo - Gallery madhun nivda</label>
+                <input type="file" name="product_pic" accept="image/*" onchange="previewImg(event)">
+                <img id="preview"
+                    style="display:none;width:100%;height:180px;object-fit:cover;border-radius:10px;margin:8px 0">
+                <label>Kiva Photo Link (nasel tar)</label>
+                <input type="text" name="image" placeholder="https://...">
+                <input type="text" name="title" placeholder="Product Nav - ex. Designer Kurti" required>
+                <select name="category" required>
+                    <option>Clothes</option>
+                    <option>Kirana</option>
+                    <option>Mobile</option>
+                    <option>Food</option>
+                    <option>Electronics</option>
+                    <option>Other</option>
+                </select>
+                <input type="number" name="price" placeholder="Price ₹" required>
+                <textarea name="description" placeholder="Description"></textarea>
+                <button type="submit" class="btn-green full">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="loginModal" class="modal">
+        <div class="modal-card">
+            <span class="close" onclick="closeAll()">✕</span>
+            <h2>Login</h2>
+            <form action="/login" method="POST">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button class="btn-green full">Login</button>
+            </form>
+            <p style="font-size:13px;margin-top:10px">Admin: admin@localmarket.com / admin123</p>
+        </div>
+    </div>
+
+    <div id="regModal" class="modal">
+        <div class="modal-card">
+            <span class="close" onclick="closeAll()">✕</span>
+            <h2>Register / Store Ughad</h2>
+            <form action="/register" method="POST" enctype="multipart/form-data">
+                <label>Profile Photo</label>
+                <input type="file" name="profile_pic" accept="image/*">
+                <input type="text" name="name" placeholder="Tumcha Nav" required>
+                <input type="text" name="store_name" placeholder="Store Nav">
+                <input type="text" name="phone" placeholder="Mobile No" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <input type="text" name="location" placeholder="Location - Mohone">
+                <input type="text" name="opening" placeholder="Opening Time - 9 AM - 9 PM">
+                <textarea name="bio" placeholder="Bio"></textarea>
+                <select name="role">
+                    <option value="Store">Store Owner</option>
+                    <option value="Customer">Customer</option>
+                </select>
+                <button class="btn-green full">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+        function previewImg(e) {
+            const f = e.target.files[0]; if (!f) return;
+            const r = new FileReader(); r.onload = function () { let im = document.getElementById('preview'); im.src = r.result; im.style.display = 'block'; }; r.readAsDataURL(f);
+        }
+        function openStoreProfile(id) {
+            let d = document.getElementById('store-data-' + id);
+            if (!d) return;
+            document.getElementById('sPic').src = d.dataset.pic;
+            document.getElementById('sName').innerText = d.dataset.name;
+            document.getElementById('sRating').innerText = '⭐ ' + d.dataset.rating + ' Rating';
+            document.getElementById('sBio').innerText = d.dataset.bio;
+            document.getElementById('sPhone').innerText = d.dataset.phone;
+            document.getElementById('sLoc').innerText = d.dataset.loc;
+            document.getElementById('sOpen').innerText = d.dataset.open;
+            document.getElementById('sCall').href = 'tel:' + d.dataset.phone;
+            document.getElementById('sWa').href = 'https://wa.me/91' + d.dataset.phone;
+            document.getElementById('storeModal').style.display = 'flex';
+        }
+        function openProfileModal(type) {
+            if (type == 'me') { document.getElementById('myProfileModal').style.display = 'flex'; }
+        }
+        window.onclick = function (e) { if (e.target.classList.contains('modal')) e.target.style.display = 'none'; }
+    </script>
+</body>
+
+</html>

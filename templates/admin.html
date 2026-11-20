@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="mr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - LocalMarket</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-wrap {
+            max-width: 1100px;
+            margin: 20px auto;
+            padding: 0 15px
+        }
+
+        .admin-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #111827;
+            color: #fff;
+            padding: 16px 20px;
+            border-radius: 14px
+        }
+
+        .admin-head a {
+            color: #fff;
+            text-decoration: none;
+            background: #22c55e;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 14px
+        }
+
+        h2 {
+            margin: 28px 0 12px
+        }
+
+        table {
+            width: 100%;
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            border-collapse: collapse;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .08)
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 14px
+        }
+
+        th {
+            background: #f8fafc
+        }
+
+        .user-pic {
+            width: 42px;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 8px
+        }
+
+        .prod-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px
+        }
+
+        .btn {
+            padding: 7px 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 13px;
+            display: inline-block;
+            margin: 2px
+        }
+
+        .btn-block {
+            background: #ef4444
+        }
+
+        .btn-unblock {
+            background: #22c55e
+        }
+
+        .btn-del {
+            background: #111827
+        }
+
+        .btn-view {
+            background: #3b82f6
+        }
+
+        .badge-blocked {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px
+        }
+
+        .badge-ok {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px
+        }
+
+        @media(max-width:700px) {
+            table {
+                font-size: 12px
+            }
+
+            th,
+            td {
+                padding: 8px
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-wrap">
+        <div class="admin-head">
+            <div>
+                <h1 style="margin:0">👑 Admin Panel</h1><small>LocalMarket - Mohone | Admin: {{ user['name'] }}</small>
+            </div>
+            <a href="/">← Home la Ja</a>
+        </div>
+
+        <!-- STATS -->
+        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
+            <div
+                style="background:#fff;padding:16px;border-radius:12px;flex:1;min-width:140px;box-shadow:0 4px 14px rgba(0,0,0,.06)">
+                <b style="font-size:24px">{{ users|length }}</b><br><small>Total Users / Stores</small>
+            </div>
+            <div
+                style="background:#fff;padding:16px;border-radius:12px;flex:1;min-width:140px;box-shadow:0 4px 14px rgba(0,0,0,.06)">
+                <b style="font-size:24px">{{ products|length }}</b><br><small>Total Products</small>
+            </div>
+            <div
+                style="background:#fff;padding:16px;border-radius:12px;flex:1;min-width:140px;box-shadow:0 4px 14px rgba(0,0,0,.06)">
+                <b style="font-size:24px;color:#ef4444">{{ users|selectattr('is_blocked')|list|length
+                    }}</b><br><small>Blocked Stores</small>
+            </div>
+        </div>
+
+        <!-- USERS -->
+        <h2>👥 Saglya Users / Stores</h2>
+        <table>
+            <tr>
+                <th>Store</th>
+                <th>Contact</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for u in users %}
+            <tr>
+                <td>
+                    <img src="{{ u['profile_pic'] or 'https://via.placeholder.com/40' }}" class="user-pic">
+                    <b>{{ u['store_name'] or u['name'] }}</b><br>
+                    <small>{{ u['name'] }} • {{ u['email'] }}</small>
+                </td>
+                <td>{{ u['phone'] }}<br><small>{{ u['opening'] or '' }}</small></td>
+                <td>{{ u['location'] or 'Mohone' }}<br><small>⭐ {{ u['rating'] }} • {{ u['role'] }}</small></td>
+                <td>
+                    {% if u['is_blocked'] %}<span class="badge-blocked">🚫 BLOCKED</span>
+                    {% else %}<span class="badge-ok">✅ Active</span>{% endif %}
+                </td>
+                <td>
+                    {% if u['is_blocked'] %}
+                    <a href="/admin/unblock/{{ u['id'] }}" class="btn btn-unblock">Unblock</a>
+                    {% else %}
+                    <a href="/admin/block/{{ u['id'] }}" class="btn btn-block"
+                        onclick="return confirm('Hya store la block karaycha? Tyache products var BLOCKED disel.')">Block</a>
+                    {% endif %}
+                    <a href="https://wa.me/91{{ u['phone'] }}" target="_blank" class="btn btn-view">WhatsApp</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <!-- PRODUCTS -->
+        <h2>📦 Saglya Products</h2>
+        <table>
+            <tr>
+                <th>Photo</th>
+                <th>Product</th>
+                <th>Store</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+            {% for p in products %}
+            <tr>
+                <td><img src="{{ p['image'] }}" class="prod-img"></td>
+                <td><b>{{ p['title'] }}</b><br><small>{{ p['category'] }} • {{ p['description'][:60] }}</small></td>
+                <td>{{ p['store_name'] }}<br><small>{{ p['owner_phone'] }}</small></td>
+                <td><b>₹{{ p['price'] }}</b></td>
+                <td>
+                    <a href="/delete/{{ p['id'] }}" class="btn btn-del" onclick="return confirm('Delete karaycha?')">🗑️
+                        Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <p style="text-align:center;color:#666;font-size:13px;margin:30px 0">
+            Block kelelya store la login kelyavar "Tumcha account block aahe" message disel.<br>
+            Login: <b>admin@localmarket.com / admin123</b>
+        </p>
+    </div>
+
+</body>
+
+</html>
