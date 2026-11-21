@@ -6,16 +6,18 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
-app.secret_key = "localmarket_solapur_123"
+app.secret_key = "localmarket_mohane_123"
+app.config['PERMANENT_SESSION_LIFETIME'] = 86400 * 7  # 7 divas login rahil
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED = {'png','jpg','jpeg','webp','avif'}
-DATABASE_URL = os.environ.get("DATABASE_URL")
 
+# FIX 1: DATABASE_URL pratyek veles navin ghe - juna cache honar nahi
 def get_db():
+    DATABASE_URL = os.environ.get("DATABASE_URL")
     if not DATABASE_URL:
         print("ERROR: DATABASE_URL set nahi!")
         return None
@@ -46,9 +48,9 @@ def init_db():
         id SERIAL PRIMARY KEY, name TEXT, store_name TEXT, phone TEXT,
         email TEXT UNIQUE, password TEXT, role TEXT DEFAULT 'Customer',
         profile_pic TEXT DEFAULT '', bio TEXT DEFAULT '',
-        location TEXT DEFAULT 'Solapur, Maharashtra', opening TEXT DEFAULT '9 AM - 9 PM',
+        location TEXT DEFAULT 'Mohane, Maharashtra', opening TEXT DEFAULT '9 AM - 9 PM',
         rating REAL DEFAULT 4.5,
-        lat REAL DEFAULT 17.6599, lng REAL DEFAULT 75.9064,
+        lat REAL DEFAULT 19.2144, lng REAL DEFAULT 73.0978,
         is_blocked INTEGER DEFAULT 0, is_admin INTEGER DEFAULT 0
     )""")
     cur.execute("""CREATE TABLE IF NOT EXISTS products (
@@ -64,10 +66,12 @@ def init_db():
         id SERIAL PRIMARY KEY, store_id INTEGER, customer_name TEXT, rating INTEGER, comment TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )""")
+    # FIX 2: Admin nehmi banav - jar nasel tar
     cur.execute("SELECT * FROM users WHERE email='admin@localmarket.com'")
     if not cur.fetchone():
         cur.execute("INSERT INTO users (name,store_name,email,password,role,is_admin,rating,lat,lng,location) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-            ('Admin','LocalMarket Solapur','admin@localmarket.com','admin123','Store',1,5.0,17.6599,75.9064,'Solapur, Maharashtra'))
+            ('Admin','LocalMarket Mohane','admin@localmarket.com','admin123','Store',1,5.0,19.2144,73.0978,'Mohane, Maharashtra'))
+        print("Admin banavla!")
     conn.commit(); cur.close(); conn.close()
 
 try:
@@ -77,14 +81,16 @@ except Exception as e:
     print("DB init failed:", e)
     traceback.print_exc()
 
-# Health check - Render la kalayla app jivant aahe
 @app.route('/health')
 def health():
-    return "OK - LocalMarket Solapur Chaluy!"
+    return "OK - LocalMarket Mohane Chaluy!"
 
 @app.route('/')
 def home():
     try:
+        # Pratyek veles init check - Admin nasel tar banav
+        try: init_db()
+        except: pass
         conn=get_db()
         if not conn:
             return render_template('index.html', products=[], user=session.get('user'), cat='', q='', notifs=[])
@@ -109,13 +115,25 @@ def register():
     try:
         d=request.form; pic=save_file(request.files.get('profile_pic'))
         conn=get_db(); cur=conn.cursor()
-        lat = float(d.get('lat') or 17.6599); lng = float(d.get('lng') or 75.9064)
+        # Jar email aadhi asel tar parat login karayala sang
+        cur.execute("SELECT * FROM users WHERE email=%s", (d.get('email',''),))
+        if cur.fetchone():
+            session['blocked_msg']="Ha Email aadhi Register aahe, Login kara"
+            cur.close(); conn.close()
+            return redirect('/')
+        lat = float(d.get('lat') or 19.2144); lng = float(d.get('lng') or 73.0978)
         cur.execute("INSERT INTO users (name,store_name,phone,email,password,role,profile_pic,bio,location,opening,lat,lng) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s) RETURNING *",
-            (d.get('name',''), d.get('store_name',''), d.get('phone',''), d.get('email',''), d.get('password',''), d.get('role','Customer'), pic or '', d.get('bio',''), d.get('location','Solapur'), d.get('opening','9 AM - 9 PM'), lat, lng))
-        user=cur.fetchone(); conn.commit(); session['user']=dict(user)
+            (d.get('name',''), d.get('store_name',''), d.get('phone',''), d.get('email',''), d.get('password',''), d.get('role','Customer'), pic or '', d.get('bio',''), d.get('location','Mohane'), d.get('opening','9 AM - 9 PM'), lat, lng))
+        user=cur.fetchone(); conn.commit()
+        # FIX 3: Register nanatar lagech session madhe - Profile lagech disel
+        session.permanent = True
+        session['user']=dict(user)
+        session.pop('blocked_msg', None)
         cur.close(); conn.close()
+        print("Register Zala:", user['email'])
     except Exception as e:
         print("REGISTER ERROR:"); traceback.print_exc()
+        session['blocked_msg']="Register madhe error - parat try kara"
     return redirect('/')
 
 @app.route('/login', methods=['POST'])
@@ -127,6 +145,7 @@ def login():
         if user:
             u=dict(user)
             if u.get('is_blocked')==1: session['blocked_msg']="Account Block aahe."; return redirect('/')
+            session.permanent = True
             session['user']=u; session.pop('blocked_msg',None)
         else: session['blocked_msg']="Wrong Email / Password"
     except Exception as e:
@@ -141,7 +160,7 @@ def update_profile():
     if 'user' not in session: return redirect('/')
     try:
         d=request.form; uid=session['user']['id']; pic=save_file(request.files.get('profile_pic'))
-        lat = float(d.get('lat') or session['user'].get('lat') or 17.6599); lng = float(d.get('lng') or session['user'].get('lng') or 75.9064)
+        lat = float(d.get('lat') or session['user'].get('lat') or 19.2144); lng = float(d.get('lng') or session['user'].get('lng') or 73.0978)
         conn=get_db(); cur=conn.cursor()
         if pic:
             cur.execute("UPDATE users SET name=%s, store_name=%s, phone=%s, bio=%s, location=%s, opening=%s, profile_pic=%s, lat=%s, lng=%s WHERE id=%s",
