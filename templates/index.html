@@ -5,194 +5,260 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LocalMarket - Mohane</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:#f1f3f6;color:#212121}
+body{background:#f1f3f6;color:#212121;padding-bottom:70px}
 a{text-decoration:none;color:inherit}
-
-/* ===== TOP HEADER - Screenshot Sarkha ===== */
-.top-header{
-  background:#fff;
-  padding:10px 12px 8px;
-  position:sticky;top:0;z-index:100;
-  box-shadow:0 1px 3px rgba(0,0,0,0.08);
-}
-.header-row{
-  display:flex;align-items:center;gap:10px;
-  max-width:1200px;margin:0 auto;
-}
-.logo{
-  display:flex;align-items:center;gap:4px;
-  font-size:20px;font-weight:800;white-space:nowrap;
-  cursor:pointer;flex-shrink:0;
-}
-.logo-icon{font-size:22px}
-.logo b{color:#1a7f37}
-.logo small{
-  font-size:10px;font-weight:600;color:#2874f0;
-  background:#e8f0fe;padding:2px 6px;border-radius:10px;
-  margin-left:2px;white-space:nowrap;
-}
-/* Search */
-.search-box{
-  flex:1;display:flex;height:38px;
-  border:1.5px solid #1a7f37;border-radius:20px;
-  overflow:hidden;background:#fff;max-width:700px;
-}
-.search-box input{
-  flex:1;border:none;outline:none;padding:0 14px;
-  font-size:14px;color:#333;
-}
-.search-box input::placeholder{color:#878787}
-.search-btn{
-  width:48px;background:#1a7f37;border:none;
-  color:#fff;font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-}
-.search-btn:hover{background:#146c2e}
-
-/* ===== CATEGORY PILLS ===== */
-.cat-bar{
-  background:#fff;padding:8px 12px 10px;
-  display:flex;gap:8px;overflow-x:auto;
-  scrollbar-width:none;white-space:nowrap;
-  max-width:1200px;margin:0 auto;
-}
-.cat-bar::-webkit-scrollbar{display:none}
-.cat-pill{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:7px 14px;border-radius:20px;
-  background:#f1f3f6;font-size:13px;font-weight:600;
-  color:#333;border:1px solid transparent;cursor:pointer;
-  flex-shrink:0;
-}
-.cat-pill.active{
-  background:#0f172a;color:#fff;
-}
-.cat-pill:hover{background:#e2e8f0}
-.cat-pill.active:hover{background:#0f172a}
-
-/* ===== MAIN ===== */
-.container{max-width:1200px;margin:0 auto;padding:12px}
-.section-title{
-  font-size:17px;font-weight:700;margin:14px 4px 10px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.section-title span{color:#2874f0;font-size:13px;font-weight:600;cursor:pointer}
-
-/* Product Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-}
-@media(min-width:700px){
-  .grid{grid-template-columns:repeat(4,1fr)}
-  .logo{font-size:24px}
-}
-@media(min-width:1000px){
-  .grid{grid-template-columns:repeat(5,1fr)}
-}
-.card{
-  background:#fff;border-radius:10px;overflow:hidden;
-  box-shadow:0 1px 4px rgba(0,0,0,0.08);
-  cursor:pointer;transition:0.2s;
-}
-.card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.12);transform:translateY(-2px)}
-.card-img{
-  width:100%;aspect-ratio:1/1;object-fit:cover;background:#f8f8f8;
-}
+button{cursor:pointer}
+.topbar{background:#fff;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.08);padding:10px 12px 0}
+.top-row{display:flex;align-items:center;gap:10px;max-width:1200px;margin:0 auto;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:4px;font-size:21px;font-weight:800;white-space:nowrap}
+.logo span{color:#1a7f37}
+.logo small{font-size:10px;font-weight:600;color:#2874f0;background:#e8f0fe;padding:3px 7px;border-radius:10px;margin-left:4px}
+.search-box{flex:1;min-width:180px;max-width:650px}
+.search-box form{display:flex;height:38px;border:1.5px solid #1a7f37;border-radius:20px;overflow:hidden;background:#fff}
+.search-box input{flex:1;border:none;outline:none;padding:0 14px;font-size:14px}
+.search-box button{width:48px;background:#1a7f37;border:none;color:#fff;font-size:16px}
+.top-right{display:flex;align-items:center;gap:8px;position:relative}
+.top-right button{padding:8px 14px;border-radius:20px;border:1px solid #ddd;background:#fff;font-weight:600;font-size:13px}
+.btn-green{background:#1a7f37!important;color:#fff!important;border-color:#1a7f37!important}
+.top-pic{width:36px;height:36px;border-radius:50%;object-fit:cover;cursor:pointer;border:2px solid #1a7f37}
+.hi{font-size:13px;font-weight:600;white-space:nowrap}
+.bell{position:relative;font-size:16px!important;padding:8px 10px!important;border-radius:50%!important}
+.dot{position:absolute;top:-2px;right:-2px;background:#ff3b30;color:#fff;font-size:10px;width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.notif-box{display:none;position:absolute;top:45px;right:0;width:260px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.15);border-radius:10px;padding:12px;z-index:200}
+.notif-box.show{display:block}
+.notif-box p{font-size:13px;padding:8px 0;border-bottom:1px solid #eee}
+.admin-btn{background:#0f172a!important;color:#fff!important;padding:8px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.btn-small{padding:7px 10px!important;font-size:12px!important}
+.btn-small.red{color:#d32f2f;border-color:#ffcdd2}
+.blocked-alert{background:#ffebee;color:#c62828;text-align:center;padding:10px;font-size:13px;font-weight:600}
+.cats{background:#fff;display:flex;gap:8px;overflow-x:auto;padding:10px 12px;scrollbar-width:none;white-space:nowrap;max-width:1200px;margin:0 auto}
+.cats::-webkit-scrollbar{display:none}
+.cats a{padding:7px 14px;border-radius:20px;background:#f1f3f6;font-size:13px;font-weight:600;color:#333;flex-shrink:0}
+.cats a.active{background:#0f172a;color:#fff}
+.add-btn{margin-left:auto;background:#ff9f00!important;color:#fff!important;border:none!important;padding:7px 14px;border-radius:20px;font-weight:700;font-size:13px;flex-shrink:0}
+.grid{max-width:1200px;margin:0 auto;padding:12px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(min-width:750px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:1100px){.grid{grid-template-columns:repeat(5,1fr)}}
+.card{background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08);transition:.2s}
+.card:hover{box-shadow:0 6px 18px rgba(0,0,0,.12);transform:translateY(-2px)}
+.card-img-box{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#f8f8f8}
+.card-img-box img{width:100%;height:100%;object-fit:cover}
+.cat-tag{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:3px 8px;border-radius:10px;font-weight:600}
+.blocked-tag{position:absolute;top:8px;right:8px;background:#d32f2f;color:#fff;font-size:11px;padding:3px 8px;border-radius:10px;font-weight:700}
+.store-row{display:flex;align-items:center;gap:8px;padding:9px 10px 0;cursor:pointer}
+.store-pic{width:32px;height:32px;border-radius:50%;object-fit:cover;border:1px solid #eee}
+.store-info b{font-size:13px;display:block;line-height:1.2}
+.store-info small{font-size:11px;color:#777}
 .card-body{padding:10px}
-.card-cat{font-size:11px;color:#878787;font-weight:500}
-.card-name{font-size:14px;font-weight:600;margin:2px 0;line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:36px}
-.card-shop{font-size:12px;color:#666;margin-top:2px}
-.price-row{display:flex;align-items:center;gap:6px;margin-top:6px}
-.price{font-size:16px;font-weight:800}
-.old{font-size:12px;color:#878787;text-decoration:line-through}
-.off{font-size:12px;color:#388e3c;font-weight:700}
-.add-btn{
-  width:100%;margin-top:8px;padding:8px;border:none;
-  background:#ff9f00;color:#fff;font-weight:700;font-size:13px;
-  border-radius:6px;cursor:pointer;
-}
-.add-btn:hover{background:#fb641b}
+.card-body h3{font-size:14px;line-height:1.3;height:36px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.desc{font-size:12px;color:#666;margin:5px 0;height:32px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.price-row{display:flex;justify-content:space-between;align-items:center;margin:6px 0}
+.price{font-size:17px;font-weight:800}
+.open{font-size:11px;color:#388e3c;font-weight:600}
+.btn-row{display:flex;gap:8px;margin-top:8px}
+.call-btn,.wa-btn{flex:1;text-align:center;padding:9px;border-radius:6px;font-size:13px;font-weight:700}
+.call-btn{background:#fff;border:1.5px solid #2874f0;color:#2874f0}
+.wa-btn{background:#25D366;color:#fff}
+.del-btn{display:block;text-align:center;margin-top:8px;color:#d32f2f;font-size:12px;font-weight:600}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:flex-start;justify-content:center;padding:12px;overflow-y:auto}
+.modal-card{background:#fff;width:100%;max-width:420px;border-radius:14px;padding:20px;position:relative;max-height:92vh;overflow-y:auto}
+.close{position:absolute;top:10px;right:14px;font-size:18px;cursor:pointer;z-index:10;background:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.modal-card h2{font-size:18px;margin-bottom:14px}
+.modal-card input,.modal-card select,.modal-card textarea{width:100%;padding:11px 12px;border:1.5px solid #ddd;border-radius:8px;margin-bottom:10px;font-size:14px;outline:none}
+.modal-card input:focus{border-color:#2874f0}
+.modal-card label{font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:5px}
+.btn-green.full,.full{width:100%;padding:12px;border:none;border-radius:8px;background:#1a7f37;color:#fff;font-weight:700;font-size:15px}
+.big-pic{width:90px;height:90px;border-radius:50%;object-fit:cover}
+.badge{background:#e6f4ea;color:#1a7f37;padding:4px 9px;border-radius:10px;font-size:12px;font-weight:700}
+.bio-text{font-size:13px;color:#555;margin:10px 0;line-height:1.5}
+.info-list p{font-size:13px;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.profile-card{text-align:center}
+.profile-card .info-list{text-align:left}
+.profile-card .btn-row{margin-top:14px}
 
-/* Bottom Nav Mobile */
-.bottom-nav{
-  position:fixed;bottom:0;left:0;right:0;background:#fff;
-  display:flex;justify-content:space-around;padding:10px 0;
-  box-shadow:0 -1px 6px rgba(0,0,0,0.1);z-index:100;
-}
-.bottom-nav div{text-align:center;font-size:11px;color:#666;cursor:pointer}
+/* ===== STORE PROFILE NEW - MAP + PRODUCTS + FEEDBACK ===== */
+.store-modal-card{max-width:560px;padding:0;overflow:hidden}
+.store-top{padding:20px 20px 14px;text-align:center}
+.store-map-wrap{padding:0 16px}
+#storeMap{width:100%;height:220px;border-radius:12px;z-index:1;border:1px solid #eee}
+.map-legend{display:flex;justify-content:space-between;font-size:11px;color:#666;padding:6px 4px}
+.distance-box{background:#e8f0fe;color:#1a56db;font-weight:700;font-size:13px;padding:9px 12px;border-radius:8px;margin:10px 16px;text-align:center}
+.store-products{padding:6px 16px 10px}
+.store-products h3{font-size:15px;margin:8px 0 10px}
+.mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.mini-card{background:#f8f9fa;border-radius:10px;overflow:hidden;border:1px solid #eee}
+.mini-card img{width:100%;height:110px;object-fit:cover}
+.mini-card div{padding:8px}
+.mini-card b{font-size:13px;display:block;line-height:1.3;height:32px;overflow:hidden}
+.mini-card span{font-size:13px;font-weight:800;color:#111}
+.feedback-sec{padding:6px 16px 18px;border-top:1px solid #eee;margin-top:6px}
+.feedback-sec h3{font-size:15px;margin:10px 0}
+.stars{font-size:24px;cursor:pointer;letter-spacing:4px;margin:6px 0}
+.stars span{color:#ddd}
+.stars span.on{color:#ffb400}
+.fb-item{background:#f8f9fa;padding:10px;border-radius:10px;margin-bottom:8px;text-align:left}
+.fb-item b{font-size:13px}
+.fb-item p{font-size:13px;color:#444;margin-top:3px}
+.fb-item small{font-size:11px;color:#888}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;box-shadow:0 -1px 6px rgba(0,0,0,.1);z-index:99}
+.bottom-nav div{text-align:center;font-size:11px;color:#666}
 .bottom-nav div b{display:block;font-size:18px}
 .bottom-nav .active{color:#2874f0}
-.spacer{height:60px}
+@media(max-width:650px){.hi,.top-right .btn-small{display:none}.top-row{flex-wrap:nowrap}.logo{font-size:18px}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="top-header">
-  <div class="header-row">
-    <div class="logo">
-      <span class="logo-icon">🛒</span><span><b>Local</b>Market</span>
-      <small>📍 Mohane</small>
+<header class="topbar">
+  <div class="top-row">
+    <div class="logo">🛒 Local<span>Market</span> <small>📍 Mohane</small></div>
+    <div class="search-box">
+      <form method="GET" action="/"><input type="text" name="q" value="{{ q or '' }}" placeholder="Shodh - Kurti, Kirana, Mobile..."><button type="submit">🔍</button></form>
     </div>
-
-    <form class="search-box" method="GET" action="/">
-      <input type="text" name="q" value="{{ q or '' }}" placeholder="Shodh - Kurti, Kirana, Mobile...">
-      <button class="search-btn" type="submit">🔍</button>
-    </form>
+    <div class="top-right">
+      {% if user %}
+        <button class="bell" onclick="document.getElementById('notifBox').classList.toggle('show')">🔔 {% if notifs %}<span class="dot">{{ notifs|length }}</span>{% endif %}</button>
+        <div id="notifBox" class="notif-box">{% if notifs %}{% for n in notifs %}<p>{{ n['message'] }}</p>{% endfor %}{% else %}<p>Kahi notification nahi</p>{% endif %}</div>
+        <img src="{{ user['profile_pic'] or 'https://via.placeholder.com/40' }}" class="top-pic" onclick="openProfileModal('me')">
+        <span class="hi">Hi, {{ user['name'] }}</span>
+        {% if user['is_admin'] %}<a href="/admin" class="admin-btn">Admin</a>{% endif %}
+        <button class="btn-small" onclick="openProfileModal('me')">Edit</button>
+        <a href="/logout" class="btn-small red" style="padding:7px 10px;border:1px solid #ffcdd2;border-radius:20px;font-size:12px;font-weight:600;background:#fff">Logout</a>
+      {% else %}
+        <button onclick="document.getElementById('loginModal').style.display='flex'">Login</button>
+        <button onclick="document.getElementById('regModal').style.display='flex'" class="btn-green">Register / Store Ughad</button>
+      {% endif %}
+    </div>
   </div>
-
-  <!-- CATEGORIES -->
-  <div class="cat-bar">
-    <a href="/?cat=All" class="cat-pill {% if cat=='All' or not cat %}active{% endif %}">All</a>
-    <a href="/?cat=Clothes" class="cat-pill {% if cat=='Clothes' %}active{% endif %}">👗 Clothes</a>
-    <a href="/?cat=Kirana" class="cat-pill {% if cat=='Kirana' %}active{% endif %}">🛒 Kirana</a>
-    <a href="/?cat=Mobile" class="cat-pill {% if cat=='Mobile' %}active{% endif %}">📱 Mobile</a>
-    <a href="/?cat=Food" class="cat-pill {% if cat=='Food' %}active{% endif %}">🍲 Food</a>
-    <a href="/?cat=Electronics" class="cat-pill {% if cat=='Electronics' %}active{% endif %}">💡 Electronics</a>
-    <a href="/?cat=Other" class="cat-pill {% if cat=='Other' %}active{% endif %}">📦 Other</a>
+  <div class="cats">
+    <a href="/?cat=All" class="{{ 'active' if cat=='All' or not cat else '' }}">All</a>
+    <a href="/?cat=Clothes" class="{{ 'active' if cat=='Clothes' else '' }}">👗 Clothes</a>
+    <a href="/?cat=Kirana" class="{{ 'active' if cat=='Kirana' else '' }}">🛒 Kirana</a>
+    <a href="/?cat=Mobile" class="{{ 'active' if cat=='Mobile' else '' }}">📱 Mobile</a>
+    <a href="/?cat=Food" class="{{ 'active' if cat=='Food' else '' }}">🍔 Food</a>
+    <a href="/?cat=Electronics" class="{{ 'active' if cat=='Electronics' else '' }}">💡 Electronics</a>
+    <a href="/?cat=Other" class="{{ 'active' if cat=='Other' else '' }}">📦 Other</a>
+    {% if user %}<button onclick="document.getElementById('addModal').style.display='flex'" class="add-btn">+ Product Add Kara</button>{% endif %}
   </div>
-</div>
+</header>
 
-<!-- PRODUCTS -->
-<div class="container">
-  <div class="section-title">Aajche Fresh Products <span>View All →</span></div>
+{% if session.get('blocked_msg') %}<div class="blocked-alert">{{ session.get('blocked_msg') }}</div>{% endif %}
 
-  <div class="grid">
-    {% for p in products %}
-    <div class="card" onclick="window.location='/product/{{ p.id }}'">
-      <img class="card-img" src="{{ p.image or 'https://via.placeholder.com/300' }}" alt="{{ p.name }}">
-      <div class="card-body">
-        <div class="card-cat">{{ p.category }}</div>
-        <div class="card-name">{{ p.name }}</div>
-        <div class="card-shop">🏪 {{ p.shop_name or 'Local Shop' }} • Mohane</div>
-        <div class="price-row">
-          <span class="price">₹{{ p.price }}</span>
-          {% if p.old_price %}<span class="old">₹{{ p.old_price }}</span>
-          <span class="off">{{ ((p.old_price - p.price)*100//p.old_price) }}% off</span>{% endif %}
-        </div>
-        <button class="add-btn" onclick="event.stopPropagation(); window.location='/add_to_cart/{{ p.id }}'">ADD TO CART</button>
+<main class="grid">
+{% for p in products %}
+  <div class="card">
+    <div class="card-img-box"><img src="{{ p['image'] }}" alt="{{ p['title'] }}"><span class="cat-tag">{{ p['category'] }}</span>{% if p['owner_blocked'] %}<span class="blocked-tag">BLOCKED STORE</span>{% endif %}</div>
+    <div class="store-row" onclick="openStoreProfile({{ p['id'] }})">
+      <img src="{{ p['owner_pic'] or 'https://via.placeholder.com/40' }}" class="store-pic">
+      <div class="store-info"><b>{{ p['store_name'] }} {% if p['owner_blocked'] %}🚫{% else %}✅{% endif %}</b><small>⭐ {{ p['rating'] }} • {{ p['owner_loc'] or 'Mohane' }} • Profile Paha 👆</small></div>
+    </div>
+    <div class="card-body">
+      <h3>{{ p['title'] }}</h3><p class="desc">{{ p['description'] }}</p>
+      <div class="price-row"><b class="price">₹{{ p['price'] }}</b><span class="open">🕙 {{ p['owner_open'] or '9 AM - 9 PM' }}</span></div>
+      <div class="btn-row"><a href="tel:{{ p['owner_phone'] }}" class="call-btn">📞 Call</a><a href="https://wa.me/91{{ p['owner_phone'] }}?text=Hi, {{ p['title'] }} pahije" target="_blank" class="wa-btn">WhatsApp</a></div>
+      {% if user and (user['is_admin'] or user['id']==p['user_id']) %}<a href="/delete/{{ p['id'] }}" class="del-btn" onclick="return confirm('Delete karaycha?')">🗑️ Delete</a>{% endif %}
+    </div>
+    <div id="store-data-{{ p['id'] }}" style="display:none"
+      data-name="{{ p['store_name'] }}"
+      data-pic="{{ p['owner_pic'] or 'https://via.placeholder.com/100' }}"
+      data-phone="{{ p['owner_phone'] }}"
+      data-loc="{{ p['owner_loc'] or 'Mohane, Maharashtra' }}"
+      data-open="{{ p['owner_open'] or '9 AM - 9 PM' }}"
+      data-bio="{{ p['owner_bio'] or 'Local trusted store from Mohane.' }}"
+      data-rating="{{ p['rating'] }}"
+      data-store-id="{{ p['user_id'] }}">
+    </div>
+  </div>
+{% else %}<p style="grid-column:1/-1;text-align:center;padding:40px">Kahi product nahi. Pahila product add kara.</p>{% endfor %}
+</main>
+
+<!-- ===== STORE PROFILE MODAL - NEW DESIGN ===== -->
+<div id="storeModal" class="modal">
+  <div class="modal-card store-modal-card">
+    <span class="close" onclick="closeAll()">✕</span>
+
+    <!-- 1. VAR - STORE MAHITI + WHATSAPP FAKT -->
+    <div class="store-top">
+      <img id="sPic" src="" class="big-pic">
+      <h2 id="sName" style="margin:8px 0 4px"></h2>
+      <p><span class="badge">✅ Verified Local Store</span> <span id="sRating"></span></p>
+      <p id="sBio" class="bio-text"></p>
+      <div class="info-list" style="text-align:left">
+        <p>📞 <b id="sPhone"></b></p>
+        <p>📍 <span id="sLoc"></span></p>
+        <p>🕙 <span id="sOpen"></span></p>
+      </div>
+      <div class="btn-row">
+        <a id="sCall" href="#" class="call-btn">📞 Call Kara</a>
+        <a id="sWa" href="#" target="_blank" class="wa-btn">💬 WhatsApp Kara</a>
       </div>
     </div>
-    {% else %}
-    <p style="grid-column:1/-1;text-align:center;padding:30px;color:#666">Aajun kahi products nahi. Thodya velane parat bagh.</p>
-    {% endfor %}
+
+    <!-- 2. ORIGINAL MAP + DISTANCE -->
+    <div class="store-map-wrap">
+      <div id="storeMap"></div>
+      <div class="map-legend"><span>🔴 Store Cha Pin</span><span>🔵 Tumcha Pin</span></div>
+    </div>
+    <div class="distance-box" id="distanceBox">📍 Tumcha location ghet aahot...</div>
+
+    <!-- 3. KHALI GRID - TYACH STORE CHE PRODUCTS -->
+    <div class="store-products">
+      <h3>🛍️ Ya Store che Products</h3>
+      <div class="mini-grid" id="storeProductsGrid"></div>
+    </div>
+
+    <!-- 4. FEEDBACK -->
+    <div class="feedback-sec">
+      <h3>⭐ Feedback Dya</h3>
+      <div class="stars" id="starBox">
+        <span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span>
+      </div>
+      <textarea id="fbText" placeholder="Store kasa vatla? Lih..." rows="2"></textarea>
+      <button class="btn-green full" onclick="submitFeedback()">Feedback Pathva</button>
+      <div id="fbList" style="margin-top:12px"></div>
+    </div>
+
   </div>
 </div>
 
-<div class="spacer"></div>
+{% if user %}
+<div id="myProfileModal" class="modal"><div class="modal-card"><span class="close" onclick="closeAll()">✕</span><h2>My Profile - Edit</h2>
+<form action="/update_profile" method="POST" enctype="multipart/form-data"><label>Profile Photo</label><input type="file" name="profile_pic" accept="image/*">{% if user['profile_pic'] %}<img src="{{ user['profile_pic'] }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;margin:8px 0">{% endif %}
+<input type="text" name="name" value="{{ user['name'] }}" placeholder="Nav" required><input type="text" name="store_name" value="{{ user['store_name'] }}" placeholder="Store Name"><input type="text" name="phone" value="{{ user['phone'] }}" placeholder="Mobile No" required><input type="text" name="location" value="{{ user['location'] }}" placeholder="Location - Mohane"><input type="text" name="opening" value="{{ user['opening'] }}" placeholder="Opening - 9 AM - 9 PM"><textarea name="bio" placeholder="Bio">{{ user['bio'] }}</textarea><button type="submit" class="btn-green full">Save Profile</button></form></div></div>
+{% endif %}
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <div class="active"><b>🏠</b>Home</div>
-  <div onclick="window.location='/cart'"><b>🛒</b>Cart</div>
-  <div onclick="window.location='/sell'"><b>➕</b>Sell</div>
-  <div onclick="window.location='/profile'"><b>👤</b>Account</div>
-</div>
+<div id="addModal" class="modal"><div class="modal-card"><span class="close" onclick="closeAll()">✕</span><h2>Product Add Kara</h2>
+<form action="/add" method="POST" enctype="multipart/form-data"><label>Product Photo</label><input type="file" name="product_pic" accept="image/*" onchange="previewImg(event)"><img id="preview" style="display:none;width:100%;height:180px;object-fit:cover;border-radius:10px;margin:8px 0"><label>Kiva Photo Link</label><input type="text" name="image" placeholder="https://..."><input type="text" name="title" placeholder="Product Nav" required><select name="category" required><option>Clothes</option><option>Kirana</option><option>Mobile</option><option>Food</option><option>Electronics</option><option>Other</option></select><input type="number" name="price" placeholder="Price ₹" required><textarea name="description" placeholder="Description"></textarea><button type="submit" class="btn-green full">Add Product</button></form></div></div>
 
-</body>
-</html>
+<div id="loginModal" class="modal"><div class="modal-card"><span class="close" onclick="closeAll()">✕</span><h2>Login</h2><form action="/login" method="POST"><input type="email" name="email" placeholder="Email" required><input type="password" name="password" placeholder="Password" required><button class="btn-green full">Login</button></form><p style="font-size:13px;margin-top:10px">Admin: admin@localmarket.com / admin123</p></div></div>
+
+<div id="regModal" class="modal"><div class="modal-card"><span class="close" onclick="closeAll()">✕</span><h2>Register / Store Ughad</h2><form action="/register" method="POST" enctype="multipart/form-data"><label>Profile Photo</label><input type="file" name="profile_pic" accept="image/*"><input type="text" name="name" placeholder="Tumcha Nav" required><input type="text" name="store_name" placeholder="Store Nav"><input type="text" name="phone" placeholder="Mobile No" required><input type="email" name="email" placeholder="Email" required><input type="password" name="password" placeholder="Password" required><input type="text" name="location" placeholder="Location - Mohane"><input type="text" name="opening" placeholder="Opening Time - 9 AM - 9 PM"><textarea name="bio" placeholder="Bio"></textarea><select name="role"><option value="Store">Store Owner</option><option value="Customer">Customer</option></select><button class="btn-green full">Register</button></form></div></div>
+
+<div class="bottom-nav"><div class="active"><b>🏠</b>Home</div><div onclick="document.getElementById('addModal').style.display='flex'"><b>➕</b>Sell</div><div onclick="openProfileModal('me')"><b>👤</b>Account</div></div>
+
+<script>
+let currentStoreId = null;
+let currentStoreName = "";
+let selectedStar = 5;
+let storeMap = null;
+let allProducts = [];
+{% for p in products %}
+allProducts.push({id: {{ p['id'] }}, store_id: {{ p['user_id'] }}, title: `{{ p['title'] }}`, price: {{ p['price'] }}, image: `{{ p['image'] }}`});
+{% endfor %}
+
+function closeAll(){ document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); }
+function previewImg(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(){ let im=document.getElementById('preview'); im.src=r.result; im.style.display='block'; }; r.readAsDataURL(f); }
+
+function setStar(n){
+  selectedStar = n;
+  document.querySelectorAll('#starBox span').forEach((s,i)=>{ s.classList.toggle('on', i < n); });
+}
+setStar(5);
+
+function calcDistance(lat1, lon1, lat2, lon2){
+  const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(d
