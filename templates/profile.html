@@ -69,16 +69,6 @@ input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radiu
 {% else %}<p>Aajun Product nahi.</p>{% endfor %}
 </div>
 
-<div class="card"><h3>⭐ Feedback De</h3>
-{% if user %}
-<form method="POST" action="/feedback/{{owner.id}}">
-<select name="rating"><option value="5">⭐⭐⭐⭐⭐ - 5 - Ekdam Bhari</option><option value="4">⭐⭐⭐⭐ - 4</option><option value="3">⭐⭐⭐ - 3</option><option value="2">⭐⭐ - 2</option><option value="1">⭐ - 1</option></select>
-<textarea name="comment" placeholder="Kasa vatla dukan?"></textarea>
-<button class="btn">Feedback Pathav</button></form>
-{% else %}<p>Feedback dyaycha asel tar Login kara.</p>{% endif %}
-<hr>
-{% for f in feedbacks %}<p><b>{{f.customer_name}}</b> ⭐{{f.rating}}<br><span style="color:#555">{{f.comment}}</span></p>{% else %}<p>Aajun Feedback nahi.</p>{% endfor %}
-</div>
 
 <script>
 function toggleEdit(){
