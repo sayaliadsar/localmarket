@@ -14,53 +14,47 @@ input{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-bo
 table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee;font-size:13px;text-align:left;vertical-align:middle}
 img{width:44px;height:44px;border-radius:10px;object-fit:cover}
 a{color:#16a34a;text-decoration:none;font-weight:700}
-.btn{padding:6px 10px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700}
 .tabs{display:flex;gap:8px;margin:14px 0}.tab{flex:1;padding:11px;border:none;border-radius:12px;background:white;font-weight:700;cursor:pointer}
 .tab.active{background:#111;color:white}
 </style>
 </head>
 <body>
 <div class="top"><div><b style="font-size:20px">🛡️ Admin Panel</b><br><span style="font-size:12px;opacity:.8">LocalMarket - Mohane • Hi, {{user.name}}</span></div><a href="/">← Home</a></div>
-
 <div class="row">
   <div class="box" style="background:#16a34a"><b>{{users|length}}</b>Total Dukan / User</div>
   <div class="box" style="background:#facc15;color:#111"><b>{{products|length}}</b>Total Products</div>
   <div class="box" style="background:#111"><b>₹{{total_sell}}</b>Total Value</div>
 </div>
-
 <div class="tabs">
   <button class="tab active" onclick="showTab('users',this)">🏪 Dukan</button>
   <button class="tab" onclick="showTab('products',this)">🛍️ Products</button>
 </div>
-<input id="searchBox" placeholder="🔍 Dukan / Product shodha - Nav liha..." onkeyup="filterAll()">
-
+<input id="searchBox" placeholder="🔍 Dukan / Product shodha..." onkeyup="filterAll()">
 <div id="tab-users" class="card">
   <h3>🏪 Sagale Users / Dukan</h3>
   <div style="overflow-x:auto"><table><tr><th>Photo</th><th>Nav / Dukan</th><th>Contact</th><th>Status</th><th>Action</th></tr>
   {% for u in users %}
-  <tr class="urow"><td>{% if u.profile_pic %}<img src="{{u.profile_pic}}">{% else %}👤{% endif %}</td>
+  <tr class="urow"><td>{% if u.profile_pic %}<img src="{{u.profile_pic}}" onerror="this.style.display='none'">{% else %}👤{% endif %}</td>
   <td><b>{{u.name}}</b><br>{{u.store_name or '-'}}<br><small>{{u.email}}</small><br><small>{{u.role}}</small></td>
   <td>{{u.phone}}<br><small>{{u.location}}</small></td>
   <td>{% if u.is_admin %}<span style="color:#16a34a">ADMIN</span>{% elif u.is_blocked %}<span style="color:red">BLOCKED</span>{% else %}<span style="color:green">Active</span>{% endif %}</td>
   <td><a href="/profile/{{u.id}}">Bagha</a><br>
   {% if not u.is_admin %}
     {% if u.is_blocked %}<a href="/admin/unblock/{{u.id}}" style="color:green">✅ Unblock</a>{% else %}<a href="/admin/block/{{u.id}}" style="color:orange">🚫 Block</a>{% endif %}<br>
-    <a href="/admin/delete_user/{{u.id}}" style="color:red" onclick="return confirm('{{u.name}} la kayamcha Delete karu?')">🗑️ Delete</a>
+    <a href="/admin/delete_user/{{u.id}}" style="color:red" onclick="return confirm('Delete karu?')">🗑️ Delete</a>
   {% endif %}</td></tr>
   {% endfor %}</table></div>
 </div>
-
 <div id="tab-products" class="card" style="display:none">
   <h3>🛍️ Sagale Products</h3>
   {% for p in products %}
   <div class="prow" style="display:flex;gap:10px;align-items:center;border-bottom:1px solid #eee;padding:10px 0">
-    <img src="{{p.image}}">
+    <img src="{{p.image}}" onerror="this.src='https://via.placeholder.com/44'">
     <div style="flex:1"><b>{{p.title}}</b><br>₹{{p.price}} • {{p.store_name}}<br><small>{{p.owner_email or ''}} • {{p.owner_phone or ''}}</small></div>
     <a href="/delete/{{p.id}}" style="color:red" onclick="return confirm('Product Delete karu?')">Delete</a>
   </div>
   {% else %}<p>Product nahi.</p>{% endfor %}
 </div>
-
 <script>
 function showTab(name,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
