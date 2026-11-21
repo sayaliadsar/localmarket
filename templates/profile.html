@@ -1,103 +1,80 @@
 <!DOCTYPE html>
-<html><head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{ owner.store_name }} - Solapur LocalMarket</title>
+<html lang="mr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{owner.store_name or owner.name}} - LocalMarket Mohane</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-*{box-sizing:border-box} body{font-family:system-ui;background:#FFF7ED;margin:0;padding:10px}
-.card{background:#fff;border-radius:18px;padding:16px;box-shadow:0 4px 20px #0001;margin-bottom:12px}
-.pic{width:92px;height:92px;border-radius:50%;object-fit:cover;border:3px solid #FF6B00}
-.btn{display:inline-block;padding:11px 16px;border-radius:999px;text-decoration:none;font-weight:700;margin:5px 5px 0 0;font-size:14px}
-.wa{background:#25D366;color:#fff} .mapbtn{background:#111;color:#fff} .back{background:#eee;color:#111}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.pcard{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px #0001}
-.pcard img{width:100%;height:135px;object-fit:cover} .pcard div{padding:8px}
-.map-wrap{position:relative;border-radius:18px;overflow:hidden;border:2px solid #FF6B00;box-shadow:0 6px 20px #0002}
-#map{height:340px;width:100%}
-.map-head{position:absolute;top:10px;left:10px;right:10px;z-index:999;background:#111;color:#fff;padding:10px 12px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
-.map-head b{font-size:14px} .map-head span{background:#FF6B00;padding:4px 10px;border-radius:999px;font-size:12px}
-.dist-box{background:#FFF3E0;border:1px dashed #FF6B00;padding:10px;border-radius:12px;margin-top:10px;text-align:center;font-weight:700}
-input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-top:8px}
-.store-icon{background:#FF6B00;color:#fff;width:44px;height:44px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;font-size:22px;border:3px solid #fff;box-shadow:0 4px 12px #0004}
-.store-icon span{transform:rotate(45deg)}
-.you-icon{background:#2563EB;color:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid #fff;box-shadow:0 4px 10px #0004}
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{margin:0;background:#f6f8f6;padding-bottom:30px}a{color:#16a34a;text-decoration:none;font-weight:700}
+.top{background:#16a34a;color:white;padding:14px;border-radius:0 0 18px 18px;display:flex;justify-content:space-between;align-items:center}
+.top a{color:white}
+.card{background:white;margin:14px;padding:16px;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.main{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #16a34a}
+input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-bottom:8px;font-size:14px}
+.btn{width:100%;background:#16a34a;color:white;border:none;padding:12px;border-radius:12px;font-weight:800;cursor:pointer}
+.btn-red{background:#ef4444}.btn-gray{background:#f3f4f6;color:#111}
+.prod{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee;align-items:center}
+.prod img{width:60px;height:60px;border-radius:10px;object-fit:cover}
+#map2{height:200px;border-radius:12px;z-index:1}
+.badge{background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
-<a href="/" class="btn back">← Solapur Market</a>
+<div class="top"><a href="/">← Home</a><b>Profile</b><a href="/logout">Logout</a></div>
 
-<div class="card">
-  <div style="display:flex;gap:12px;align-items:center">
-    <img class="pic" src="{{ owner.profile_pic or 'https://via.placeholder.com/150' }}">
-    <div><h2 style="margin:0">{{ owner.store_name or owner.name }}</h2>
-    <div>⭐ {{ "%.1f"|format(avg) }} • {{ owner.location }}</div>
-    <div>🕒 {{ owner.opening }}</div></div>
+<div class="card" style="text-align:center">
+  <img class="main" src="{{owner.profile_pic or 'https://via.placeholder.com/90'}}">
+  <h2 style="margin:8px 0 2px">{{owner.store_name or owner.name}}</h2>
+  <p style="color:#666;margin:0">{{owner.name}} • {{owner.role}}</p>
+  <p>⭐ <b>{{avg}}</b> • 📍 {{owner.location}} • 🕒 {{owner.opening}}</p>
+  <p style="color:#444">{{owner.bio or 'Mohane madhil aapla dukan.'}}</p>
+  <p><span class="badge">Open Now</span> &nbsp; 📞 {{owner.phone}}</p>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <a href="tel:{{owner.phone}}" style="flex:1;background:#16a34a;color:white;padding:11px;border-radius:12px;text-align:center">📞 Call Kara</a>
+    <button onclick="document.getElementById('map2').scrollIntoView({behavior:'smooth'})" style="flex:1;background:#dcfce7;border:none;padding:11px;border-radius:12px;font-weight:700;cursor:pointer">📍 Map Bagha</button>
   </div>
-  <p>{{ owner.bio }}</p>
-  {% if owner.phone %}<a class="btn wa" href="https://wa.me/91{{ owner.phone }}" target="_blank">💬 WhatsApp Kara</a>{% endif %}
-  <a class="btn mapbtn" href="https://www.google.com/maps/dir/?api=1&destination={{ owner.lat }},{{ owner.lng }}" target="_blank">🧭 Direction Ghe</a>
 </div>
 
-<!-- SWATANTRA CUSTOM MAP - FAKT HA STORE -->
-<div class="map-wrap">
-  <div class="map-head"><b>📍 {{ owner.store_name }} - Solapur</b><span>LIVE MAP</span></div>
-  <div id="map"></div>
-</div>
-<div class="dist-box" id="dist">📍 Tumche Location ghet aahot... (Allow kara)</div>
-<div style="text-align:center;font-size:12px;margin-top:6px;color:#666">Owner ne set kelela khara location • Solapur, Maharashtra</div>
+<div class="card"><h3>📍 Dukan Kuthe Aahe - Map</h3><div id="map2"></div><p style="font-size:12px;color:#666">Lat: {{owner.lat}} • Lng: {{owner.lng}} • {{owner.location}}</p></div>
 
-<h3>🛍️ {{ owner.store_name }} che Products ({{ products|length }})</h3>
-<div class="grid">
+<div class="card"><h3>🛍️ Yache Products ({{products|length}})</h3>
 {% for p in products %}
-<div class="pcard"><img src="{{ p.image }}"><div><b>{{ p.title }}</b><br>₹{{ p.price }} • ⭐ {{ p.rating }}</div></div>
-{% endfor %}
-{% if not products %}<p>Ajun product takle nahi.</p>{% endif %}
+<div class="prod"><img src="{{p.image}}"><div style="flex:1"><b>{{p.title}}</b><br>₹{{p.price}} • {{p.category}}</div>
+{% if user and (user.id==owner.id or user.is_admin) %}<a href="/delete/{{p.id}}" style="color:red" onclick="return confirm('Delete karu?')">Delete</a>{% endif %}</div>
+{% else %}<p>Aajun Product nahi.</p>{% endfor %}
 </div>
 
-<h3>⭐ Feedback Dya</h3>
-<div class="card">
+{% if user and user.id==owner.id %}
+<div class="card"><h3>✏️ Majhi Profile Edit Kar</h3>
+<form method="POST" action="/update_profile" enctype="multipart/form-data">
+<input name="name" value="{{owner.name}}" placeholder="Nav" required>
+<input name="store_name" value="{{owner.store_name or ''}}" placeholder="Dukan Nav">
+<input name="phone" value="{{owner.phone or ''}}" placeholder="Phone">
+<textarea name="bio" placeholder="Dukanabaddal">{{owner.bio or ''}}</textarea>
+<input name="location" value="{{owner.location}}" placeholder="Location">
+<input name="opening" value="{{owner.opening}}" placeholder="Opening Time">
+<label style="font-size:13px">Navin Photo (nasel tar juna rahil)</label>
+<input type="file" name="profile_pic" accept="image/*">
+<button class="btn">Save Profile</button>
+</form></div>
+{% endif %}
+
+<div class="card"><h3>⭐ Feedback De</h3>
 {% if user %}
-<form method="POST" action="/feedback/{{ owner.id }}">
-<select name="rating"><option value="5">⭐⭐⭐⭐⭐ 5 - Khup Chhan</option><option value="4">⭐⭐⭐⭐ 4</option><option value="3">⭐⭐⭐ 3</option><option value="2">⭐⭐ 2</option><option value="1">⭐ 1</option></select>
-<textarea name="comment" placeholder="Quality kashi hoti?" required></textarea>
-<button class="btn mapbtn" style="border:none;width:100%">Feedback Pathva</button>
-</form>
-{% else %}<p>Feedback sathi login kara.</p>{% endif %}
+<form method="POST" action="/feedback/{{owner.id}}">
+<select name="rating"><option value="5">⭐⭐⭐⭐⭐ - 5 - Ekdam Bhari</option><option value="4">⭐⭐⭐⭐ - 4</option><option value="3">⭐⭐⭐ - 3</option><option value="2">⭐⭐ - 2</option><option value="1">⭐ - 1</option></select>
+<textarea name="comment" placeholder="Kasa vatla dukan?"></textarea>
+<button class="btn">Feedback Pathav</button></form>
+{% else %}<p>Feedback dyaycha asel tar Login kara.</p>{% endif %}
+<hr>
+{% for f in feedbacks %}<p><b>{{f.customer_name}}</b> ⭐{{f.rating}}<br><span style="color:#555">{{f.comment}}</span></p>{% else %}<p>Aajun Feedback nahi.</p>{% endfor %}
 </div>
-
-<h3>💬 Customer Feedback</h3>
-{% for f in feedbacks %}<div class="card"><b>{{ f.customer_name }}</b> - ⭐{{ f.rating }}<br>{{ f.comment }}</div>{% endfor %}
-{% if not feedbacks %}<p>Ajun feedback nahi.</p>{% endif %}
 
 <script>
-var sLat = {{ owner.lat or 17.6599 }};
-var sLng = {{ owner.lng or 75.9064 }};
-// Solapur Map - Carto Style (Swatantra Design)
-var map = L.map('map', {zoomControl:false}).setView([sLat, sLng], 13);
-L.control.zoom({position:'bottomright'}).addTo(map);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{maxZoom:19, attribution:'© OpenStreetMap © CARTO'}).addTo(map);
-
-// Store Icon - Custom
-var storeIcon = L.divIcon({className:'', html:'<div class="store-icon"><span>🏪</span></div>', iconSize:[44,44], iconAnchor:[22,44], popupAnchor:[0,-44]});
-L.marker([sLat, sLng], {icon: storeIcon}).addTo(map).bindPopup("<b>{{ owner.store_name }}</b><br>{{ owner.location }}").openPopup();
-
-function calcDist(a,b,c,d){ var R=6371, dLa=(c-a)*Math.PI/180, dLo=(d-b)*Math.PI/180; var x=Math.sin(dLa/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLo/2)**2; return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x)); }
-
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(function(pos){
-    var uLat=pos.coords.latitude, uLng=pos.coords.longitude;
-    var d = calcDist(uLat,uLng,sLat,sLng);
-    var time = Math.round(d/25*60); // Bike 25km/h
-    document.getElementById('dist').innerHTML = "📍 Tumchyapasun <b style='color:#FF6B00;font-size:18px'>"+d.toFixed(1)+" km</b> dur • 🛵 Andaje "+time+" min • <a href='https://www.google.com/maps/dir/?api=1&origin="+uLat+","+uLng+"&destination="+sLat+","+sLng+"' target='_blank'>Rasta Bagha</a>";
-    var youIcon = L.divIcon({className:'', html:'<div class="you-icon">📍</div>', iconSize:[36,36], iconAnchor:[18,18]});
-    L.marker([uLat,uLng],{icon:youIcon}).addTo(map).bindPopup("Tumhi Ithe Aahat").openPopup();
-    // DOTTED ROUTE - Tumhi -> Store
-    L.polyline([[uLat,uLng],[sLat,sLng]], {color:'#FF6B00', weight:4, dashArray:'2, 10', lineCap:'round'}).addTo(map);
-    // Dotted Circles
-    L.circle([sLat,sLng],{radius:500,color:'#FF6B00',fillColor:'#FF6B00',fillOpacity:0.08,dashArray:'5,5'}).addTo(map);
-    map.fitBounds([[uLat,uLng],[sLat,sLng]], {padding:[30,30]});
-  }, function(){ document.getElementById('dist').innerHTML = "📍 Location Allow kara - mag distance disil. Store: {{ owner.location }}"; });
-}
+let m2 = L.map('map2').setView([{{owner.lat or 19.2144}}, {{owner.lng or 73.0978}}], 15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(m2);
+L.marker([{{owner.lat or 19.2144}}, {{owner.lng or 73.0978}}]).addTo(m2).bindPopup('<b>{{owner.store_name or owner.name}}</b><br>{{owner.location}}').openPopup();
 </script>
-</body></html>
+</body>
+</html>
