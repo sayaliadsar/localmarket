@@ -16,7 +16,8 @@ ALLOWED = {'png','jpg','jpeg','webp','avif'}
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+    # sslmode=require - Supabase Pooler sathi compulsory
+    conn = psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor, sslmode='require')
     conn.autocommit = False
     return conn
 
@@ -70,24 +71,33 @@ def init_db():
         cur.executemany("INSERT INTO products (user_id,store_name,title,category,price,description,image) VALUES (%s,%s,%s,%s,%s,%s,%s)", demo)
     conn.commit(); cur.close(); conn.close()
 
-init_db()
+# App crash hou naye mhanun try-except
+try:
+    init_db()
+    print("DB Connected Successfully!")
+except Exception as e:
+    print("DB init failed:", e)
 
 @app.route('/')
 def home():
-    conn=get_db(); cur=conn.cursor()
-    cat=request.args.get('cat',''); q=request.args.get('q','')
-    sql="SELECT p.*, u.profile_pic as owner_pic, u.phone as owner_phone, u.location as owner_loc, u.opening as owner_open, u.bio as owner_bio, u.is_blocked as owner_blocked FROM products p LEFT JOIN users u ON p.user_id=u.id WHERE 1=1"
-    params=[]
-    if cat and cat!='All': sql+=" AND p.category=%s"; params.append(cat)
-    if q: sql+=" AND (p.title LIKE %s OR p.store_name LIKE %s)"; params+=[f"%{q}%",f"%{q}%"]
-    cur.execute(sql+" ORDER BY p.id DESC", params)
-    products=cur.fetchall()
-    notifs=[]
-    if 'user' in session:
-        cur.execute("SELECT * FROM notifications WHERE user_id=%s ORDER BY id DESC LIMIT 5",(session['user']['id'],))
-        notifs=cur.fetchall()
-    cur.close(); conn.close()
-    return render_template('index.html', products=products, user=session.get('user'), cat=cat, q=q, notifs=notifs)
+    try:
+        conn=get_db(); cur=conn.cursor()
+        cat=request.args.get('cat',''); q=request.args.get('q','')
+        sql="SELECT p.*, u.profile_pic as owner_pic, u.phone as owner_phone, u.location as owner_loc, u.opening as owner_open, u.bio as owner_bio, u.is_blocked as owner_blocked FROM products p LEFT JOIN users u ON p.user_id=u.id WHERE 1=1"
+        params=[]
+        if cat and cat!='All': sql+=" AND p.category=%s"; params.append(cat)
+        if q: sql+=" AND (p.title LIKE %s OR p.store_name LIKE %s)"; params+=[f"%{q}%",f"%{q}%"]
+        cur.execute(sql+" ORDER BY p.id DESC", params)
+        products=cur.fetchall()
+        notifs=[]
+        if 'user' in session:
+            cur.execute("SELECT * FROM notifications WHERE user_id=%s ORDER BY id DESC LIMIT 5",(session['user']['id'],))
+            notifs=cur.fetchall()
+        cur.close(); conn.close()
+        return render_template('index.html', products=products, user=session.get('user'), cat=cat, q=q, notifs=notifs)
+    except Exception as e:
+        print("Home Error:", e)
+        return render_template('index.html', products=[], user=session.get('user'), cat='', q='', notifs=[])
 
 @app.route('/register', methods=['POST'])
 def register():
