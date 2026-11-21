@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LocalMarket - Mohane</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
 body{background:#f6f8f6;padding-bottom:85px}
@@ -34,14 +32,6 @@ a{text-decoration:none;color:inherit}
 .price{color:#16a34a;font-weight:800;font-size:16px;margin-top:4px}
 .store{font-size:11px;color:#666;margin-top:2px}
 .rating{font-size:11px;color:#f59e0b}
-.map-sec{background:white;margin:6px 14px 14px;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.map-sec h3{padding:12px 12px 0;font-size:16px}
-#map{height:220px;width:100%;margin-top:10px;z-index:1}
-.shop-card{display:flex;gap:10px;padding:12px;align-items:center}
-.shop-card img{width:50px;height:50px;border-radius:12px;object-fit:cover}
-.shop-card button{border:none;padding:8px 12px;border-radius:20px;font-weight:700;cursor:pointer}
-.btn-map{background:#dcfce7;color:#166534}
-.btn-call{background:#16a34a;color:white}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0 14px;border-top:1px solid #eee;z-index:200}
 .bottom a,.bottom button{border:none;background:none;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#666;cursor:pointer}
 .bottom .active{color:#16a34a}
@@ -69,7 +59,7 @@ a{text-decoration:none;color:inherit}
     <div style="display:flex;gap:8px;align-items:center;position:relative">
       <div class="loc">📍 Mohane</div>
       {% if user %}
-        <button class="profile-btn" onclick="toggleProfile()" type="button">{% if user.profile_pic %}<img src="{{user.profile_pic}}">{% else %}👤{% endif %}</button>
+        <button class="profile-btn" onclick="toggleProfile()" type="button">{% if user.profile_pic %}<img src="{{user.profile_pic}}" onerror="this.style.display='none'">{% else %}👤{% endif %}</button>
         <div id="profileMenu" class="profile-menu">
           <b style="padding:10px;display:block">Hi, {{user.name}} 👋</b>
           <a href="/profile/{{user.id}}">👤 My Profile</a>
@@ -99,8 +89,8 @@ a{text-decoration:none;color:inherit}
 {% if products %}
 <div class="grid">
   {% for p in products %}
-  <div class="card" onclick="openProduct('{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}','{{p.owner_lat or 19.2144}}','{{p.owner_lng or 73.0978}}')">
-    <img src="{{p.image}}">
+  <div class="card" onclick="openProduct('{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}')">
+    <img src="{{p.image}}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=600'">
     <div class="card-body">
       <h4>{{p.title}}</h4>
       <div class="price">₹{{p.price}}</div>
@@ -114,27 +104,12 @@ a{text-decoration:none;color:inherit}
 <div class="empty">😔 Aajun Product nahi.<br><b>Dukandar mhanun Register karun pahila Product tak!</b></div>
 {% endif %}
 
-<div class="map-sec">
-  <h3>📍 Nearby Shops Map - Mohane</h3>
-  <div id="map"></div>
-  {% if products %}
-  <div class="shop-card">
-    <img src="{{products[0].image}}">
-    <div style="flex:1"><b>{{products[0].store_name}}</b><br><span style="font-size:12px;color:#666">0.5 km away • Open now • Mohane</span></div>
-    <button class="btn-map" onclick="focusMap()">View Map</button>
-    <button class="btn-call" onclick="window.location.href='tel:{{products[0].owner_phone}}'">Call</button>
-  </div>
-  {% else %}
-  <div class="shop-card"><div style="flex:1"><b>LocalMarket Mohane</b><br><span style="font-size:12px;color:#666">Mohane madhe sagli dukane yetil</span></div></div>
-  {% endif %}
-</div>
-
 <div class="bottom">
-  <a href="/" class="active">🏠<span>Home</span></a>
-  <a href="/">🔍<span>Search</span></a>
+  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="active">🏠<span>Home</span></button>
+  <button onclick="focusSearch()">🔍<span>Search</span></button>
   <button class="add-btn" onclick="{% if user %}openModal('addModal'){% else %}openModal('loginModal'){% endif %}">+</button>
-  <a href="#map">📍<span>Map</span></a>
   {% if user %}<a href="/profile/{{user.id}}">👤<span>Profile</span></a>{% else %}<button onclick="openModal('loginModal')">👤<span>Profile</span></button>{% endif %}
+  {% if user and user.is_admin %}<a href="/admin">🛡️<span>Admin</span></a>{% else %}<button onclick="openModal('loginModal')">🛡️<span>Admin</span></button>{% endif %}
 </div>
 
 <div id="loginModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('loginModal')">×</button><h2>Login Kar</h2><form method="POST" action="/login"><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><button class="btn-main">Login</button></form><button class="btn-sec" onclick="closeModal('loginModal');openModal('registerModal')">Navin aahes? Register kar</button><p style="font-size:11px;color:#888;margin-top:10px">Admin: admin@localmarket.com / admin123</p></div></div>
@@ -143,7 +118,7 @@ a{text-decoration:none;color:inherit}
 
 <div id="addModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('addModal')">×</button><h2>+ Product Tak</h2><form method="POST" action="/add" enctype="multipart/form-data"><input name="title" placeholder="Product Nav - Ex: Taza Tomato" required><select name="category"><option>Kirana</option><option>Kapde</option><option>Hotel</option><option>Mobile</option><option>Beauty</option><option>Medical</option><option>Bakery</option></select><input name="price" type="number" placeholder="Kimmat ₹" required><textarea name="description" placeholder="Mahiti..."></textarea><label>Photo</label><input type="file" name="product_pic" accept="image/*"><button class="btn-main">Add Product</button></form></div></div>
 
-<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:200px;object-fit:cover;border-radius:12px"><h2 id="pTitle" style="margin-top:10px"></h2><p id="pDesc" style="color:#666;font-size:14px"></p><h3 id="pPrice" style="color:#16a34a;margin:8px 0"></h3><p id="pStore" style="font-size:13px"></p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-main" style="flex:1" id="pCall">📞 Call</button><button class="btn-main" style="flex:1;background:#dcfce7;color:#166534" onclick="focusMap()">📍 Map</button></div></div></div>
+<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:200px;object-fit:cover;border-radius:12px"><h2 id="pTitle" style="margin-top:10px"></h2><p id="pDesc" style="color:#666;font-size:14px"></p><h3 id="pPrice" style="color:#16a34a;margin:8px 0"></h3><p id="pStore" style="font-size:13px"></p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-main" style="flex:1" id="pCall">📞 Call</button><button class="btn-main" style="flex:1;background:#f3f4f6;color:#111" onclick="closeModal('productModal')">Band Kar</button></div></div></div>
 
 <script>
 function openModal(id){ closeAll(); document.getElementById(id).classList.add('open'); }
@@ -153,21 +128,19 @@ document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
 function toggleProfile(){ let m=document.getElementById('profileMenu'); if(m) m.style.display=(m.style.display==='block'?'none':'block'); }
 document.addEventListener('click',e=>{ let m=document.getElementById('profileMenu'); if(m && !e.target.closest('.profile-btn') && !e.target.closest('#profileMenu')) m.style.display='none'; });
-function openProduct(title,price,store,img,desc,phone,lat,lng){
+function openProduct(title,price,store,img,desc,phone){
   document.getElementById('pImg').src=img;
   document.getElementById('pTitle').innerText=title;
   document.getElementById('pPrice').innerText='₹ '+price;
-  document.getElementById('pStore').innerText='Dukan: '+store+' • Mohane';
+  document.getElementById('pStore').innerText='Dukan: '+store;
   document.getElementById('pDesc').innerText=desc||'Taza aani changla maal.';
   document.getElementById('pCall').onclick=()=>{ if(phone) window.location.href='tel:'+phone; else alert('Phone number nahi'); };
-  window._lat=parseFloat(lat); window._lng=parseFloat(lng);
   openModal('productModal');
 }
-let map = L.map('map').setView([19.2144, 73.0978], 14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(map);
-L.marker([19.2144,73.0978]).addTo(map).bindPopup('<b>LocalMarket Mohane</b><br>Mohane, Maharashtra').openPopup();
-{% for p in products %}{% if p.owner_lat %}L.marker([{{p.owner_lat}}, {{p.owner_lng}}]).addTo(map).bindPopup('<b>{{p.store_name}}</b><br>{{p.title}} - ₹{{p.price}}');{% endif %}{% endfor %}
-function focusMap(){ closeAll(); document.getElementById('map').scrollIntoView({behavior:'smooth'}); if(window._lat) map.setView([window._lat,window._lng],16); }
+function focusSearch(){
+  window.scrollTo({top:0, behavior:'smooth'});
+  setTimeout(()=>{ document.querySelector('.search input').focus(); }, 500);
+}
 {% if msg %}alert("{{msg}}");{% endif %}
 </script>
 </body>
