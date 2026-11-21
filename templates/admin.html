@@ -1,226 +1,77 @@
 <!DOCTYPE html>
 <html lang="mr">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - LocalMarket</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-        .admin-wrap {
-            max-width: 1100px;
-            margin: 20px auto;
-            padding: 0 15px
-        }
-
-        .admin-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #111827;
-            color: #fff;
-            padding: 16px 20px;
-            border-radius: 14px
-        }
-
-        .admin-head a {
-            color: #fff;
-            text-decoration: none;
-            background: #22c55e;
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 14px
-        }
-
-        h2 {
-            margin: 28px 0 12px
-        }
-
-        table {
-            width: 100%;
-            background: #fff;
-            border-radius: 12px;
-            overflow: hidden;
-            border-collapse: collapse;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, .08)
-        }
-
-        th,
-        td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-            font-size: 14px
-        }
-
-        th {
-            background: #f8fafc
-        }
-
-        .user-pic {
-            width: 42px;
-            height: 42px;
-            object-fit: cover;
-            border-radius: 50%;
-            vertical-align: middle;
-            margin-right: 8px
-        }
-
-        .prod-img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px
-        }
-
-        .btn {
-            padding: 7px 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            color: #fff;
-            font-size: 13px;
-            display: inline-block;
-            margin: 2px
-        }
-
-        .btn-block {
-            background: #ef4444
-        }
-
-        .btn-unblock {
-            background: #22c55e
-        }
-
-        .btn-del {
-            background: #111827
-        }
-
-        .btn-view {
-            background: #3b82f6
-        }
-
-        .badge-blocked {
-            background: #fee2e2;
-            color: #dc2626;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 12px
-        }
-
-        .badge-ok {
-            background: #dcfce7;
-            color: #15803d;
-            padding: 3px 8px;
-            border-radius: 20px;
-            font-size: 12px
-        }
-
-        @media(max-width:700px) {
-            table {
-                font-size: 12px
-            }
-
-            th,
-            td {
-                padding: 8px
-            }
-        }
-    </style>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Panel - LocalMarket Mohane</title>
+<style>
+*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{margin:0;background:#f6f8f6;padding:14px;padding-bottom:40px}
+.top{background:#111;color:white;padding:14px;border-radius:14px;display:flex;justify-content:space-between;align-items:center}
+.top a{color:#facc15;text-decoration:none;font-weight:700}
+.row{display:flex;gap:10px;margin:14px 0}.box{flex:1;padding:14px;border-radius:14px;text-align:center;color:white}
+.box b{font-size:24px;display:block}
+.card{background:white;padding:14px;border-radius:16px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+input{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid #eee;font-size:13px;text-align:left;vertical-align:middle}
+img{width:44px;height:44px;border-radius:10px;object-fit:cover}
+a{color:#16a34a;text-decoration:none;font-weight:700}
+.btn{padding:6px 10px;border-radius:20px;border:none;cursor:pointer;font-size:12px;font-weight:700}
+.tabs{display:flex;gap:8px;margin:14px 0}.tab{flex:1;padding:11px;border:none;border-radius:12px;background:white;font-weight:700;cursor:pointer}
+.tab.active{background:#111;color:white}
+</style>
 </head>
-
 <body>
+<div class="top"><div><b style="font-size:20px">🛡️ Admin Panel</b><br><span style="font-size:12px;opacity:.8">LocalMarket - Mohane • Hi, {{user.name}}</span></div><a href="/">← Home</a></div>
 
-    <div class="admin-wrap">
-        <div class="admin-head">
-            <div>
-                <h1 style="margin:0">👑 Admin Panel</h1><small>LocalMarket - Mohone | Admin: {{ user['name'] }}</small>
-            </div>
-            <a href="/">← Home la Ja</a>
-        </div>
+<div class="row">
+  <div class="box" style="background:#16a34a"><b>{{users|length}}</b>Total Dukan / User</div>
+  <div class="box" style="background:#facc15;color:#111"><b>{{products|length}}</b>Total Products</div>
+  <div class="box" style="background:#111"><b>₹{{total_sell}}</b>Total Value</div>
+</div>
 
-        <!-- STATS -->
-        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
-            <div
-                style="background:#fff;padding:16px;border-radius:12px;flex:1;min-width:140px;box-shadow:0 4px 14px rgba(0,0,0,.06)">
-                <b style="font-size:24px">{{ users|length }}</b><br><small>Total Users / Stores</small>
-            </div>
-            <div
-                style="background:#fff;padding:16px;border-radius:12px;flex:1;min-width:140px;box-shadow:0 4px 14px rgba(0,0,0,.06)">
-                <b style="font-size:24px">{{ products|length }}</b><br><small>Total Products</small>
-            </div>
-            <div
-                style="background:#fff;padding:16px;border-radius:12px;flex:1;min-width:140px;box-shadow:0 4px 14px rgba(0,0,0,.06)">
-                <b style="font-size:24px;color:#ef4444">{{ users|selectattr('is_blocked')|list|length
-                    }}</b><br><small>Blocked Stores</small>
-            </div>
-        </div>
+<div class="tabs">
+  <button class="tab active" onclick="showTab('users',this)">🏪 Dukan</button>
+  <button class="tab" onclick="showTab('products',this)">🛍️ Products</button>
+</div>
+<input id="searchBox" placeholder="🔍 Dukan / Product shodha - Nav liha..." onkeyup="filterAll()">
 
-        <!-- USERS -->
-        <h2>👥 Saglya Users / Stores</h2>
-        <table>
-            <tr>
-                <th>Store</th>
-                <th>Contact</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-            {% for u in users %}
-            <tr>
-                <td>
-                    <img src="{{ u['profile_pic'] or 'https://via.placeholder.com/40' }}" class="user-pic">
-                    <b>{{ u['store_name'] or u['name'] }}</b><br>
-                    <small>{{ u['name'] }} • {{ u['email'] }}</small>
-                </td>
-                <td>{{ u['phone'] }}<br><small>{{ u['opening'] or '' }}</small></td>
-                <td>{{ u['location'] or 'Mohone' }}<br><small>⭐ {{ u['rating'] }} • {{ u['role'] }}</small></td>
-                <td>
-                    {% if u['is_blocked'] %}<span class="badge-blocked">🚫 BLOCKED</span>
-                    {% else %}<span class="badge-ok">✅ Active</span>{% endif %}
-                </td>
-                <td>
-                    {% if u['is_blocked'] %}
-                    <a href="/admin/unblock/{{ u['id'] }}" class="btn btn-unblock">Unblock</a>
-                    {% else %}
-                    <a href="/admin/block/{{ u['id'] }}" class="btn btn-block"
-                        onclick="return confirm('Hya store la block karaycha? Tyache products var BLOCKED disel.')">Block</a>
-                    {% endif %}
-                    <a href="https://wa.me/91{{ u['phone'] }}" target="_blank" class="btn btn-view">WhatsApp</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+<div id="tab-users" class="card">
+  <h3>🏪 Sagale Users / Dukan</h3>
+  <div style="overflow-x:auto"><table><tr><th>Photo</th><th>Nav / Dukan</th><th>Contact</th><th>Status</th><th>Action</th></tr>
+  {% for u in users %}
+  <tr class="urow"><td>{% if u.profile_pic %}<img src="{{u.profile_pic}}">{% else %}👤{% endif %}</td>
+  <td><b>{{u.name}}</b><br>{{u.store_name or '-'}}<br><small>{{u.email}}</small><br><small>{{u.role}}</small></td>
+  <td>{{u.phone}}<br><small>{{u.location}}</small></td>
+  <td>{% if u.is_admin %}<span style="color:#16a34a">ADMIN</span>{% elif u.is_blocked %}<span style="color:red">BLOCKED</span>{% else %}<span style="color:green">Active</span>{% endif %}</td>
+  <td><a href="/profile/{{u.id}}">Bagha</a><br>
+  {% if not u.is_admin %}
+    {% if u.is_blocked %}<a href="/admin/unblock/{{u.id}}" style="color:green">✅ Unblock</a>{% else %}<a href="/admin/block/{{u.id}}" style="color:orange">🚫 Block</a>{% endif %}<br>
+    <a href="/admin/delete_user/{{u.id}}" style="color:red" onclick="return confirm('{{u.name}} la kayamcha Delete karu?')">🗑️ Delete</a>
+  {% endif %}</td></tr>
+  {% endfor %}</table></div>
+</div>
 
-        <!-- PRODUCTS -->
-        <h2>📦 Saglya Products</h2>
-        <table>
-            <tr>
-                <th>Photo</th>
-                <th>Product</th>
-                <th>Store</th>
-                <th>Price</th>
-                <th>Action</th>
-            </tr>
-            {% for p in products %}
-            <tr>
-                <td><img src="{{ p['image'] }}" class="prod-img"></td>
-                <td><b>{{ p['title'] }}</b><br><small>{{ p['category'] }} • {{ p['description'][:60] }}</small></td>
-                <td>{{ p['store_name'] }}<br><small>{{ p['owner_phone'] }}</small></td>
-                <td><b>₹{{ p['price'] }}</b></td>
-                <td>
-                    <a href="/delete/{{ p['id'] }}" class="btn btn-del" onclick="return confirm('Delete karaycha?')">🗑️
-                        Delete</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
+<div id="tab-products" class="card" style="display:none">
+  <h3>🛍️ Sagale Products</h3>
+  {% for p in products %}
+  <div class="prow" style="display:flex;gap:10px;align-items:center;border-bottom:1px solid #eee;padding:10px 0">
+    <img src="{{p.image}}">
+    <div style="flex:1"><b>{{p.title}}</b><br>₹{{p.price}} • {{p.store_name}}<br><small>{{p.owner_email or ''}} • {{p.owner_phone or ''}}</small></div>
+    <a href="/delete/{{p.id}}" style="color:red" onclick="return confirm('Product Delete karu?')">Delete</a>
+  </div>
+  {% else %}<p>Product nahi.</p>{% endfor %}
+</div>
 
-        <p style="text-align:center;color:#666;font-size:13px;margin:30px 0">
-            Block kelelya store la login kelyavar "Tumcha account block aahe" message disel.<br>
-            Login: <b>admin@localmarket.com / admin123</b>
-        </p>
-    </div>
-
+<script>
+function showTab(name,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-users').style.display = name==='users' ? 'block' : 'none';
+  document.getElementById('tab-products').style.display = name==='products' ? 'block' : 'none';
+}
+function filterAll(){
+  let q = document.getElementById('searchBox').value.toLowerCase();
+  document.querySelectorAll('.urow, .prow').forEach(r=>{ r.style.display = r.innerText.toLowerCase().includes(q) ? '' : 'none'; });
+}
+</script>
 </body>
-
 </html>
