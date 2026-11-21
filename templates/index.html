@@ -3,227 +3,196 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LocalMarket Solapur - Solapur cha Aapla Bazaar</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<title>LocalMarket - Mohane</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#F8F8F8;color:#1A1A1A;line-height:1.5}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:#f1f3f6;color:#212121}
 a{text-decoration:none;color:inherit}
-button{font-family:inherit;cursor:pointer}
-/* TOP BAR */
-.topbar{background:#111;color:#ddd;font-size:12.5px;padding:7px 0}
-.topbar-in{max-width:1200px;margin:auto;padding:0 16px;display:flex;justify-content:space-between}
-.topbar-in span{margin-right:16px}
-/* HEADER */
-header{background:#fff;border-bottom:1px solid #E8E8E8;position:sticky;top:0;z-index:100}
-.head{max-width:1200px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:16px}
-.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.logo-mark{width:42px;height:42px;background:#FF6B00;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:800}
-.logo b{font-size:21px;letter-spacing:-0.5px;line-height:1}
-.logo b i{color:#FF6B00;font-style:normal}
-.logo small{display:block;font-size:11px;color:#777;font-weight:500;letter-spacing:0.4px}
-.search{flex:1;display:flex;background:#F1F1F1;border:1px solid #E5E5E5;border-radius:10px;overflow:hidden;height:44px}
-.search input{flex:1;border:none;background:transparent;padding:0 14px;font-size:14px;outline:none}
-.search button{background:#111;color:#fff;border:none;padding:0 18px;font-size:14px;font-weight:600}
-.head-actions{display:flex;gap:8px;align-items:center}
-.btn{border:1px solid #E5E5E5;background:#fff;padding:9px 14px;border-radius:9px;font-size:13.5px;font-weight:600}
-.btn-dark{background:#111;color:#fff;border-color:#111}
-.btn-orange{background:#FF6B00;color:#fff;border-color:#FF6B00}
-.avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid #ddd}
-.badge{background:#FF6B00;color:#fff;font-size:11px;padding:2px 7px;border-radius:20px;font-weight:700}
-/* NAV */
-.nav{max-width:1200px;margin:auto;padding:0 16px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-.nav a{padding:10px 12px;font-size:13.5px;font-weight:600;color:#444;white-space:nowrap;border-bottom:2px solid transparent}
-.nav a.active{color:#FF6B00;border-color:#FF6B00}
-/* HERO */
-.hero{max-width:1200px;margin:16px auto;padding:0 16px;display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
-.hero-left{background:#111;color:#fff;border-radius:16px;padding:28px 26px;display:flex;flex-direction:column;justify-content:center}
-.hero-left small{background:#FF6B00;color:#fff;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:700;width:fit-content}
-.hero-left h1{font-size:32px;line-height:1.15;margin:12px 0 8px;letter-spacing:-0.5px}
-.hero-left p{color:#CFCFCF;font-size:14.5px;max-width:420px}
-.hero-cta{margin-top:18px;display:flex;gap:10px}
-.hero-cta a{padding:11px 18px;border-radius:10px;font-weight:700;font-size:14px}
-.cta-w{background:#FF6B00;color:#fff}.cta-g{background:#fff;color:#111}
-.hero-right{background:#fff;border:1px solid #E8E8E8;border-radius:16px;padding:18px}
-.hero-right h3{font-size:15px}
-.hero-right p{font-size:13px;color:#666;margin:4px 0 12px}
-.stat{display:flex;gap:14px;margin-top:14px}
-.stat div b{font-size:18px;display:block}.stat div span{font-size:12px;color:#777}
-/* SECTION */
-.wrap{max-width:1200px;margin:auto;padding:0 16px 20px}
-.sec-head{display:flex;justify-content:space-between;align-items:end;margin:22px 0 14px}
-.sec-head h2{font-size:20px;letter-spacing:-0.3px}.sec-head p{font-size:13px;color:#777}
-.cats{display:flex;gap:8px;flex-wrap:wrap}
-.cat{padding:8px 14px;border:1px solid #E5E5E5;background:#fff;border-radius:999px;font-size:13px;font-weight:600}
-.cat.active{background:#111;color:#fff;border-color:#111}
-/* GRID */
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.card{background:#fff;border:1px solid #EDEDED;border-radius:14px;overflow:hidden;transition:.2s}
-.card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px)}
-.card-img{height:180px;position:relative;background:#eee}
-.card-img img{width:100%;height:100%;object-fit:cover}
-.card-img span{position:absolute;top:10px;left:10px;background:#fff;padding:4px 8px;border-radius:20px;font-size:11.5px;font-weight:700}
-.card-body{padding:12px 13px 14px}
-.store{font-size:12px;color:#FF6B00;font-weight:700;display:flex;justify-content:space-between}
-.store a{color:#111;text-decoration:underline}
-.card-body h3{font-size:15px;margin:4px 0 2px;line-height:1.3}
-.muted{font-size:12.5px;color:#777}
-.price{margin-top:8px;display:flex;justify-content:space-between;align-items:center}
-.price b{font-size:17px}.price small{color:#777;font-size:12px}
-.wa-btn{background:#1FA855;color:#fff;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:700}
-.del{color:#E11D48;font-size:12px;font-weight:600}
-/* TRUST */
-.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}
-.trust div{background:#fff;border:1px solid #EDEDED;border-radius:12px;padding:14px}
-.trust b{font-size:14px}.trust p{font-size:12.5px;color:#666;margin-top:3px}
-/* FOOTER */
-footer{background:#111;color:#BBB;margin-top:10px}
-.foot{max-width:1200px;margin:auto;padding:28px 16px;display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:20px}
-.foot h4{color:#fff;font-size:15px;margin-bottom:10px}.foot p,.foot a{font-size:13.5px;display:block;margin-bottom:6px;color:#BBB}
-.copy{border-top:1px solid #222;text-align:center;padding:12px;font-size:12.5px;color:#888}
-/* MODAL */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;align-items:center;justify-content:center;padding:14px}
-.modal.open{display:flex}
-.box{background:#fff;width:100%;max-width:440px;max-height:92vh;overflow:auto;border-radius:16px;padding:20px;position:relative}
-.box h2{font-size:20px}.box p{font-size:13px;color:#666;margin:4px 0 12px}
-.close{position:absolute;right:14px;top:12px;border:none;background:#F1F1F1;width:30px;height:30px;border-radius:50%;font-size:16px}
-input,select,textarea{width:100%;padding:11px 12px;border:1px solid #DDD;border-radius:9px;margin-top:8px;font-size:14px;font-family:inherit;outline:none}
-input:focus{border-color:#111}
-label{font-size:13px;font-weight:600;margin-top:12px;display:block}
-.primary{width:100%;background:#FF6B00;color:#fff;border:none;padding:12px;border-radius:10px;font-weight:700;margin-top:14px;font-size:14.5px}
-.link{color:#FF6B00;font-weight:700;cursor:pointer}
-#pickerMap{height:200px;border-radius:10px;border:1px solid #DDD;margin-top:8px}
-.empty{background:#fff;border:1px dashed #DDD;border-radius:14px;padding:28px;text-align:center}
-@media(max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.trust{grid-template-columns:repeat(2,1fr)}.foot{grid-template-columns:1fr}.head{flex-wrap:wrap}.search{order:3;width:100%}.hero-left h1{font-size:26px}}
-@media(max-width:520px){.grid{grid-template-columns:1fr 1fr}.card-img{height:130px}.topbar-in span:last-child{display:none}}
+
+/* ===== TOP HEADER - Screenshot Sarkha ===== */
+.top-header{
+  background:#fff;
+  padding:10px 12px 8px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+.header-row{
+  display:flex;align-items:center;gap:10px;
+  max-width:1200px;margin:0 auto;
+}
+.logo{
+  display:flex;align-items:center;gap:4px;
+  font-size:20px;font-weight:800;white-space:nowrap;
+  cursor:pointer;flex-shrink:0;
+}
+.logo-icon{font-size:22px}
+.logo b{color:#1a7f37}
+.logo small{
+  font-size:10px;font-weight:600;color:#2874f0;
+  background:#e8f0fe;padding:2px 6px;border-radius:10px;
+  margin-left:2px;white-space:nowrap;
+}
+/* Search */
+.search-box{
+  flex:1;display:flex;height:38px;
+  border:1.5px solid #1a7f37;border-radius:20px;
+  overflow:hidden;background:#fff;max-width:700px;
+}
+.search-box input{
+  flex:1;border:none;outline:none;padding:0 14px;
+  font-size:14px;color:#333;
+}
+.search-box input::placeholder{color:#878787}
+.search-btn{
+  width:48px;background:#1a7f37;border:none;
+  color:#fff;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.search-btn:hover{background:#146c2e}
+
+/* ===== CATEGORY PILLS ===== */
+.cat-bar{
+  background:#fff;padding:8px 12px 10px;
+  display:flex;gap:8px;overflow-x:auto;
+  scrollbar-width:none;white-space:nowrap;
+  max-width:1200px;margin:0 auto;
+}
+.cat-bar::-webkit-scrollbar{display:none}
+.cat-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 14px;border-radius:20px;
+  background:#f1f3f6;font-size:13px;font-weight:600;
+  color:#333;border:1px solid transparent;cursor:pointer;
+  flex-shrink:0;
+}
+.cat-pill.active{
+  background:#0f172a;color:#fff;
+}
+.cat-pill:hover{background:#e2e8f0}
+.cat-pill.active:hover{background:#0f172a}
+
+/* ===== MAIN ===== */
+.container{max-width:1200px;margin:0 auto;padding:12px}
+.section-title{
+  font-size:17px;font-weight:700;margin:14px 4px 10px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.section-title span{color:#2874f0;font-size:13px;font-weight:600;cursor:pointer}
+
+/* Product Grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+@media(min-width:700px){
+  .grid{grid-template-columns:repeat(4,1fr)}
+  .logo{font-size:24px}
+}
+@media(min-width:1000px){
+  .grid{grid-template-columns:repeat(5,1fr)}
+}
+.card{
+  background:#fff;border-radius:10px;overflow:hidden;
+  box-shadow:0 1px 4px rgba(0,0,0,0.08);
+  cursor:pointer;transition:0.2s;
+}
+.card:hover{box-shadow:0 4px 14px rgba(0,0,0,0.12);transform:translateY(-2px)}
+.card-img{
+  width:100%;aspect-ratio:1/1;object-fit:cover;background:#f8f8f8;
+}
+.card-body{padding:10px}
+.card-cat{font-size:11px;color:#878787;font-weight:500}
+.card-name{font-size:14px;font-weight:600;margin:2px 0;line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:36px}
+.card-shop{font-size:12px;color:#666;margin-top:2px}
+.price-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.price{font-size:16px;font-weight:800}
+.old{font-size:12px;color:#878787;text-decoration:line-through}
+.off{font-size:12px;color:#388e3c;font-weight:700}
+.add-btn{
+  width:100%;margin-top:8px;padding:8px;border:none;
+  background:#ff9f00;color:#fff;font-weight:700;font-size:13px;
+  border-radius:6px;cursor:pointer;
+}
+.add-btn:hover{background:#fb641b}
+
+/* Bottom Nav Mobile */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;background:#fff;
+  display:flex;justify-content:space-around;padding:10px 0;
+  box-shadow:0 -1px 6px rgba(0,0,0,0.1);z-index:100;
+}
+.bottom-nav div{text-align:center;font-size:11px;color:#666;cursor:pointer}
+.bottom-nav div b{display:block;font-size:18px}
+.bottom-nav .active{color:#2874f0}
+.spacer{height:60px}
 </style>
 </head>
 <body>
 
-<div class="topbar"><div class="topbar-in"><span>📍 Solapur, Maharashtra • Delivery Available</span><span>🕒 9 AM - 9 PM • Mon - Sun</span></div></div>
+<!-- HEADER -->
+<div class="top-header">
+  <div class="header-row">
+    <div class="logo">
+      <span class="logo-icon">🛒</span><span><b>Local</b>Market</span>
+      <small>📍 Mohane</small>
+    </div>
 
-<header>
-  <div class="head">
-    <a href="/" class="logo"><div class="logo-mark">L</div><div><b>Local<i>Market</i></b><small>SOLAPUR • AAPLA BAZAAR</small></div></a>
-    <form class="search" method="GET" action="/">
-      <input name="q" value="{{ q or '' }}" placeholder="Solapur madhe kay shodhatay? e.g. Tomatoes, Kirana, Kapde...">
-      <button type="submit">Search</button>
+    <form class="search-box" method="GET" action="/">
+      <input type="text" name="q" value="{{ q or '' }}" placeholder="Shodh - Kurti, Kirana, Mobile...">
+      <button class="search-btn" type="submit">🔍</button>
     </form>
-    <div class="head-actions">
-      {% if user %}
-        <a href="/profile/{{ user.id }}"><img class="avatar" src="{{ user.profile_pic or 'https://via.placeholder.com/100' }}"></a>
-        <div style="line-height:1.2"><b style="font-size:13.5px">{{ user.store_name or user.name }}</b><br><span style="font-size:11.5px;color:#777">{{ user.role }}</span></div>
-        {% if user.role=='Store' %}<button class="btn btn-orange" onclick="openM('addM')">+ Product Taka</button>{% endif %}
-        <button class="btn" onclick="openM('editM')">Edit Profile</button>
-        <a href="/logout" class="btn">Logout</a>
-        {% if user.is_admin %}<a href="/admin" class="btn btn-dark">Admin</a>{% endif %}
-      {% else %}
-        <button class="btn" onclick="openM('loginM')">Login</button>
-        <button class="btn btn-orange" onclick="openM('regM')">Register - Free</button>
-      {% endif %}
-    </div>
   </div>
-  <div class="nav">
-    <a href="/" class="{{ 'active' if not cat or cat=='All' }}">All Products</a>
-    <a href="/?cat=Kirana" class="{{ 'active' if cat=='Kirana' }}">Kirana</a>
-    <a href="/?cat=Bhajipala" class="{{ 'active' if cat=='Bhajipala' }}">Bhajipala</a>
-    <a href="/?cat=Kapde" class="{{ 'active' if cat=='Kapde' }}">Kapde</a>
-    <a href="/?cat=Electronics" class="{{ 'active' if cat=='Electronics' }}">Electronics</a>
-    <a href="/?cat=Dairy" class="{{ 'active' if cat=='Dairy' }}">Dairy</a>
-    <a href="/?cat=Home" class="{{ 'active' if cat=='Home' }}">Home</a>
-  </div>
-</header>
 
-<div class="hero">
-  <div class="hero-left">
-    <small>SOLAPUR • 100% LOCAL</small>
-    <h1>Solapur cha bazaar,<br>aata tumchya mobile var.</h1>
-    <p>Javalchya dukaanatun thet order kara. No commission, no middle-man. Dukaanwala la thet WhatsApp kara.</p>
-    <div class="hero-cta">
-      {% if not user %}<a href="#" class="cta-w" onclick="openM('regM');return false">Dukaan Register Kara - Free</a>{% else %}<a href="#products" class="cta-w">Products Bagha ↓</a>{% endif %}
-      <a href="#products" class="cta-g">Bazaar Bagha</a>
-    </div>
-  </div>
-  <div class="hero-right">
-    <h3>Ka LocalMarket?</h3><p>Solapur karansathi banavlela, Solapur karanni chalavlela.</p>
-    <div class="stat"><div><b>{{ products|length }}+</b><span>Live Products</span></div><div><b>100%</b><span>Local Stores</span></div><div><b>0%</b><span>Commission</span></div></div>
-    <div style="background:#FFF7ED;border:1px solid #FFE0C2;padding:12px;border-radius:10px;margin-top:14px;font-size:13px"><b>📍 Tumcha Dukaan Solapur madhe aahe?</b><br>Register kara, Map var Pin lava, customer tumhala shodhat yeil.</div>
+  <!-- CATEGORIES -->
+  <div class="cat-bar">
+    <a href="/?cat=All" class="cat-pill {% if cat=='All' or not cat %}active{% endif %}">All</a>
+    <a href="/?cat=Clothes" class="cat-pill {% if cat=='Clothes' %}active{% endif %}">👗 Clothes</a>
+    <a href="/?cat=Kirana" class="cat-pill {% if cat=='Kirana' %}active{% endif %}">🛒 Kirana</a>
+    <a href="/?cat=Mobile" class="cat-pill {% if cat=='Mobile' %}active{% endif %}">📱 Mobile</a>
+    <a href="/?cat=Food" class="cat-pill {% if cat=='Food' %}active{% endif %}">🍲 Food</a>
+    <a href="/?cat=Electronics" class="cat-pill {% if cat=='Electronics' %}active{% endif %}">💡 Electronics</a>
+    <a href="/?cat=Other" class="cat-pill {% if cat=='Other' %}active{% endif %}">📦 Other</a>
   </div>
 </div>
 
-<div class="wrap" id="products">
-  {% if session.get('blocked_msg') %}<div style="background:#FEE2E2;border:1px solid #FCA5A5;padding:12px;border-radius:10px;margin-bottom:14px">{{ session.get('blocked_msg') }}</div>{% endif %}
-  {% if notifs %}{% for n in notifs %}<div style="background:#FFFBEB;border:1px solid #FDE68A;padding:11px 12px;border-radius:10px;margin-bottom:10px;font-size:13.5px">🔔 {{ n.message }}</div>{% endfor %}{% endif %}
+<!-- PRODUCTS -->
+<div class="container">
+  <div class="section-title">Aajche Fresh Products <span>View All →</span></div>
 
-  <div class="sec-head"><div><h2>{% if q %}"{{ q }}" sathi results{% elif cat and cat!='All' %}{{ cat }}{% else %}Aajche Fresh Products{% endif %}</h2><p>{{ products|length }} products • Solapur</p></div><a href="/" style="font-size:13.5px;font-weight:700;color:#FF6B00">Clear Filter →</a></div>
-
-  <div class="cats" style="margin-bottom:16px">
-    <a class="cat {{ 'active' if not cat or cat=='All' }}" href="/">All</a>
-    <a class="cat {{ 'active' if cat=='Kirana' }}" href="/?cat=Kirana">Kirana</a>
-    <a class="cat {{ 'active' if cat=='Bhajipala' }}" href="/?cat=Bhajipala">🥬 Bhajipala</a>
-    <a class="cat {{ 'active' if cat=='Kapde' }}" href="/?cat=Kapde">👕 Kapde</a>
-    <a class="cat {{ 'active' if cat=='Electronics' }}" href="/?cat=Electronics">📱 Electronics</a>
-    <a class="cat {{ 'active' if cat=='Dairy' }}" href="/?cat=Dairy">🥛 Dairy</a>
-  </div>
-
-  {% if products %}
   <div class="grid">
-  {% for p in products %}
-    <div class="card">
-      <div class="card-img"><img src="{{ p.image }}"><span>{{ p.category }}</span></div>
+    {% for p in products %}
+    <div class="card" onclick="window.location='/product/{{ p.id }}'">
+      <img class="card-img" src="{{ p.image or 'https://via.placeholder.com/300' }}" alt="{{ p.name }}">
       <div class="card-body">
-        <div class="store"><span>🏪 {{ p.store_name }}</span><a href="/profile/{{ p.user_id }}">View Store →</a></div>
-        <h3>{{ p.title }}</h3>
-        <div class="muted">📍 {{ p.owner_loc or 'Solapur' }} • ⭐ {{ p.rating }}</div>
-        {% if p.description %}<div class="muted" style="margin-top:4px">{{ p.description[:60] }}</div>{% endif %}
-        <div class="price"><div><b>₹{{ p.price }}</b> <small>/ piece</small></div>
-          {% if p.owner_phone %}<a class="wa-btn" href="https://wa.me/91{{ p.owner_phone }}?text=Namaste, mala {{ p.title }} pahije - LocalMarket Solapur" target="_blank">WhatsApp</a>{% endif %}
+        <div class="card-cat">{{ p.category }}</div>
+        <div class="card-name">{{ p.name }}</div>
+        <div class="card-shop">🏪 {{ p.shop_name or 'Local Shop' }} • Mohane</div>
+        <div class="price-row">
+          <span class="price">₹{{ p.price }}</span>
+          {% if p.old_price %}<span class="old">₹{{ p.old_price }}</span>
+          <span class="off">{{ ((p.old_price - p.price)*100//p.old_price) }}% off</span>{% endif %}
         </div>
-        {% if user and (user.is_admin or user.id==p.user_id) %}<a href="/delete/{{ p.id }}" class="del" onclick="return confirm('Delete karaycha?')">Delete Product</a>{% endif %}
+        <button class="add-btn" onclick="event.stopPropagation(); window.location='/add_to_cart/{{ p.id }}'">ADD TO CART</button>
       </div>
     </div>
-  {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty"><h3>Ajun product nahi</h3><p style="color:#666;font-size:14px;margin:6px 0">Pahila product tumhi taka. Solapur la dakhavuya aapla bazaar.</p>{% if user and user.role=='Store' %}<button class="btn btn-orange" onclick="openM('addM')">+ Pahila Product Taka</button>{% elif not user %}<button class="btn btn-orange" onclick="openM('regM')">Register Kara</button>{% endif %}</div>
-  {% endif %}
-
-  <div class="trust">
-    <div><b>💬 Thet WhatsApp</b><p>Dukaanwala shi thet bola, bargaining kara.</p></div>
-    <div><b>📍 Khara Location</b><p>Map var khara dukaan, khara rasta.</p></div>
-    <div><b>⭐ Khare Reviews</b><p>Solapur karanche khare feedback.</p></div>
-    <div><b>🆓 100% Free</b><p>Dukaan sathi kuthlihi fee nahi.</p></div>
+    {% else %}
+    <p style="grid-column:1/-1;text-align:center;padding:30px;color:#666">Aajun kahi products nahi. Thodya velane parat bagh.</p>
+    {% endfor %}
   </div>
 </div>
 
-<footer><div class="foot"><div><div style="display:flex;gap:10px;align-items:center"><div style="width:38px;height:38px;background:#FF6B00;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:20px">L</div><b style="color:#fff;font-size:18px">LocalMarket</b></div><p style="margin-top:10px">Solapur cha aapla online bazaar. Local dukaan, local lok, local trust.</p><p>📍 Solapur, Maharashtra 413001</p></div><div><h4>Categories</h4><a href="/?cat=Kirana">Kirana</a><a href="/?cat=Bhajipala">Bhajipala</a><a href="/?cat=Kapde">Kapde</a><a href="/?cat=Electronics">Electronics</a></div><div><h4>Madat</h4><a href="#">Dukaan Kasa Register Karaycha?</a><a href="#">WhatsApp var Order Kasa Karaycha?</a><a href="#">Contact</a></div></div><div class="copy">© 2026 LocalMarket Solapur • Made in Solapur, for Solapur • v1.0</div></footer>
+<div class="spacer"></div>
 
-<!-- LOGIN -->
-<div class="modal" id="loginM"><div class="box"><button class="close" onclick="closeM('loginM')">×</button><h2>Welcome Back</h2><p>Solapur Market madhe parat ya.</p><form method="POST" action="/login"><label>Email</label><input name="email" type="email" placeholder="tumcha@email.com" required><label>Password</label><input name="password" type="password" placeholder="••••••••" required><button class="primary">Login Kara</button></form><p style="margin-top:12px;text-align:center">Account nahi? <span class="link" onclick="closeM('loginM');openM('regM')">Register Kara</span></p><p style="text-align:center;font-size:12px;color:#999">Admin: admin@localmarket.com / admin123</p></div></div>
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="active"><b>🏠</b>Home</div>
+  <div onclick="window.location='/cart'"><b>🛒</b>Cart</div>
+  <div onclick="window.location='/sell'"><b>➕</b>Sell</div>
+  <div onclick="window.location='/profile'"><b>👤</b>Account</div>
+</div>
 
-<!-- REGISTER -->
-<div class="modal" id="regM"><div class="box"><button class="close" onclick="closeM('regM')">×</button><h2>Free Register</h2><p>2 minat madhe tumcha dukaan online.</p><form method="POST" action="/register" enctype="multipart/form-data"><label>Tumcha Naav *</label><input name="name" placeholder="e.g. Sayali Patil" required><label>Dukaan che Naav (Store asel tar)</label><input name="store_name" placeholder="e.g. Patil Kirana"><label>Phone (WhatsApp) *</label><input name="phone" placeholder="9876543210" required><label>Email *</label><input name="email" type="email" required><label>Password *</label><input name="password" type="password" required><label>Tumhi kon?</label><select name="role"><option value="Customer">Customer - Mala kharedi karaychay</option><option value="Store">Store Owner - Mala vikaychay</option></select><label>Area / Location</label><input name="location" value="Solapur, Maharashtra"><label>Profile Photo</label><input type="file" name="profile_pic" accept="image/*"><label>Dukaan chi Mahiti (Bio)</label><textarea name="bio" rows="2" placeholder="Tumchya dukaanat kay milta?"></textarea><label>Opening Time</label><input name="opening" value="9 AM - 9 PM"><label>📍 Dukaan Map var Set Kara (Click kara)</label><div id="pickerMap"></div><input type="hidden" name="lat" id="latInput" value="17.6599"><input type="hidden" name="lng" id="lngInput" value="75.9064"><button class="primary">Register Kara - Free</button></form></div></div>
-
-<!-- EDIT PROFILE -->
-{% if user %}
-<div class="modal" id="editM"><div class="box"><button class="close" onclick="closeM('editM')">×</button><h2>Edit Profile</h2><form method="POST" action="/update_profile" enctype="multipart/form-data"><label>Naav</label><input name="name" value="{{ user.name }}"><label>Dukaan Naav</label><input name="store_name" value="{{ user.store_name }}"><label>Phone</label><input name="phone" value="{{ user.phone }}"><label>Bio</label><textarea name="bio" rows="2">{{ user.bio }}</textarea><label>Location</label><input name="location" value="{{ user.location }}"><label>Opening</label><input name="opening" value="{{ user.opening }}"><label>Navin Photo</label><input type="file" name="profile_pic" accept="image/*"><input type="hidden" name="lat" id="latEdit" value="{{ user.lat or 17.6599 }}"><input type="hidden" name="lng" id="lngEdit" value="{{ user.lng or 75.9064 }}"><div style="font-size:12.5px;background:#FFF7ED;padding:10px;border-radius:8px;margin-top:10px">📍 Location badalaycha asel tar Register sarkha Map var Pin lavaycha - aata sadhya lat/lng save aahe: {{ user.lat }}, {{ user.lng }}</div><button class="primary">Save Kara</button></form></div></div>
-<!-- ADD PRODUCT -->
-<div class="modal" id="addM"><div class="box"><button class="close" onclick="closeM('addM')">×</button><h2>Navin Product Taka</h2><form method="POST" action="/add" enctype="multipart/form-data"><label>Product Naav *</label><input name="title" placeholder="e.g. Fresh Tomatoes 1kg" required><label>Category</label><select name="category"><option>Kirana</option><option>Bhajipala</option><option>Kapde</option><option>Electronics</option><option>Dairy</option><option>Home</option><option>Other</option></select><label>Price ₹ *</label><input name="price" type="number" placeholder="120" required><label>Mahiti</label><textarea name="description" rows="2" placeholder="Fresh aahe, aajch aalay..."></textarea><label>Photo</label><input type="file" name="product_pic" accept="image/*"><button class="primary">Product Publish Kara</button></form></div></div>
-{% endif %}
-
-<script>
-function openM(id){document.getElementById(id).classList.add('open'); if(id=='regM'){setTimeout(initPicker,200)}}
-function closeM(id){document.getElementById(id).classList.remove('open')}
-document.querySelectorAll('.modal').forEach(m=>{m.addEventListener('click',e=>{if(e.target==m)m.classList.remove('open')})});
-var pickerInit=false;
-function initPicker(){
-  if(pickerInit) return; pickerInit=true;
-  var map=L.map('pickerMap').setView([17.6599,75.9064],12);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
-  var mk=L.marker([17.6599,75.9064],{draggable:true}).addTo(map);
-  function setLL(a,b){document.getElementById('latInput').value=a;document.getElementById('lngInput').value=b;mk.setLatLng([a,b])}
-  map.on('click',e=>setLL(e.latlng.lat,e.latlng.lng));
-  mk.on('dragend',()=>{var p=mk.getLatLng();setLL(p.lat,p.lng)});
-  if(navigator.geolocation){navigator.geolocation.getCurrentPosition(p=>{setLL(p.coords.latitude,p.coords.longitude);map.setView([p.coords.latitude,p.coords.lon
+</body>
+</html>
