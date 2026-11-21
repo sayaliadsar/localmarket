@@ -2,7 +2,7 @@
 <html lang="mr">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{owner.store_name or owner.name}} - LocalMarket Mohane</title>
+<title>{{owner.store_name or owner.name}} - LocalMarket</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
@@ -13,18 +13,21 @@
 .main{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #16a34a}
 input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-bottom:8px;font-size:14px}
 .btn{width:100%;background:#16a34a;color:white;border:none;padding:12px;border-radius:12px;font-weight:800;cursor:pointer}
-.btn-red{background:#ef4444}.btn-gray{background:#f3f4f6;color:#111}
+#map2{height:260px;border-radius:12px;z-index:1}
+.badge{background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.pencil{background:#16a34a;color:white;border:none;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}
 .prod{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee;align-items:center}
 .prod img{width:60px;height:60px;border-radius:10px;object-fit:cover}
-#map2{height:200px;border-radius:12px;z-index:1}
-.badge{background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
 <div class="top"><a href="/">← Home</a><b>Profile</b><a href="/logout">Logout</a></div>
 
-<div class="card" style="text-align:center">
-  <img class="main" src="{{owner.profile_pic or 'https://via.placeholder.com/90'}}">
+<div class="card" style="text-align:center;position:relative">
+  {% if user and user.id==owner.id %}
+  <button class="pencil" onclick="toggleEdit()" style="position:absolute;right:14px;top:14px">✏️</button>
+  {% endif %}
+  <img class="main" src="{{owner.profile_pic or 'https://via.placeholder.com/90'}}" onerror="this.src='https://via.placeholder.com/90'">
   <h2 style="margin:8px 0 2px">{{owner.store_name or owner.name}}</h2>
   <p style="color:#666;margin:0">{{owner.name}} • {{owner.role}}</p>
   <p>⭐ <b>{{avg}}</b> • 📍 {{owner.location}} • 🕒 {{owner.opening}}</p>
@@ -36,17 +39,9 @@ input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radiu
   </div>
 </div>
 
-<div class="card"><h3>📍 Dukan Kuthe Aahe - Map</h3><div id="map2"></div><p style="font-size:12px;color:#666">Lat: {{owner.lat}} • Lng: {{owner.lng}} • {{owner.location}}</p></div>
-
-<div class="card"><h3>🛍️ Yache Products ({{products|length}})</h3>
-{% for p in products %}
-<div class="prod"><img src="{{p.image}}"><div style="flex:1"><b>{{p.title}}</b><br>₹{{p.price}} • {{p.category}}</div>
-{% if user and (user.id==owner.id or user.is_admin) %}<a href="/delete/{{p.id}}" style="color:red" onclick="return confirm('Delete karu?')">Delete</a>{% endif %}</div>
-{% else %}<p>Aajun Product nahi.</p>{% endfor %}
-</div>
-
 {% if user and user.id==owner.id %}
-<div class="card"><h3>✏️ Majhi Profile Edit Kar</h3>
+<div class="card" id="editBox" style="display:none">
+<h3>✏️ Profile Edit Kar <button onclick="toggleEdit()" style="float:right;border:none;background:#f3f4f6;width:30px;height:30px;border-radius:50%;cursor:pointer">✕</button></h3>
 <form method="POST" action="/update_profile" enctype="multipart/form-data">
 <input name="name" value="{{owner.name}}" placeholder="Nav" required>
 <input name="store_name" value="{{owner.store_name or ''}}" placeholder="Dukan Nav">
@@ -56,9 +51,23 @@ input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radiu
 <input name="opening" value="{{owner.opening}}" placeholder="Opening Time">
 <label style="font-size:13px">Navin Photo (nasel tar juna rahil)</label>
 <input type="file" name="profile_pic" accept="image/*">
+<input type="hidden" name="lat" id="edit_lat" value="{{owner.lat}}">
+<input type="hidden" name="lng" id="edit_lng" value="{{owner.lng}}">
+<button type="button" onclick="useMyLocation()" style="width:100%;background:#dcfce7;border:none;padding:11px;border-radius:10px;font-weight:700;margin-bottom:8px;cursor:pointer">📍 Majha Khara Location Ghe (GPS)</button>
 <button class="btn">Save Profile</button>
-</form></div>
+</form>
+<p style="font-size:12px;color:#666">Khalcha Map var Pin halavun pan location badalta yete.</p>
+</div>
 {% endif %}
+
+<div class="card"><h3>📍 Dukan Kuthe Aahe - Map</h3><div id="map2"></div><p style="font-size:12px;color:#666">📍 {{owner.location}}</p><p style="font-size:11px;color:#999">Pin halavun exact location set kara, mag Save dab.</p></div>
+
+<div class="card"><h3>🛍️ Yache Products ({{products|length}})</h3>
+{% for p in products %}
+<div class="prod"><img src="{{p.image}}" onerror="this.src='https://via.placeholder.com/60'"><div style="flex:1"><b>{{p.title}}</b><br>₹{{p.price}} • {{p.category}}</div>
+{% if user and (user.id==owner.id or user.is_admin) %}<a href="/delete/{{p.id}}" style="color:red" onclick="return confirm('Delete karu?')">Delete</a>{% endif %}</div>
+{% else %}<p>Aajun Product nahi.</p>{% endfor %}
+</div>
 
 <div class="card"><h3>⭐ Feedback De</h3>
 {% if user %}
@@ -72,9 +81,37 @@ input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radiu
 </div>
 
 <script>
+function toggleEdit(){
+  let b = document.getElementById('editBox');
+  if(!b) return;
+  b.style.display = (b.style.display==='none' ? 'block' : 'none');
+  if(b.style.display==='block') b.scrollIntoView({behavior:'smooth'});
+}
 let m2 = L.map('map2').setView([{{owner.lat or 19.2144}}, {{owner.lng or 73.0978}}], 15);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(m2);
-L.marker([{{owner.lat or 19.2144}}, {{owner.lng or 73.0978}}]).addTo(m2).bindPopup('<b>{{owner.store_name or owner.name}}</b><br>{{owner.location}}').openPopup();
+let marker = L.marker([{{owner.lat or 19.2144}}, {{owner.lng or 73.0978}}], {draggable:true}).addTo(m2).bindPopup('<b>{{owner.store_name or owner.name}}</b><br>{{owner.location}}').openPopup();
+marker.on('dragend', function(){
+  let p = marker.getLatLng();
+  let latInp = document.getElementById('edit_lat');
+  if(latInp){ latInp.value = p.lat; document.getElementById('edit_lng').value = p.lng; }
+  alert('Pin halavla! Aata ✏️ Edit ughdun Save dab.');
+});
+m2.on('click', function(e){
+  marker.setLatLng(e.latlng);
+  let latInp = document.getElementById('edit_lat');
+  if(latInp){ latInp.value = e.latlng.lat; document.getElementById('edit_lng').value = e.latlng.lng; }
+});
+function useMyLocation(){
+  if(!navigator.geolocation) return alert('GPS nahi');
+  navigator.geolocation.getCurrentPosition(p=>{
+    let lat = p.coords.latitude, lng = p.coords.longitude;
+    m2.setView([lat, lng], 16);
+    marker.setLatLng([lat, lng]);
+    let latInp = document.getElementById('edit_lat');
+    if(latInp){ latInp.value = lat; document.getElementById('edit_lng').value = lng; }
+    alert('Tujha khara location ghetla! Aata Save dab.');
+  });
+}
 </script>
 </body>
 </html>
