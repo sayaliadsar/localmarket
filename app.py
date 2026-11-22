@@ -466,37 +466,32 @@ def add_review(pid):
     db.session.commit()
     return redirect('/?msg=Thank you for review!')
 # ---------- SELLER ----------
+# ---------- SELLER ----------
 
 @app.route('/seller')
 def seller_dashboard():
     u = current_user()
     if not u or u.role not in ['seller', 'admin']:
         return redirect('/?msg=Login as Seller')
-
     shop = Shop.query.filter_by(user_id=u.id).first()
     if not shop:
         return redirect('/?msg=Shop not found')
-
     prods = Product.query.filter_by(shop_id=shop.id).order_by(Product.id.desc()).all()
     res = Reservation.query.filter_by(shop_id=shop.id).order_by(Reservation.id.desc()).all()
     revs = Review.query.filter_by(shop_id=shop.id).order_by(Review.id.desc()).all()
     followers = Favorite.query.filter_by(shop_id=shop.id).count()
     sub = get_active_sub(u.id)
-
     total_views = sum([p.views for p in prods]) + shop.views
     low_stock = [p for p in prods if p.stock_qty <= 5]
     pending_res = len([r for r in res if r.status == 'Pending'])
-
     village_demand = {}
     for r in res:
         cu = User.query.get(r.customer_id)
         if cu:
             village_demand[cu.village or 'Unknown'] = village_demand.get(cu.village or 'Unknown', 0) + 1
-
     notifs = Notification.query.filter_by(user_id=u.id).order_by(Notification.id.desc()).limit(10).all()
     plans = SubscriptionPlan.query.filter_by(is_active=True).all()
     cats = Category.query.all()
-
     return render_template('seller.html', user=u, shop=shop, products=prods, reservations=res, reviews=revs, followers=followers, sub=sub, total_views=total_views, low_stock=low_stock, pending_res=pending_res, village_demand=village_demand, notifs=notifs, plans=plans, cats=cats, msg=request.args.get('msg', ''))
 
 @app.route('/seller/add-product', methods=['POST'])
@@ -507,7 +502,6 @@ def seller_add_product():
     shop = Shop.query.filter_by(user_id=u.id).first()
     if not shop:
         return redirect('/seller?msg=Shop not found')
-
     sub = get_active_sub(u.id)
     limit = 10
     if sub and sub.plan:
@@ -515,23 +509,10 @@ def seller_add_product():
     count = Product.query.filter_by(shop_id=shop.id).count()
     if limit != -1 and count >= limit:
         return redirect('/seller?msg=Product limit reached! Upgrade to Silver/Gold plan.')
-
     img = save_photo(request.files.get('product_pic')) or "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600"
     price = float(request.form.get('price', 0))
     mrp = float(request.form.get('mrp') or price)
-
-    p = Product(
-        shop_id=shop.id,
-        user_id=u.id,
-        title=request.form.get('title'),
-        category=request.form.get('category'),
-        price=price,
-        mrp=mrp,
-        description=request.form.get('description'),
-        image=img,
-        stock_qty=int(request.form.get('stock_qty') or 10),
-        is_available=True
-    )
+    p = Product(shop_id=shop.id, user_id=u.id, title=request.form.get('title'), category=request.form.get('category'), price=price, mrp=mrp, description=request.form.get('description'), image=img, stock_qty=int(request.form.get('stock_qty') or 10), is_available=True)
     db.session.add(p)
     db.session.commit()
     db.session.add(Inventory(product_id=p.id, qty=p.stock_qty))
@@ -615,7 +596,7 @@ def shop_update():
     return redirect('/seller?msg=Shop updated!')
 
 @app.route('/seller/add-category', methods=['POST'])
-def seller_add_category():
+def seller_add_new_category():
     u = current_user()
     if not u: return redirect('/')
     name = request.form.get('name','').strip()
