@@ -1,106 +1,77 @@
-<!DOCTYPE html>
-<html lang="mr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ store.store_name }} - {{ store.city }} | Local Market</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #f8fafc; color: #0f172a; padding-bottom: 40px; }
-        .topbar {
-            background: #fff; padding: 14px 16px; border-bottom: 1px solid #e2e8f0;
-            position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
-        }
-        .container { max-width: 1000px; margin: 0 auto; padding: 16px; }
-        .store-hero {
-            background: #fff; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.04); margin-bottom: 20px;
-        }
-        .store-avatar {
-            width: 64px; height: 64px; border-radius: 18px;
-            background: linear-gradient(135deg, #16a34a, #22c55e);
-            color: #fff; font-size: 26px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
-        }
-        .badge-city {
-            background: #dcfce7; color: #15803d; font-size: 12px; font-weight: 800;
-            padding: 4px 10px; border-radius: 8px; display: inline-block; margin-bottom: 6px;
-        }
-        .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
-        .btn {
-            padding: 11px 10px; border-radius: 12px; text-align: center; text-decoration: none;
-            font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .btn-wa { background: #25D366; color: #fff; }
-        .btn-map { background: #0f172a; color: #fff; }
-        .btn-call { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Profile - Local Market</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{background:#f8fafc;padding-bottom:90px}
+header{background:#fff;padding:14px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px}
+header a{text-decoration:none;color:#333;font-size:20px;font-weight:900}
+.profile-card{background:#fff;margin:14px;border-radius:18px;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.avatar{width:90px;height:90px;background:#16a34a;color:#fff;font-size:38px;font-weight:900;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.badge{display:inline-block;background:#dcfce7;color:#166534;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.info{text-align:left;margin-top:16px;background:#f8fafc;padding:14px;border-radius:12px;font-size:14px;line-height:2}
+.btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:15px;margin-top:10px;cursor:pointer}
+.btn-green{background:#16a34a;color:#fff}.btn-light{background:#f1f5f9;color:#333}
+.section{margin:14px}.section h3{margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}.card img{width:100%;height:130px;object-fit:cover}.card-body{padding:10px}.card-body b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.price{color:#16a34a;font-weight:900}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:flex-end}.modal.open{display:flex}
+.modal-box{background:#fff;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}
+.modal-box input{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0}
+.close{position:absolute;right:16px;top:12px;border:none;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:18px}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee}.bottom a{text-decoration:none;color:#64748b;font-size:12px;text-align:center;display:flex;flex-direction:column}
+.toast{background:#16a34a;color:#fff;padding:12px;text-align:center;font-weight:700}
+</style></head><body>
+{% if request.args.get('msg') %}<div class="toast">{{request.args.get('msg')}}</div>{% endif %}
+<header><a href="/">←</a><b style="font-size:18px">My Profile</b></header>
 
-        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; } }
-        .card {
-            background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;
-            display: flex; flex-direction: column;
-        }
-        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #f1f5f9; }
-        .card-body { padding: 11px; flex: 1; display: flex; flex-direction: column; }
-        .chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
-        .chip { background: #eff6ff; color: #1d4ed8; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 6px; }
-    </style>
-</head>
-<body>
-
-<div class="topbar">
-    <a href="/" style="text-decoration:none; color:#0f172a; font-weight:800; font-size:14px;">← Back to Market</a>
-    <span style="font-size:12px; color:#16a34a; font-weight:700;">Verified Local Store</span>
+<div class="profile-card">
+<div class="avatar">{{ user.name[0] | upper }}</div>
+<h2>{{ user.name }}</h2>
+<p style="color:#888;font-size:13px;margin:4px 0">{{ user.email }}</p>
+{% if user.is_admin %}<span class="badge">🛡️ Admin</span>{% else %}<span class="badge">🏪 Seller</span>{% endif %}
+<div class="info">
+<b>🏪 Dukan:</b> {{ user.store_name or '-' }}<br>
+<b>📱 Mobile:</b> {{ user.phone or '-' }}<br>
+<b>📍 Gav / Area:</b> {{ user.location or '-' }}<br>
+<b>📦 Majhe Products:</b> {{ products|length }}<br>
+<b>🆔 User ID:</b> #{{ user.id }}
+</div>
+<button class="btn btn-green" onclick="openModal('editModal')">✏️ Profile Edit Kara</button>
+<button class="btn btn-light" onclick="openModal('passModal')">🔒 Password Badla</button>
+{% if user.is_admin %}<a href="/admin" style="display:block;text-align:center;background:#fef3c7;padding:13px;border-radius:12px;text-decoration:none;color:#333;font-weight:800;margin-top:10px">🛡️ Admin Panel</a>{% endif %}
+<a href="/logout" style="display:block;text-align:center;background:#fee2e2;padding:13px;border-radius:12px;text-decoration:none;color:#b91c1c;font-weight:800;margin-top:10px">Logout</a>
 </div>
 
-<div class="container">
-    <!-- Store Profile Header -->
-    <div class="store-hero">
-        <div class="store-avatar">{{ store.store_name[0]|upper }}</div>
-        <span class="badge-city">📍 {{ store.city }}</span>
-        <h1 style="font-size: 22px; font-weight: 800;">{{ store.store_name }}</h1>
-        <p style="font-size: 13.5px; color: #64748b; margin-top: 4px;">👤 Malak: <strong>{{ store.name }}</strong></p>
-        <p style="font-size: 13.5px; color: #334155; margin-top: 4px;">🏠 Patta: {{ store.location }}, {{ store.city }}</p>
-        <p style="font-size: 13px; color: #16a34a; font-weight: 700; margin-top: 4px;">🕒 Vel: {{ store.shop_timing }}</p>
-        {% if store.store_bio %}
-        <p style="font-size: 13.5px; color: #475569; margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 10px;">
-            {{ store.store_bio }}
-        </p>
-        {% endif %}
+<div class="section"><h3>📦 Majhe Products ({{ products|length }})</h3>
+{% if products %}
+<div class="grid">
+{% for p in products %}
+<div class="card">
+<img src="{{ p.image }}">
+<div class="card-body"><b>{{ p.title }}</b><div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px"><span class="price">₹{{ p.price }}</span><a href="/delete/{{ p.id }}" onclick="return confirm('Delete karaycha ka?')" style="color:#ef4444;font-size:12px;font-weight:700;text-decoration:none">Delete</a></div></div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div style="background:#fff;padding:24px;border-radius:14px;text-align:center;color:#888">Ajun Product Nahi.<br><a href="/" style="color:#16a34a;font-weight:800">+ Product Add Kara</a></div>
+{% endif %}
+</div>
 
-        <div class="action-row">
-            <a href="https://wa.me/91{{ store.phone }}?text=Namaste%20{{ store.store_name }}!%20Tumche%20dukan%20Local%20Market%20var%20pahile." target="_blank" class="btn btn-wa">💬 WhatsApp</a>
-            <a href="https://www.google.com/maps/search/?api=1&query={{ store.latitude }},{{ store.longitude }}" target="_blank" class="btn btn-map">🧭 Map Rasta</a>
-            <a href="tel:+91{{ store.phone }}" class="btn btn-call">📞 Call</a>
-        </div>
-    </div>
+<div id="editModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('editModal')">×</button><h2>✏️ Profile Edit</h2>
+<form method="POST" action="/profile/edit">
+<label style="font-size:12px;font-weight:700">Tumcha Nav</label><input name="name" value="{{ user.name }}" required>
+<label style="font-size:12px;font-weight:700">Dukanache Nav</label><input name="store_name" value="{{ user.store_name or '' }}" required>
+<label style="font-size:12px;font-weight:700">Mobile Number</label><input name="phone" value="{{ user.phone or '' }}" required>
+<label style="font-size:12px;font-weight:700">Gav / Area</label><input name="location" value="{{ user.location or '' }}" required>
+<button class="btn btn-green">Save Kara</button></form></div></div>
 
-    <h2 style="font-size: 17px; font-weight: 800; margin-bottom: 14px;">📦 Dukanatil Products ({{ products|length }})</h2>
+<div id="passModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('passModal')">×</button><h2>🔒 Password Badla</h2>
+<form method="POST" action="/profile/change-password">
+<label style="font-size:12px;font-weight:700">Juna Password</label><input name="old_password" type="password" placeholder="Juna Password" required>
+<label style="font-size:12px;font-weight:700">Navin Password</label><input name="new_password" type="password" placeholder="Navin Password" required>
+<button class="btn btn-green">Password Badla</button></form></div></div>
 
-    <div class="product-grid">
-        {% for p in products %}
-        <div class="card">
-            <img src="{{ p.image }}" alt="{{ p.title }}">
-            <div class="card-body">
-                <span style="font-size:10px; font-weight:700; color:#64748b;">{{ p.category }}</span>
-                <div style="font-size:14px; font-weight:700; margin:3px 0;">{{ p.title }}</div>
-                {% if p.details %}
-                <div class="chips">
-                    {% for k, v in p.details.items() %}
-                    <span class="chip">{{ k }}: {{ v }}</span>
-                    {% endfor %}
-                </div>
-                {% endif %}
-                {% if p.description %}
-                <p style="font-size:12px; color:#64748b; margin-bottom:8px;">{{ p.description }}</p>
-                {% endif %}
-                <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:16px; font-weight:800; color:#16a34a;">₹{{ p.price }}</span>
-                    <a href="https://wa.me/91{{ store.phone }}?text=Namaste!%20Mala%20{{ p.title }}%20pahije.%20Kimmat%20₹{{ p.price }}" target="_blank" style="background:#25D366; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700;">Order</a>
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <p style="color:#64748b;">Ya dukanane ajun products taklele nahit
+<div class="bottom"><a href="/">🏠<span>Home</span></a><a href="/profile">👤<span>Profile</span></a></div>
+<script>
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+</script></body></html>
