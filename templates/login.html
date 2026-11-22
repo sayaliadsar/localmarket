@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - LOCAL MARKET</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+body{background:#F8FFF9;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;min-height:100vh}
+.navbar{background:#0B6B3A!important}
+.logo{font-weight:900;font-size:22px;color:#fff!important}
+.logo span{color:#FF6B00}
+.card-box{background:#fff;border-radius:22px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.1);max-width:420px;margin:90px auto 20px}
+.btn-green{background:#0B6B3A;color:#fff;font-weight:800;border-radius:12px;border:none;padding:12px}
+.demo{background:#FFF3E0;border:1px dashed #FF6B00;border-radius:12px;padding:12px}
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark fixed-top">
+<div class="container">
+<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span></a>
+<a href="/register" class="btn btn-light btn-sm fw-bold">Register</a>
+</div>
+</nav>
+
+<div class="container">
+<div class="card-box">
+
+<h3 class="fw-bold text-center">🔐 Login</h3>
+<p class="text-center text-muted">Parat Welcome!</p>
+
+{% if error %}<div class="alert alert-danger fw-bold" style="border-radius:12px">{{ error }}</div>{% endif %}
+{% if msg %}<div class="alert alert-success fw-bold" style="border-radius:12px">{{ msg }}</div>{% endif %}
+
+<form method="POST" action="/login">
+<label class="small fw-bold">Mobile Number</label>
+<input name="phone" class="form-control mb-2" placeholder="9876543210" pattern="[0-9]{10}" required>
+<label class="small fw-bold">Password</label>
+<input name="password" type="password" class="form-control mb-3" placeholder="Password" required>
+<button class="btn btn-green w-100">Login Kara →</button>
+</form>
+
+<div class="demo mt-3">
+<p class="small fw-bold mb-1">🧪 Demo Login (Testing Sathi):</p>
+<p class="small mb-1">Admin: <b>9999999999</b> / <b>admin123</b></p>
+<p class="small mb-0">Seller: <b>8888888888</b> / <b>seller123</b></p>
+</div>
+
+<p class="text-center small mt-3 mb-0">Account Nahi? <a href="/register" class="fw-bold">Register Kara</a></p>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
