@@ -1,128 +1,477 @@
-<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Profile - Local Market</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{background:#f8fafc;padding-bottom:90px}
-header{background:#fff;padding:14px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px}
-header a{text-decoration:none;color:#333;font-size:20px;font-weight:900}
-.profile-card{background:#fff;margin:14px;border-radius:18px;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-.avatar{width:100px;height:100px;border-radius:50%;object-fit:cover;margin:0 auto 12px;border:3px solid #16a34a}
-.avatar-text{width:100px;height:100px;background:#16a34a;color:#fff;font-size:38px;font-weight:900;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
-.badge{display:inline-block;background:#dcfce7;color:#166534;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
-.info{text-align:left;margin-top:16px;background:#f8fafc;padding:14px;border-radius:12px;font-size:14px;line-height:2}
-.btn{width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:15px;margin-top:10px;cursor:pointer}
-.btn-green{background:#16a34a;color:#fff}.btn-light{background:#f1f5f9;color:#333}.btn-blue{background:#2563eb;color:#fff}
-.section{margin:14px}.section h3{margin-bottom:10px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}.card img{width:100%;height:130px;object-fit:cover}.card-body{padding:10px}.card-body b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.price{color:#16a34a;font-weight:900}
-#map{height:260px;border-radius:14px;margin-top:10px;z-index:1}
-.order-card{background:#fff;padding:14px;border-radius:14px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,.05);display:flex;gap:10px;align-items:center}.order-card img{width:60px;height:60px;object-fit:cover;border-radius:10px}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:flex-end}.modal.open{display:flex}
-.modal-box{background:#fff;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}
-.modal-box input,.modal-box select{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0}
-.close{position:absolute;right:16px;top:12px;border:none;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:18px;z-index:10}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee}.bottom a{text-decoration:none;color:#64748b;font-size:12px;text-align:center;display:flex;flex-direction:column}
-.toast{background:#16a34a;color:#fff;padding:12px;text-align:center;font-weight:700}
-.tab{display:flex;gap:8px;overflow-x:auto;padding:0 14px}.tab button{white-space:nowrap;padding:8px 14px;border:none;border-radius:20px;background:#fff;font-weight:700;cursor:pointer}.tab button.active{background:#16a34a;color:#fff}
-</style></head><body>
-{% if request.args.get('msg') %}<div class="toast">{{request.args.get('msg')}}</div>{% endif %}
-<header><a href="/">←</a><b style="font-size:18px">My Profile</b></header>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
+}
+body {
+  background: #f8fafc;
+  padding-bottom: 90px;
+}
+header {
+  background: #fff;
+  padding: 14px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  font-size: 22px;
+  font-weight: 900;
+}
+.logo span {
+  color: #16a34a;
+}
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.card h3 {
+  margin-bottom: 10px;
+}
+.profile-top {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.profile-top img {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #dcfce7;
+}
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.badge-pro {
+  background: #f59e0b;
+  color: #fff;
+}
+.badge-free {
+  background: #e2e8f0;
+  color: #555;
+}
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn-green {
+  background: #16a34a;
+  color: #fff;
+}
+.btn-dark {
+  background: #111827;
+  color: #fff;
+}
+.btn-red {
+  background: #ef4444;
+  color: #fff;
+}
+.btn-orange {
+  background: #f59e0b;
+  color: #fff;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin: 6px 0;
+}
+label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+}
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 12px;
+  overflow-x: auto;
+}
+.tabs button {
+  white-space: nowrap;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+}
+.tabs button.active {
+  background: #16a34a;
+  color: #fff;
+}
+.tab {
+  display: none;
+}
+.tab.active {
+  display: block;
+}
+.p-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.p-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+.p-card img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+.p-card-body {
+  padding: 10px;
+}
+.p-card-body b {
+  font-size: 13px;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.order-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.order-card img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 100;
+  justify-content: center;
+  align-items: flex-end;
+}
+.modal.open {
+  display: flex;
+}
+.modal-box {
+  background: #fff;
+  width: 100%;
+  max-width: 480px;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  position: relative;
+}
+.close {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+  border: none;
+  background: #f1f5f9;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 10;
+}
+#map {
+  height: 220px;
+  border-radius: 14px;
+  margin-top: 8px;
+  z-index: 1;
+  border: 2px solid #e2e8f0;
+}
+.bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+  z-index: 20;
+}{% if request.args.get('msg') %}
+<div class="toast">{{ request.args.get('msg') }}</div>
+{% endif %}
 
-<div class="profile-card">
-{% if user.profile_pic %}<img src="{{user.profile_pic}}" class="avatar">{% else %}<div class="avatar-text">{{ user.name[0] | upper }}</div>{% endif %}
-<h2>{{ user.name }}</h2>
-<p style="color:#888;font-size:13px;margin:4px 0">{{ user.email }}</p>
-{% if user.is_admin %}<span class="badge">🛡️ Admin</span>{% else %}<span class="badge">🏪 Seller</span>{% endif %}
-<div class="info">
-<b>🏪 Dukan:</b> {{ user.store_name or '-' }}<br>
-<b>📱 Mobile:</b> {{ user.phone or '-' }}<br>
-<b>📍 Gav / Area:</b> {{ user.location or '-' }}<br>
-<b>📦 Majhe Products:</b> {{ products|length }} | <b>📦 Majhi Orders:</b> {{ my_orders|length }} | <b>🛍️ Dukan Orders:</b> {{ shop_orders|length }}<br>
-<b>📌 Location Pin:</b> {% if user.lat %}✅ Save Aahe{% else %}❌ Pin Nahi{% endif %}
+<header>
+  <div class="logo">Local<span>Market</span></div>
+  <a href="/logout" style="color:#ef4444;text-decoration:none;font-weight:800;font-size:13px">Logout</a>
+</header>
+
+<div class="card">
+  <div class="profile-top">
+    <img src="{{ user.profile_pic or 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' }}">
+    <div>
+      <h2>{{ user.name }}</h2>
+      <p style="color:#888;font-size:13px">{{ user.store_name or 'My Store' }}</p>
+      <p style="color:#888;font-size:12px">{{ user.phone }} • {{ user.location }}</p>
+      {% if user.is_pro %}
+      <span class="badge badge-pro">⭐ PRO Seller</span>
+      {% else %}
+      <span class="badge badge-free">Free Plan</span>
+      {% endif %}
+      {% if user.is_admin %}
+      <span class="badge" style="background:#111827;color:#fff">Admin</span>
+      {% endif %}
+    </div>
+  </div>
+  <button class="btn btn-dark" onclick="openModal('editModal')">✏️ Edit Profile</button>
+  <button class="btn" style="background:#f1f5f9" onclick="openModal('passModal')">🔒 Change Password</button>
+  {% if user.is_admin %}
+  <a href="/admin" style="display:block;text-align:center;background:#7c3aed;color:#fff;padding:12px;border-radius:12px;text-decoration:none;font-weight:800;margin-top:8px">⚙️ Open Admin Dashboard</a>
+  {% endif %}
 </div>
-{% if user.lat and user.lng %}<div id="map"></div><a target="_blank" href="https://www.google.com/maps?q={{user.lat}},{{user.lng}}" style="display:block;text-align:center;background:#e0f2fe;padding:12px;border-radius:10px;text-decoration:none;color:#0369a1;font-weight:800;margin-top:8px">📍 Google Map var Bagha</a>{% endif %}
-<button class="btn btn-green" onclick="openModal('editModal')">✏️ Profile + Photo + Map Edit Kara</button>
-<button class="btn btn-light" onclick="openModal('passModal')">🔒 Password Badla</button>
-{% if user.is_admin %}<a href="/admin" style="display:block;text-align:center;background:#fef3c7;padding:13px;border-radius:12px;text-decoration:none;color:#333;font-weight:800;margin-top:10px">🛡️ Admin Panel</a>{% endif %}
-<a href="/logout" style="display:block;text-align:center;background:#fee2e2;padding:13px;border-radius:12px;text-decoration:none;color:#b91c1c;font-weight:800;margin-top:10px">Logout</a>
+
+{% if not user.is_pro %}
+<div class="card" style="background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff">
+  <h3>🚀 Go Pro - Sell More!</h3>
+  <p style="font-size:13px;opacity:.95">Pro sellers get top placement + verified badge.</p>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <a href="/subscribe/Pro" style="flex:1;background:#fff;color:#111;padding:10px;border-radius:10px;text-align:center;text-decoration:none;font-weight:800;font-size:13px">Pro ₹199 / mo</a>
+    <a href="/subscribe/Premium" style="flex:1;background:#111827;color:#fff;padding:10px;border-radius:10px;text-align:center;text-decoration:none;font-weight:800;font-size:13px">Premium ₹499 / mo</a>
+  </div>
+</div>
+{% else %}
+<div class="card" style="background:#dcfce7">
+  <h3>✅ You are PRO</h3>
+  {% if my_sub %}
+  <p style="font-size:13px">Plan: {{ my_sub.plan }} - Status: {{ my_sub.status }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<div class="tabs">
+  <button class="active" onclick="showTab('myprod', this)">My Products</button>
+  <button onclick="showTab('myord', this)">My Orders</button>
+  <button onclick="showTab('shopord', this)">Shop Orders</button>
 </div>
 
-<div class="tab"><button id="tab1Btn" class="active" onclick="showTab('products')">📦 Majhe Products</button><button id="tab2Btn" onclick="showTab('myorders')">📦 Majhi Orders</button><button id="tab3Btn" onclick="showTab('shoporders')">🛍️ Dukan Orders</button></div>
+<div id="myprod" class="tab active">
+  <div class="card">
+    <h3>My Products ({{ products|length }})</h3>
+    <div class="p-grid">
+      {% for p in products %}
+      <div class="p-card">
+        <img src="{{ p.image }}">
+        <div class="p-card-body">
+          <b>{{ p.title }}</b>
+          <div style="color:#16a34a;font-weight:900">₹{{ p.price }}</div>
+          <div style="font-size:11px;color:#888">{{ p.category }} • ⭐ {{ p.rating or 0 }}</div>
+          <div style="font-size:11px;margin-top:4px">
+            {% if p.is_available %}
+            <span style="color:#16a34a;font-weight:700">● Available</span>
+            {% else %}
+            <span style="color:#ef4444;font-weight:700">● Out of Stock</span>
+            {% endif %}
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <a href="/toggle-available/{{ p.id }}" style="flex:1;text-align:center;background:#f59e0b;color:#fff;padding:6px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Toggle</a>
+            <a href="/delete/{{ p.id }}" onclick="return confirm('Delete this product?')" style="flex:1;text-align:center;background:#ef4444;color:#fff;padding:6px;border-radius:8px;text-decoration:none;font-size:12px;font-weight:700">Delete</a>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <p style="grid-column:1/-1;text-align:center;color:#888;padding:20px">No products yet. Add from Home page.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 
-<div id="tab-products" class="section"><h3>📦 Majhe Products ({{ products|length }})</h3>
-{% if products %}<div class="grid">
-{% for p in products %}<div class="card"><img src="{{ p.image }}"><div class="card-body"><b>{{ p.title }}</b>{% if p.custom_name %}<div style="font-size:11px;color:#2563eb;font-weight:700">✨ {{ p.custom_name }}</div>{% endif %}<div style="font-size:12px">⭐ {{ p.rating or 0 }} | ₹{{ p.price }} | {% if p.is_available %}✅ Available{% else %}❌ Out of Stock{% endif %}</div><div style="display:flex;gap:6px;margin-top:6px"><a href="/toggle-available/{{ p.id }}" style="flex:1;text-align:center;background:#fef3c7;padding:8px;border-radius:8px;text-decoration:none;color:#92400e;font-size:12px;font-weight:700">{% if p.is_available %}Stock Off Kara{% else %}Stock On Kara{% endif %}</a><a href="/delete/{{ p.id }}" onclick="return confirm('Delete karaycha ka?')" style="flex:1;text-align:center;background:#fee2e2;padding:8px;border-radius:8px;text-decoration:none;color:#b91c1c;font-size:12px;font-weight:700">Delete</a></div></div></div>{% endfor %}
-</div>{% else %}<div style="background:#fff;padding:24px;border-radius:14px;text-align:center;color:#888">Ajun Product Nahi.</div>{% endif %}</div>
+<div id="myord" class="tab">
+  <div class="card">
+    <h3>My Orders ({{ my_orders|length }})</h3>
+    {% for o in my_orders %}
+    <div class="order-card">
+      <img src="{{ o.product_image }}">
+      <div style="flex:1">
+        <b>{{ o.product_title }}</b>
+        <div style="font-size:12px;color:#888">{{ o.store_name }} • Qty: {{ o.qty }}</div>
+        <div style="font-weight:800;color:#16a34a">₹{{ o.price }} - {{ o.status }}</div>
+      </div>
+    </div>
+    {% else %}
+    <p style="text-align:center;color:#888">No orders yet.</p>
+    {% endfor %}
+  </div>
+</div>
 
-<div id="tab-myorders" class="section" style="display:none"><h3>📦 Majhi Orders ({{ my_orders|length }})</h3>
-{% for o in my_orders %}<div class="order-card"><img src="{{o.product_image}}"><div style="flex:1"><b>{{o.product_title}}</b><br><span style="font-size:12px;color:#888">{{o.store_name}} • Qty: {{o.qty}} • ₹{{o.price}}</span><br><span style="font-size:12px;font-weight:800;color:#16a34a">Status: {{o.status}}</span></div></div>{% else %}<p style="text-align:center;color:#888;background:#fff;padding:20px;border-radius:12px">Ajun Order Nahi.</p>{% endfor %}</div>
+<div id="shopord" class="tab">
+  <div class="card">
+    <h3>Shop Orders ({{ shop_orders|length }})</h3>
+    {% for o in shop_orders %}
+    <div class="order-card">
+      <img src="{{ o.product_image }}">
+      <div style="flex:1">
+        <b>{{ o.product_title }}</b>
+        <div style="font-size:12px;color:#888">Buyer: {{ o.buyer_name }} - {{ o.buyer_phone }}</div>
+        <div style="font-weight:800">₹{{ o.price }} x {{ o.qty }} = ₹{{ (o.price|float * o.qty)|round(2) }}</div>
+        <div style="font-size:12px">Status: <b>{{ o.status }}</b></div>
+        <div style="display:flex;gap:6px;margin-top:6px">
+          <a href="/order/status/{{ o.id }}/Accepted" style="background:#16a34a;color:#fff;padding:5px 10px;border-radius:8px;text-decoration:none;font-size:12px">Accept</a>
+          <a href="/order/status/{{ o.id }}/Delivered" style="background:#111827;color:#fff;padding:5px 10px;border-radius:8px;text-decoration:none;font-size:12px">Delivered</a>
+          <a href="/order/status/{{ o.id }}/Cancelled" style="background:#ef4444;color:#fff;padding:5px 10px;border-radius:8px;text-decoration:none;font-size:12px">Cancel</a>
+          <a href="https://wa.me/91{{ o.buyer_phone }}" target="_blank" style="background:#25D366;color:#fff;padding:5px 10px;border-radius:8px;text-decoration:none;font-size:12px">WhatsApp</a>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p style="text-align:center;color:#888">No shop orders yet.</p>
+    {% endfor %}
+  </div>
+</div><!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal('editModal')">×</button>
+    <h2>Edit Profile</h2>
+    <form method="POST" action="/profile/edit" enctype="multipart/form-data">
+      <label>Your Name</label>
+      <input name="name" value="{{ user.name }}" required>
+      <label>Store Name</label>
+      <input name="store_name" value="{{ user.store_name or '' }}">
+      <label>Phone</label>
+      <input name="phone" value="{{ user.phone or '' }}">
+      <label>Location</label>
+      <input name="location" value="{{ user.location or '' }}">
+      <label>Profile Photo</label>
+      <input type="file" name="profile_pic" accept="image/*">
+      <label>Shop Location - Tap on Map</label>
+      <div id="map"></div>
+      <input type="hidden" name="lat" id="lat" value="{{ user.lat or '' }}">
+      <input type="hidden" name="lng" id="lng" value="{{ user.lng or '' }}">
+      <p id="locText" style="font-size:12px;color:#16a34a;font-weight:700;margin-top:6px">
+        {% if user.lat %}📍 Location Saved{% else %}Tap map to set your shop location{% endif %}
+      </p>
+      <button class="btn btn-green">Save Profile</button>
+    </form>
+  </div>
+</div>
 
-<div id="tab-shoporders" class="section" style="display:none"><h3>🛍️ Mala Aalelya Orders ({{ shop_orders|length }})</h3>
-{% for o in shop_orders %}<div class="order-card"><img src="{{o.product_image}}"><div style="flex:1"><b>{{o.product_title}}</b><br><span style="font-size:12px">Customer: {{o.buyer_name}} • {{o.buyer_phone}} • Qty: {{o.qty}}</span><br><span style="font-size:12px;font-weight:800">Status: {{o.status}} • ₹{{o.price}}</span><div style="display:flex;gap:6px;margin-top:6px"><a href="/order/status/{{o.id}}/Confirmed" style="background:#dcfce7;padding:6px 10px;border-radius:8px;text-decoration:none;color:#166534;font-size:12px;font-weight:700">✅ Confirm</a><a href="/order/status/{{o.id}}/Delivered" style="background:#dbeafe;padding:6px 10px;border-radius:8px;text-decoration:none;color:#1e40af;font-size:12px;font-weight:700">🚚 Delivered</a><a href="https://wa.me/91{{o.buyer_phone}}" target="_blank" style="background:#25D366;padding:6px 10px;border-radius:8px;text-decoration:none;color:#fff;font-size:12px;font-weight:700">WhatsApp</a></div></div></div>{% else %}<p style="text-align:center;color:#888;background:#fff;padding:20px;border-radius:12px">Ajun Dukanala Order Nahi.</p>{% endfor %}</div>
+<!-- PASSWORD MODAL -->
+<div id="passModal" class="modal">
+  <div class="modal-box">
+    <button class="close" onclick="closeModal('passModal')">×</button>
+    <h2>Change Password</h2>
+    <form method="POST" action="/profile/change-password">
+      <label>Old Password</label>
+      <input name="old_password" type="password" required>
+      <label>New Password</label>
+      <input name="new_password" type="password" required>
+      <button class="btn btn-green">Change Password</button>
+    </form>
+  </div>
+</div>
 
-<div id="editModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('editModal')">×</button><h2>✏️ Profile Edit</h2>
-<form id="profileForm" method="POST" action="/profile/edit" enctype="multipart/form-data">
-<label style="font-size:12px;font-weight:700">Tumcha Nav</label><input name="name" value="{{ user.name }}" required>
-<label style="font-size:12px;font-weight:700">Dukanache Nav</label><input name="store_name" value="{{ user.store_name or '' }}" required>
-<label style="font-size:12px;font-weight:700">Mobile Number</label><input name="phone" value="{{ user.phone or '' }}" required>
-<label style="font-size:12px;font-weight:700">Gav / Area</label><input name="location" value="{{ user.location or '' }}" required>
-<label style="font-size:12px;font-weight:700">📸 Profile / Dukanacha Photo (Logo)</label><input type="file" name="profile_pic" accept="image/*">
-<label style="font-size:12px;font-weight:700">📍 Dukanacha Location - Satellite Map var Pin Kara</label>
-<button type="button" class="btn btn-blue" onclick="getLiveLocation()">📍 Live Location On Kara</button>
-<p style="font-size:12px;color:#666;margin-top:6px">Map var kuthehi dabun pin halvu shaktes.</p>
-<div id="editMap" style="height:300px;border-radius:14px;margin-top:8px;z-index:1"></div>
-<input type="hidden" name="lat" id="latInput" value="{{ user.lat or '' }}">
-<input type="hidden" name="lng" id="lngInput" value="{{ user.lng or '' }}">
-<p id="locText" style="font-size:12px;color:#16a34a;font-weight:700;margin-top:6px">{% if user.lat %}Pin Save Aahe: {{user.lat}}, {{user.lng}}{% else %}Ajun Pin Nahi{% endif %}</p>
-<button type="submit" id="saveBtn" class="btn btn-green">✅ Save Kara - Photo + Location</button></form></div></div>
-
-<div id="passModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('passModal')">×</button><h2>🔒 Password Badla</h2>
-<form method="POST" action="/profile/change-password"><input name="old_password" type="password" placeholder="Juna Password" required><input name="new_password" type="password" placeholder="Navin Password" required><button class="btn btn-green">Password Badla</button></form></div></div>
-
-<div class="bottom"><a href="/">🏠<span>Home</span></a><a href="/profile">👤<span>Profile</span></a></div>
+<div class="bottom">
+  <a href="/">🏠<span>Home</span></a>
+  <a href="/profile">➕<span>Add</span></a>
+  <a href="/">🛒<span>Cart</span></a>
+  <a href="/profile">👤<span>Profile</span></a>
+</div>
 
 <script>
-function showTab(name){
-  document.getElementById('tab-products').style.display = name=='products'?'block':'none';
-  document.getElementById('tab-myorders').style.display = name=='myorders'?'block':'none';
-  document.getElementById('tab-shoporders').style.display = name=='shoporders'?'block':'none';
-  document.getElementById('tab1Btn').classList.toggle('active', name=='products');
-  document.getElementById('tab2Btn').classList.toggle('active', name=='myorders');
-  document.getElementById('tab3Btn').classList.toggle('active', name=='shoporders');
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  if (id == 'editModal') {
+    setTimeout(initMap, 200);
+  }
 }
-let editMap=null, editMarker=null;
-function openModal(id){document.getElementById(id).classList.add('open'); if(id=='editModal'){ setTimeout(initEditMap, 400); }}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
-{% if user.lat and user.lng %}
-var map = L.map('map').setView([{{user.lat}}, {{user.lng}}], 17);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri Satellite'}).addTo(map);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(map);
-var shopIcon = L.divIcon({className:'', html:`<div style="background:#fff;border:3px solid #16a34a;border-radius:50%;width:50px;height:50px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.4)">{% if user.profile_pic %}<img src="{{user.profile_pic}}" style="width:100%;height:100%;object-fit:cover">{% else %}🏪{% endif %}</div>`, iconSize:[50,50], iconAnchor:[25,50]});
-L.marker([{{user.lat}}, {{user.lng}}], {icon: shopIcon}).addTo(map).bindPopup("<b>{{user.store_name}}</b><br>{{user.location}}").openPopup();
-{% endif %}
-function initEditMap(){
-  if(editMap){ editMap.invalidateSize(); return; }
-  let startLat = {{ user.lat or 17.9236 }}; let startLng = {{ user.lng or 75.1937 }};
-  editMap = L.map('editMap').setView([startLat, startLng], 17);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri'}).addTo(editMap);
-  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(editMap);
-  editMarker = L.marker([startLat, startLng], {draggable:true}).addTo(editMap);
-  function savePin(latlng){ document.getElementById('latInput').value = latlng.lat; document.getElementById('lngInput').value = latlng.lng; document.getElementById('locText').innerText = '✅ Pin Save Honar: '+latlng.lat.toFixed(5)+', '+latlng.lng.toFixed(5); document.getElementById('saveBtn').innerText = '✅ Save Kara - Pin Lagla!'; }
-  editMarker.on('dragend', function(){ savePin(editMarker.getLatLng()); });
-  editMap.on('click', function(e){ editMarker.setLatLng(e.latlng); savePin(e.latlng); });
-  setTimeout(()=>{ editMap.invalidateSize(); }, 600);
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
 }
-function getLiveLocation(){
-  if(!navigator.geolocation){ alert('Location off aahe'); return; }
-  document.getElementById('locText').innerText = 'Location shodhtoy...';
-  navigator.geolocation.getCurrentPosition(function(pos){
-    let lat = pos.coords.latitude; let lng = pos.coords.longitude;
-    document.getElementById('latInput').value = lat; document.getElementById('lngInput').value = lng;
-    document.getElementById('locText').innerText = '✅ Live Location Milala: '+lat.toFixed(5)+', '+lng.toFixed(5)+' - Aata Save dab';
-    document.getElementById('saveBtn').innerText = '✅ Save Kara - Live Location Lagla!';
-    if(editMap){ editMap.setView([lat,lng], 18); editMarker.setLatLng([lat,lng]); }
-  }, function(){ alert('Location Permission De - Allow dab'); }, {enableHighAccuracy:true, timeout:10000});
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
-document.getElementById('profileForm').addEventListener('submit', function(){ document.getElementById('saveBtn').innerText = '⏳ Save hotoy...'; document.getElementById('saveBtn').disabled = true; });
-</script></body></html>
+
+let mapInit = false;
+let marker = null;
+
+function initMap() {
+  if (mapInit) return;
+  mapInit = true;
+  let lat = {{ user.lat or 17.9236 }};
+  let lng = {{ user.lng or 75.1937 }};
+  var m = L.map('map').setView([lat, lng], 13);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© Esri'}).addTo(m);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(m);
+  {% if user.lat and user.lng %}
+  marker = L.marker([lat, lng]).addTo(m);
+  {% endif %}
+  m.on('click', function(e) {
+    if (marker) m.removeLayer(marker);
+    marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(m);
+    document.getElementById('lat').value = e.latlng.lat;
+    document.getElementById('lng').value = e.latlng.lng;
+    document.getElementById('locText').innerText = '📍 Location Selected: ' + e.latlng.lat.toFixed(4) + ', ' + e.latlng.lng.toFixed(4);
+  });
+  setTimeout(() => m.invalidateSize(), 300);
+}
+</script>
+</body>
+</html>
+.bottom a {
+  text-decoration: none;
+  color: #64748b;
+  font-size: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+.toast {
+  background: #16a34a;
+  color: #fff;
+  padding: 12px;
+  text-align: center;
+  font-weight: 700;
+}
+</style>
+</head>
+<body>
