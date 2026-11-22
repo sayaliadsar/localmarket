@@ -82,9 +82,7 @@ def login():
     session['user'] = dict(u); return redirect('/?msg=Welcome, ' + u['name'])
 
 @app.route('/logout')
-def logout(): session.clear(); return redirect('/')
-
-@app.route('/add', methods=['POST'])
+def logout(): session.clear(); return redirect('/')"@app.route('/add', methods=['POST'])
 def add_product():
     if 'user' not in session: return redirect('/')
     img = save_photo(request.files.get('product_pic')) or FALLBACK
@@ -122,9 +120,7 @@ def profile():
         if u: session['user'] = dict(u)
         return render_template('profile.html', user=session.get('user'), products=my, my_orders=myo, shop_orders=shopo, my_sub=sub)
     except Exception as e:
-        return f"Profile Error: {e} <br><a href='/'>Go Home</a>"
-
-@app.route('/profile/edit', methods=['POST'])
+        return f"Profile Error: {e} <br><a href='/'>Go Home</a>"@app.route('/profile/edit', methods=['POST'])
 def edit_profile():
     if 'user' not in session: return redirect('/')
     pic = save_photo(request.files.get('profile_pic')); conn = get_db(); cur = conn.cursor(); lat = request.form.get('lat') or None; lng = request.form.get('lng') or None
@@ -169,9 +165,7 @@ def add_review(pid):
 @app.route('/subscribe/<plan>')
 def subscribe_request(plan):
     if 'user' not in session: return redirect('/?msg=Please login first.')
-    price = 199 if plan=='Pro' else 499 if plan=='Premium' else 0; conn = get_db(); cur = conn.cursor(); cur.execute("INSERT INTO subscriptions (user_id,store_name,plan,price,days,status) VALUES (%s,%s,%s,%s,30,'Pending')", (session['user']['id'], session['user'].get('store_name',''), plan, price)); conn.commit(); cur.close(); conn.close(); return redirect('/profile?msg=Subscription request sent. Admin will confirm.')
-
-@app.route('/admin')
+    price = 199 if plan=='Pro' else 499 if plan=='Premium' else 0; conn = get_db(); cur = conn.cursor(); cur.execute("INSERT INTO subscriptions (user_id,store_name,plan,price,days,status) VALUES (%s,%s,%s,%s,30,'Pending')", (session['user']['id'], session['user'].get('store_name',''), plan, price)); conn.commit(); cur.close(); conn.close(); return redirect('/profile?msg=Subscription request sent. Admin will confirm.')@app.route('/admin')
 def admin():
     if 'user' not in session or not session['user'].get('is_admin'): return redirect('/')
     conn = get_db(); cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -179,12 +173,13 @@ def admin():
     cur.execute("SELECT * FROM products ORDER BY id DESC"); products = cur.fetchall()
     cur.execute("SELECT * FROM orders ORDER BY id DESC"); orders = cur.fetchall()
     cur.execute("SELECT * FROM subscriptions ORDER BY id DESC"); subs = cur.fetchall()
+    cur.execute("SELECT r.*, p.title as product_title FROM reviews r LEFT JOIN products p ON r.product_id=p.id ORDER BY r.id DESC"); reviews = cur.fetchall()
     ot = sum([float(o['price'] or 0)*int(o['qty'] or 1) for o in orders]); comm = round(ot*0.05,2); pend = len([o for o in orders if o['status']=='Pending']); deli = len([o for o in orders if o['status']=='Delivered'])
     cur.execute("SELECT store_name, COUNT(*) as cnt, SUM(price*qty) as total FROM orders GROUP BY store_name ORDER BY total DESC LIMIT 5"); tops = cur.fetchall()
     cur.execute("SELECT TO_CHAR(created_at,'DD Mon') as day, COUNT(*) as cnt, SUM(price*qty) as total FROM orders GROUP BY day ORDER BY MIN(created_at) DESC LIMIT 7"); daily = cur.fetchall()
     sub_inc = sum([float(s['price'] or 0) for s in subs if s['status']=='Active']); pro = len([s for s in subs if s['status']=='Active']); ts = sum([float(p['price'] or 0) for p in products])
     cur.close(); conn.close()
-    return render_template('admin.html', users=users, products=products, orders=orders, subs=subs, total_sell=ts, order_total=ot, commission=comm, pending=pend, delivered=deli, top_sellers=tops, daily=daily, sub_income=sub_inc, pro_users=pro, user=session.get('user'))
+    return render_template('admin.html', users=users, products=products, orders=orders, subs=subs, reviews=reviews, total_sell=ts, order_total=ot, commission=comm, pending=pend, delivered=deli, top_sellers=tops, daily=daily, sub_income=sub_inc, pro_users=pro, user=session.get('user'))
 
 @app.route('/admin/subscription/add', methods=['POST'])
 def add_subscription():
@@ -218,10 +213,25 @@ def unblock_user(uid):
     if 'user' not in session or not session['user'].get('is_admin'): return redirect('/')
     conn = get_db(); cur = conn.cursor(); cur.execute("UPDATE users SET is_blocked=FALSE WHERE id=%s", (uid,)); conn.commit(); cur.close(); conn.close(); return redirect('/admin')
 
-@app.route('/admin/delete_user/<int:uid>')
-def delete_user(uid):
+@app.route('/admin/toggle-pro/<int:uid>')
+def toggle_pro(uid):
+    if 'user' not in session or not session['user'].get('is_admin'): return redirect('/')
+    conn = get_db(); cur = conn.cursor(); cur.execute("UPDATE users SET is_pro=NOT is_pro WHERE id=%s", (uid,)); conn.commit(); cur.close(); conn.close(); return redirect('/admin')
+
+@app.route('/admin/delete-product/<int:pid>')
+def admin_delete_product(pid):
+    if 'user' not in session or not session['user'].get('is_admin'): return redirect('/')
+    conn = get_db(); cur = conn.cursor(); cur.execute("DELETE FROM products WHERE id=%s", (pid,)); conn.commit(); cur.close(); conn.close(); return redirect('/admin')
+
+@app.route('/admin/delete-user/<int:uid>')
+def admin_delete_user(uid):
     if 'user' not in session or not session['user'].get('is_admin'): return redirect('/')
     conn = get_db(); cur = conn.cursor(); cur.execute("DELETE FROM products WHERE user_id=%s", (uid,)); cur.execute("DELETE FROM users WHERE id=%s", (uid,)); conn.commit(); cur.close(); conn.close(); return redirect('/admin')
+
+@app.route('/admin/delete-review/<int:rid>')
+def admin_delete_review(rid):
+    if 'user' not in session or not session['user'].get('is_admin'): return redirect('/')
+    conn = get_db(); cur = conn.cursor(); cur.execute("DELETE FROM reviews WHERE id=%s", (rid,)); conn.commit(); cur.close(); conn.close(); return redirect('/admin')
 
 if __name__ == '__main__':
     init_db(); app.run(host='0.0.0.0', port=int(os.environ.get("PORT",5000)))
