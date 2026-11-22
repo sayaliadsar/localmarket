@@ -495,24 +495,24 @@ def seller_dashboard():
 
     notifs = Notification.query.filter_by(user_id=u.id).order_by(Notification.id.desc()).limit(10).all()
     plans = SubscriptionPlan.query.filter_by(is_active=True).all()
+    cats = Category.query.all()
 
-    return render_template('seller.html', user=u, shop=shop, products=prods, reservations=res, reviews=revs, followers=followers, sub=sub, total_views=total_views, low_stock=low_stock, pending_res=pending_res, village_demand=village_demand, notifs=notifs, plans=plans, msg=request.args.get('msg', ''))
+    return render_template('seller.html', user=u, shop=shop, products=prods, reservations=res, reviews=revs, followers=followers, sub=sub, total_views=total_views, low_stock=low_stock, pending_res=pending_res, village_demand=village_demand, notifs=notifs, plans=plans, cats=cats, msg=request.args.get('msg', ''))
 
 @app.route('/seller/add-product', methods=['POST'])
 def seller_add_product():
     u = current_user()
     if not u:
         return redirect('/')
-
     shop = Shop.query.filter_by(user_id=u.id).first()
+    if not shop:
+        return redirect('/seller?msg=Shop not found')
 
     sub = get_active_sub(u.id)
     limit = 10
     if sub and sub.plan:
         limit = sub.plan.product_limit
-
     count = Product.query.filter_by(shop_id=shop.id).count()
-
     if limit != -1 and count >= limit:
         return redirect('/seller?msg=Product limit reached! Upgrade to Silver/Gold plan.')
 
@@ -529,76 +529,100 @@ def seller_add_product():
         mrp=mrp,
         description=request.form.get('description'),
         image=img,
-        stock_qty=int(request.form.get('stock_qty', 10))
+        stock_qty=int(request.form.get('stock_qty') or 10),
+        is_available=True
     )
     db.session.add(p)
     db.session.commit()
-
     db.session.add(Inventory(product_id=p.id, qty=p.stock_qty))
     db.session.commit()
-
     return redirect('/seller?msg=Product added successfully!')
+
+@app.route('/seller/delete-product/<int:pid>')
+def seller_delete_product(pid):
+    u = current_user()
+    if not u: return redirect('/')
+    p = Product.query.get_or_404(pid)
+    if p.user_id != u.id and u.role != 'admin':
+        return redirect('/seller')
+    db.session.delete(p)
+    db.session.commit()
+    return redirect('/seller?msg=Product deleted')
+
+@app.route('/seller/toggle-stock/<int:pid>')
+def seller_toggle_stock(pid):
+    u = current_user()
+    if not u: return redirect('/')
+    p = Product.query.get_or_404(pid)
+    p.is_available = not p.is_available
+    db.session.commit()
+    return redirect('/seller')
 
 @app.route('/seller/update-stock/<int:pid>', methods=['POST'])
 def update_stock(pid):
     u = current_user()
+    if not u: return redirect('/')
     p = Product.query.get_or_404(pid)
-
     if p.user_id != u.id and u.role != 'admin':
         return redirect('/seller')
-
     qty = int(request.form.get('qty', 0))
     p.stock_qty = qty
     p.is_available = qty > 0
     p.last_stock_check = datetime.utcnow()
-
     inv = Inventory.query.filter_by(product_id=pid).first()
     if inv:
         inv.qty = qty
         inv.updated_at = datetime.utcnow()
-
     db.session.commit()
     return redirect('/seller?msg=Stock updated!')
 
 @app.route('/seller/reservation/<int:rid>/<status>')
 def update_reservation(rid, status):
     u = current_user()
+    if not u: return redirect('/')
     r = Reservation.query.get_or_404(rid)
-    r.status = status
-    db.session.commit()
-
-    db.session.add(Notification(
-        user_id=r.customer_id,
-        title=f'Reservation {status}',
-        message=f'Tumchi reservation {status} zali aahe. Shop la visit kara.'
-    ))
-    db.session.commit()
-
+    if status in ['Pending','Confirmed','Ready','Completed','Cancelled']:
+        r.status = status
+        db.session.commit()
+        db.session.add(Notification(user_id=r.customer_id, title=f'Reservation {status}', message=f'Tumchi reservation {status} zali aahe. Shop la visit kara.'))
+        db.session.commit()
     return redirect('/seller?msg=Reservation ' + status)
 
 @app.route('/seller/shop-update', methods=['POST'])
 def shop_update():
     u = current_user()
+    if not u:
+        return redirect('/?msg=Please login')
     shop = Shop.query.filter_by(user_id=u.id).first()
-
-    shop.shop_name = request.form.get('shop_name')
-    shop.village = request.form.get('village')
+    if not shop:
+        return redirect('/seller?msg=Shop not found')
+    shop.shop_name = request.form.get('shop_name') or shop.shop_name
+    shop.village = request.form.get('village') or shop.village
     shop.address = request.form.get('address')
     shop.phone = request.form.get('phone')
     shop.timings = request.form.get('timings')
-
-    if request.form.get('lat'):
-        shop.lat = float(request.form.get('lat'))
-
-    if request.form.get('lng'):
-        shop.lng = float(request.form.get('lng'))
-
+    try:
+        if request.form.get('lat'):
+            shop.lat = float(request.form.get('lat'))
+        if request.form.get('lng'):
+            shop.lng = float(request.form.get('lng'))
+    except:
+        pass
     pic = save_photo(request.files.get('shop_pic'))
     if pic:
         shop.shop_pic = pic
-
     db.session.commit()
     return redirect('/seller?msg=Shop updated!')
+
+@app.route('/seller/add-category', methods=['POST'])
+def seller_add_category():
+    u = current_user()
+    if not u: return redirect('/')
+    name = request.form.get('name','').strip()
+    if name and not Category.query.filter_by(name=name).first():
+        db.session.add(Category(name=name, icon='🏪'))
+        db.session.commit()
+    return redirect('/seller?msg=Category added!')
 # ---------- SELLER SUBSCRIBE ----------
 
 @app.route('/seller/subscribe/<int:plan_id>/<duration>')
@@ -848,6 +872,15 @@ def api_map_search():
             })
 
     return jsonify(out)
+@app.route('/seller/add-category', methods=['POST'])
+def seller_add_category():
+    u = current_user()
+    if not u: return redirect('/')
+    name = request.form.get('name','').strip()
+    if name and not Category.query.filter_by(name=name).first():
+        db.session.add(Category(name=name, icon='🏪'))
+        db.session.commit()
+    return redirect('/seller?msg=Category added!')
 
 # ---------- RUN ----------
 
