@@ -1,9 +1,82 @@
-<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - Local Market</title><style>body{font-family:sans-serif;padding:16px;background:#f8fafc}table{width:100%;background:#fff;border-collapse:collapse}td,th{padding:10px;border:1px solid #eee;font-size:13px;text-align:left}.card{background:#16a34a;color:#fff;padding:16px;border-radius:14px;margin-bottom:14px;display:inline-block;margin-right:10px}a{color:#2563eb;text-decoration:none;font-weight:700}.del{color:#ef4444}</style></head><body>
-<a href="/">← Website var Ja</a><h2>🛡️ Admin Panel - Professional</h2>
-<div><div class="card"><b>Total Sale Value: ₹{{total_sell}}</b></div><div class="card" style="background:#111827"><b>Total Orders Value: ₹{{order_total}}</b></div><div class="card" style="background:#f59e0b"><b>Total Users: {{users|length}} | Products: {{products|length}} | Orders: {{orders|length}}</b></div></div>
-<h3>📦 Orders</h3><table><tr><th>Product</th><th>Customer</th><th>Store</th><th>Qty</th><th>Price</th><th>Status</th></tr>
-{% for o in orders %}<tr><td>{{o.product_title}}</td><td>{{o.buyer_name}} - {{o.buyer_phone}}</td><td>{{o.store_name}}</td><td>{{o.qty}}</td><td>₹{{o.price}}</td><td>{{o.status}}</td></tr>{% endfor %}</table>
-<h3 style="margin-top:20px">Users</h3><table><tr><th>Nav</th><th>Email</th><th>Store</th><th>Action</th></tr>
-{% for u in users %}<tr><td>{{u.name}}</td><td>{{u.email}}</td><td>{{u.store_name}}</td><td>{% if not u.is_admin %}{% if u.is_blocked %}<a href="/admin/unblock/{{u.id}}">Unblock</a>{% else %}<a href="/admin/block/{{u.id}}">Block</a>{% endif %} | <a class="del" href="/admin/delete_user/{{u.id}}">Delete</a>{% else %}Admin{% endif %}</td></tr>{% endfor %}</table>
-<h3 style="margin-top:20px">Products</h3><table><tr><th>Product</th><th>Kimmat</th><th>Store</th><th>Rating</th><th>Delete</th></tr>
-{% for p in products %}<tr><td>{{p.title}}</td><td>₹{{p.price}}</td><td>{{p.store_name}}</td><td>⭐ {{p.rating or 0}}</td><td><a class="del" href="/delete/{{p.id}}">Delete</a></td></tr>{% endfor %}</table></body></html>
+<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Panel - Local Market</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{background:#f1f5f9;padding:16px;padding-bottom:40px}
+header{display:flex;justify-content:space-between;align-items:center;background:#111827;color:#fff;padding:16px;border-radius:16px}
+header a{color:#fff;text-decoration:none}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}@media(min-width:700px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{background:#fff;padding:16px;border-radius:16px;box-shadow:0 2px 8px rgba(0,0,0,.05)}.stat b{font-size:24px;display:block}.stat span{font-size:12px;color:#888}
+.card{background:#fff;padding:16px;border-radius:16px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.tabs{display:flex;gap:8px;overflow-x:auto;margin-bottom:12px}.tabs button{white-space:nowrap;padding:10px 16px;border:none;border-radius:20px;background:#fff;font-weight:700;cursor:pointer}.tabs button.active{background:#16a34a;color:#fff}
+table{width:100%;background:#fff;border-collapse:collapse;border-radius:12px;overflow:hidden}td,th{padding:10px;border:1px solid #eee;font-size:13px;text-align:left}
+input,select{padding:10px;border:1px solid #ddd;border-radius:10px;margin:4px 0;width:100%}
+.btn{padding:10px 14px;border:none;border-radius:10px;font-weight:700;cursor:pointer}
+.btn-green{background:#16a34a;color:#fff}.btn-red{background:#fee2e2;color:#b91c1c}.btn-blue{background:#dbeafe;color:#1e40af}
+.plan-box{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}@media(max-width:600px){.plan-box{grid-template-columns:1fr}}
+.plan{background:#fff;padding:16px;border-radius:16px;text-align:center;border:2px solid #e2e8f0}.plan.pro{border-color:#f59e0b;background:#fffbeb}.plan.premium{border-color:#16a34a;background:#f0fdf4}
+</style></head><body>
+<header><div><h2>🛡️ Admin Panel</h2><p style="font-size:12px;opacity:.7">Local Market - Boss Dashboard</p></div><a href="/">🏠 Website var Ja</a></header>
+
+<!-- STATS -->
+<div class="stats">
+<div class="stat" style="border-left:4px solid #16a34a"><span>💰 Total Order Value</span><b>₹{{order_total}}</b><span style="color:#16a34a">Tujha Commission (5%): ₹{{commission}}</span></div>
+<div class="stat" style="border-left:4px solid #f59e0b"><span>👑 Subscription Income</span><b>₹{{sub_income}}</b><span>{{pro_users}} Paid Users</span></div>
+<div class="stat" style="border-left:4px solid #2563eb"><span>👥 Total Users</span><b>{{users|length}}</b><span>{{products|length}} Products</span></div>
+<div class="stat" style="border-left:4px solid #ef4444"><span>📦 Orders</span><b>{{orders|length}}</b><span>Pending: {{pending}} | Delivered: {{delivered}}</span></div>
+</div>
+
+<!-- GRAPH + TOP SELLER -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px" id="graphGrid"><div class="card"><h3>📈 Rojchi Sale - Graph</h3><canvas id="saleChart" height="200"></canvas></div>
+<div class="card"><h3>🏆 Top 5 Dukana</h3>
+{% for t in top_sellers %}<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee"><span><b>{{t.store_name}}</b><br><span style="font-size:12px;color:#888">{{t.cnt}} Orders</span></span><b style="color:#16a34a">₹{{t.total}}</b></div>{% else %}<p style="color:#888">Ajun Order Nahi</p>{% endfor %}
+</div></div>
+
+<!-- SUBSCRIPTION PLANS -->
+<div class="card"><h3>👑 Subscription Plans - Tu Tharav</h3>
+<div class="plan-box" style="margin-top:12px">
+<div class="plan"><h3>🆓 Free</h3><b style="font-size:28px">₹0</b><p style="font-size:13px;color:#555;margin:8px 0">5 Product Takta Yetil<br>Basic Map<br>WhatsApp Order</p><span style="background:#f1f5f9;padding:6px 12px;border-radius:20px;font-size:12px">Saglyanna Free</span></div>
+<div class="plan pro"><h3>⭐ Pro - Popular</h3><b style="font-size:28px">₹199 / Mahina</b><p style="font-size:13px;color:#555;margin:8px 0">Unlimited Product<br>Satellite Map + Logo<br>Top madhe Dukan Disel<br>Offer Banner</p><span style="background:#f59e0b;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:800">BEST SELLER</span></div>
+<div class="plan premium"><h3>👑 Premium</h3><b style="font-size:28px">₹499 / Mahina</b><p style="font-size:13px;color:#555;margin:8px 0">Sagla Pro +<br>Home Page Banner<br>Admin Support<br>0% Commission</p><span style="background:#16a34a;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:800">PREMIUM</span></div>
+</div>
+
+<!-- Subscription Dya -->
+<h4 style="margin-top:16px">➕ Konala Subscription Dyaycha?</h4>
+<form method="POST" action="/admin/subscription/add" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-top:8px">
+<select name="user_id" required><option value="">User Nivda</option>{% for u in users %}<option value="{{u.id}}">{{u.name}} - {{u.store_name}} ({{u.email}})</option>{% endfor %}</select>
+<input name="store_name" placeholder="Dukan Nav" required>
+<select name="plan"><option>Pro - ₹199</option><option>Premium - ₹499</option><option>Free</option></select>
+<input name="price" type="number" placeholder="Kimmat ₹ - Ex: 199" required>
+<input name="days" type="number" placeholder="Kiti Divas - Ex: 30" value="30" required>
+<button class="btn btn-green" style="grid-column:1/-1">✅ Subscription Dya</button></form>
+
+<h4 style="margin-top:16px">Paid Users List</h4>
+<table style="margin-top:8px"><tr><th>Dukan</th><th>Plan</th><th>Kimmat</th><th>Divas</th><th>Status</th><th>Action</th></tr>
+{% for s in subs %}<tr><td>{{s.store_name}}</td><td><b>{{s.plan}}</b></td><td>₹{{s.price}}</td><td>{{s.days}} Divas</td><td>{% if s.status=='Active' %}<span style="background:#dcfce7;padding:4px 8px;border-radius:10px;font-size:12px">✅ Active</span>{% else %}<span style="background:#fee2e2;padding:4px 8px;border-radius:10px;font-size:12px">❌ Cancel</span>{% endif %}</td><td><a href="/admin/subscription/cancel/{{s.id}}" class="btn btn-red" style="text-decoration:none;font-size:12px">Cancel</a></td></tr>{% else %}<tr><td colspan="6" style="text-align:center;color:#888">Ajun Koni Paid Nahi</td></tr>{% endfor %}</table>
+</div>
+
+<!-- TABS -->
+<div class="tabs"><button id="t1" class="active" onclick="show('orders')">📦 Orders ({{orders|length}})</button><button id="t2" onclick="show('users')">👥 Users ({{users|length}})</button><button id="t3" onclick="show('products')">🛍️ Products ({{products|length}})</button></div>
+
+<div id="sec-orders" class="card"><h3>📦 Saglya Orders</h3><div style="overflow-x:auto"><table><tr><th>Product</th><th>Customer</th><th>Dukan</th><th>Qty</th><th>Kimmat</th><th>Tujha Commission</th><th>Status</th><th>Action</th></tr>
+{% for o in orders %}<tr><td>{{o.product_title}}</td><td>{{o.buyer_name}}<br><span style="font-size:11px;color:#888">{{o.buyer_phone}}</span></td><td>{{o.store_name}}</td><td>{{o.qty}}</td><td>₹{{o.price}}</td><td style="color:#16a34a;font-weight:700">₹{{ (o.price * o.qty * 0.05) | round(2) }}</td><td><b>{{o.status}}</b></td><td><a href="/admin/order/status/{{o.id}}/Delivered" class="btn btn-blue" style="text-decoration:none;font-size:12px">Delivered Kara</a></td></tr>{% endfor %}</table></div></div>
+
+<div id="sec-users" class="card" style="display:none"><h3>👥 Users</h3><table><tr><th>Nav</th><th>Email</th><th>Dukan</th><th>Phone</th><th>Pro?</th><th>Action</th></tr>
+{% for u in users %}<tr><td>{{u.name}}</td><td>{{u.email}}</td><td>{{u.store_name}}</td><td>{{u.phone}}</td><td>{% if u.is_pro %}👑 Pro{% else %}Free{% endif %}</td><td>{% if not u.is_admin %}{% if u.is_blocked %}<a href="/admin/unblock/{{u.id}}" class="btn btn-blue" style="text-decoration:none;font-size:12px">Unblock</a>{% else %}<a href="/admin/block/{{u.id}}" class="btn btn-blue" style="text-decoration:none;font-size:12px">Block</a>{% endif %} <a href="/admin/delete_user/{{u.id}}" onclick="return confirm('Delete?')" class="btn btn-red" style="text-decoration:none;font-size:12px">Delete</a>{% else %}Admin{% endif %}</td></tr>{% endfor %}</table></div>
+
+<div id="sec-products" class="card" style="display:none"><h3>🛍️ Products</h3><table><tr><th>Product</th><th>Kimmat</th><th>Dukan</th><th>Rating</th><th>Delete</th></tr>
+{% for p in products %}<tr><td>{{p.title}}</td><td>₹{{p.price}}</td><td>{{p.store_name}}</td><td>⭐ {{p.rating or 0}}</td><td><a href="/delete/{{p.id}}" class="btn btn-red" style="text-decoration:none;font-size:12px">Delete</a></td></tr>{% endfor %}</table></div>
+
+<script>
+function show(name){
+  document.getElementById('sec-orders').style.display = name=='orders'?'block':'none';
+  document.getElementById('sec-users').style.display = name=='users'?'block':'none';
+  document.getElementById('sec-products').style.display = name=='products'?'block':'none';
+  document.getElementById('t1').classList.toggle('active', name=='orders');
+  document.getElementById('t2').classList.toggle('active', name=='users');
+  document.getElementById('t3').classList.toggle('active', name=='products');
+}
+// Graph
+var ctx = document.getElementById('saleChart').getContext('2d');
+new Chart(ctx, {type:'bar', data:{labels:[{% for d in daily %}'{{d.day}}',{% endfor %}], datasets:[{label:'Sale ₹', data:[{% for d in daily %}{{d.total or 0}},{% endfor %}], backgroundColor:'#16a34a', borderRadius:8}]}, options:{responsive:true, plugins:{legend:{display:false}}}});
+</script></body></html>
