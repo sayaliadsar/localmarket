@@ -1,97 +1,393 @@
-<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Local Market - Sangola</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{background:#f8fafc;padding-bottom:80px}
-header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:22px;font-weight:900} .logo span{color:#16a34a}
-.search{display:flex;gap:8px;padding:12px} .search input{flex:1;padding:12px;border-radius:12px;border:1px solid #e2e8f0} .search button{padding:12px 18px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-weight:700}
-.cats{display:flex;gap:8px;overflow-x:auto;padding:0 12px 12px} .cats a{white-space:nowrap;padding:8px 16px;background:#fff;border-radius:20px;text-decoration:none;color:#333;font-size:13px;border:1px solid #e2e8f0} .cats a.active{background:#16a34a;color:#fff}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 12px} @media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
-.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer} .card img{width:100%;height:160px;object-fit:cover} .card-body{padding:10px} .card-body b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis} .price{color:#16a34a;font-weight:900;font-size:18px} .store{font-size:12px;color:#888}
-.btn-main{width:100%;padding:13px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-weight:800;font-size:15px;margin-top:10px;cursor:pointer}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:flex-end} .modal.open{display:flex}
-.modal-box{background:#fff;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}
-.modal-box input,.modal-box select,.modal-box textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0} .modal-box label{font-size:12px;font-weight:700;color:#555}
-.close{position:absolute;right:16px;top:12px;border:none;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee;z-index:20} .bottom a{text-decoration:none;color:#64748b;font-size:12px;text-align:center;display:flex;flex-direction:column}
-.chip{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:2px}
-.toast{background:#16a34a;color:#fff;padding:12px;text-align:center;font-weight:700}
-</style></head><body>
-{% if msg %}<div class="toast">{{msg}}</div>{% endif %}
-<header><div class="logo">🛒 Local<span>Market</span><div style="font-size:11px;color:#888;font-weight:400">Sangola • Sagla Kahi Ekach Jagi</div></div>
-{% if user %}<a href="/logout" style="font-size:13px;color:#ef4444;text-decoration:none;font-weight:700">Logout</a>{% else %}<button onclick="openModal('loginModal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:20px;font-weight:700">Login</button>{% endif %}</header>
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Local Market - Sangola, Malshiras, Akluj, Natepute</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Leaflet.js Free Interactive Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        :root {
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #16a34a;
+            --primary-dark: #15803d;
+            --whatsapp: #25D366;
+            --whatsapp-dark: #1ebe5d;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+        }
 
-<form class="search" method="GET" action="/"><input name="search" value="{{search}}" placeholder="Shodha... Sadi, Cake, Kirana..."><button>Shodha</button></form>
-<div class="cats">
-<a href="/?cat=All" class="{% if cat=='All' %}active{% endif %}">🌍 Sagla</a><a href="/?cat=Kirana" class="{% if cat=='Kirana' %}active{% endif %}">🛒 Kirana</a><a href="/?cat=Kapde" class="{% if cat=='Kapde' %}active{% endif %}">👗 Kapde</a><a href="/?cat=Bakery" class="{% if cat=='Bakery' %}active{% endif %}">🍰 Bakery</a><a href="/?cat=Hotel" class="{% if cat=='Hotel' %}active{% endif %}">🍔 Hotel</a><a href="/?cat=Mobile" class="{% if cat=='Mobile' %}active{% endif %}">📱 Mobile</a><a href="/?cat=Beauty" class="{% if cat=='Beauty' %}active{% endif %}">💄 Beauty</a><a href="/?cat=Medical" class="{% if cat=='Medical' %}active{% endif %}">💊 Medical</a><a href="/?cat=Electronics" class="{% if cat=='Electronics' %}active{% endif %}">🔌 Electronics</a>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-main); color: var(--text-dark); padding-bottom: 85px; }
+
+        header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); padding: 12px 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .header-top { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .brand-icon {
+            width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), #22c55e);
+            color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 19px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+        }
+        .brand-text h1 { font-size: 17px; font-weight: 800; line-height: 1.1; }
+        .brand-text p { font-size: 11px; color: var(--primary); font-weight: 700; }
+
+        .city-select {
+            padding: 7px 10px; border-radius: 10px; border: 1.5px solid var(--primary);
+            background: #f0fdf4; color: var(--primary-dark); font-size: 12px; font-weight: 700; outline: none;
+        }
+
+        .desktop-nav { display: none; gap: 8px; }
+        @media (min-width: 768px) {
+            body { padding-bottom: 30px; }
+            .desktop-nav { display: flex; }
+            .bottom-nav { display: none !important; }
+        }
+
+        .search-wrap { max-width: 1200px; margin: 10px auto 0; position: relative; }
+        .search-wrap input {
+            width: 100%; padding: 11px 16px 11px 40px; border-radius: 14px;
+            border: 1.5px solid var(--border); background: var(--bg-main); font-size: 14px; outline: none;
+        }
+        .search-wrap input:focus { border-color: var(--primary); background: #fff; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* View Switcher (Products vs Store Map) */
+        .mode-tabs {
+            max-width: 1200px; margin: 12px auto 0; padding: 0 16px;
+            display: flex; gap: 10px;
+        }
+        .mode-btn {
+            flex: 1; padding: 10px; border-radius: 12px; border: 1.5px solid var(--border);
+            background: #fff; font-size: 13px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .mode-btn.active { background: #0f172a; color: #fff; border-color: #0f172a; }
+
+        /* Category Horizontal Pills */
+        .category-bar {
+            max-width: 1200px; margin: 12px auto 6px; padding: 0 16px;
+            display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;
+        }
+        .category-bar::-webkit-scrollbar { display: none; }
+        .cat-pill {
+            padding: 8px 15px; border-radius: 999px; background: #fff; border: 1px solid var(--border);
+            font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer;
+        }
+        .cat-pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 10px 16px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .section-header h2 { font-size: 16px; font-weight: 800; }
+
+        /* Product Grid */
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
+
+        .product-card {
+            background: var(--card-bg); border-radius: 16px; overflow: hidden;
+            border: 1px solid var(--border); box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+            cursor: pointer; display: flex; flex-direction: column;
+        }
+        .card-img-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; background: #f1f5f9; }
+        .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .cat-badge {
+            position: absolute; top: 8px; left: 8px; background: rgba(15, 23, 42, 0.78);
+            color: #fff; font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 8px;
+        }
+        .city-badge {
+            position: absolute; bottom: 8px; right: 8px; background: rgba(255, 255, 255, 0.92);
+            color: #0f172a; font-size: 10px; font-weight: 800; padding: 3px 7px; border-radius: 6px;
+        }
+        .card-body { padding: 11px; display: flex; flex-direction: column; flex: 1; }
+        .card-title {
+            font-size: 14px; font-weight: 700; margin-bottom: 4px;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .card-store { font-size: 11.5px; color: var(--primary-dark); font-weight: 600; margin-bottom: 8px; }
+        .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+        .card-price { font-size: 16px; font-weight: 800; color: var(--primary); }
+
+        /* Map View */
+        #mapSection { display: none; }
+        #storeMap {
+            width: 100%; height: 420px; border-radius: 18px;
+            border: 2px solid var(--border); z-index: 1; margin-bottom: 16px;
+        }
+        .store-list-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        @media (min-width: 768px) { .store-list-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .store-mini-card {
+            background: #fff; padding: 14px; border-radius: 16px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 15px; border-radius: 12px; border: none; font-size: 13.5px; font-weight: 700;
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; text-decoration: none;
+        }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-outline { background: #fff; border: 1.5px solid var(--border); color: var(--text-dark); }
+        .btn-whatsapp {
+            background: var(--whatsapp); color: #fff; width: 100%; padding: 13px;
+            font-size: 15px; border-radius: 14px; box-shadow: 0 6px 18px rgba(37, 211, 102, 0.25);
+        }
+
+        /* Mobile Bottom Nav */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; padding: 8px 0 10px; z-index: 120;
+        }
+        .nav-item {
+            background: none; border: none; display: flex; flex-direction: column; align-items: center;
+            gap: 3px; font-size: 11px; font-weight: 700; color: var(--text-muted); cursor: pointer;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-add-circle {
+            background: var(--primary); color: #fff; width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 22px; margin-top: -16px;
+        }
+
+        /* Modals */
+        .modal-backdrop {
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            z-index: 200; display: none; align-items: flex-end; justify-content: center;
+        }
+        @media (min-width: 640px) { .modal-backdrop { align-items: center; padding: 20px; } }
+        .modal-backdrop.open { display: flex; }
+        .modal-box {
+            background: #fff; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+            border-radius: 24px 24px 0 0; padding: 20px;
+        }
+        @media (min-width: 640px) { .modal-box { border-radius: 20px; } }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+        }
+        .close-btn { background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; font-weight: 700; }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12.5px; font-weight: 700; margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--border); font-size: 14px; outline: none; }
+
+        .dynamic-box { background: #f0fdf4; border: 1.5px dashed #86efac; padding: 12px; border-radius: 14px; margin-bottom: 13px; }
+        .chips-wrap { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+        .detail-chip { padding: 5px 11px; border-radius: 10px; font-size: 12px; font-weight: 700; background: #eff6ff; color: #1d4ed8; }
+        .detail-img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 16px; margin-bottom: 12px; }
+
+        #regPickerMap { width: 100%; height: 190px; border-radius: 12px; border: 1.5px solid var(--border); margin-top: 6px; }
+
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #0f172a; color: #fff; padding: 12px 22px; border-radius: 999px;
+            font-size: 13.5px; font-weight: 700; z-index: 999; transition: transform 0.3s ease;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+
+<div id="toast" class="toast">Message</div>
+
+<!-- Sticky Header -->
+<header>
+    <div class="header-top">
+        <div class="brand" onclick="resetHome()">
+            <div class="brand-icon">LM</div>
+            <div class="brand-text">
+                <h1>Local Market</h1>
+                <p>Sangola • Malshiras • Akluj • Natepute</p>
+            </div>
+        </div>
+
+        <!-- City Filter -->
+        <select id="cityFilter" class="city-select" onchange="onCityChange()">
+            <option value="All">📍 All Cities</option>
+            <option value="Sangola">Sangola</option>
+            <option value="Malshiras">Malshiras</option>
+            <option value="Akluj">Akluj</option>
+            <option value="Natepute">Natepute</option>
+        </select>
+
+        <div class="desktop-nav">
+            <button class="btn btn-outline" onclick="switchView('products')">🛍️ Products</button>
+            <button class="btn btn-outline" onclick="switchView('map')">🗺️ Store Map</button>
+            <button class="btn btn-primary" onclick="handleAddClick()">➕ Add Product</button>
+            <button class="btn btn-outline" onclick="handleProfileClick()">
+                👤 {% if user %}{{ user.name.split()[0] }}{% else %}Store Login{% endif %}
+            </button>
+        </div>
+    </div>
+
+    <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Product kinva Dukanache naav shodha..." oninput="filterAll()">
+    </div>
+</header>
+
+<!-- Mode Switcher (Products Feed vs Interactive Store Map) -->
+<div class="mode-tabs">
+    <button class="mode-btn active" id="tabProducts" onclick="switchView('products')">🛍️ Sarva Products</button>
+    <button class="mode-btn" id="tabMap" onclick="switchView('map')">🗺️ Javalchi Dukane (Map)</button>
 </div>
 
-<div class="grid">
-{% for p in products %}
-<div class="card" onclick="openProduct({{p.id}},'{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}', `{{p.details or '{}'}}`)">
-<img src="{{p.image}}"><div class="card-body"><b>{{p.title}}</b><div class="store">🏪 {{p.store_name}}</div><div style="display:flex;justify-content:space-between;align-items:center"><span class="price">₹{{p.price}}</span><span style="font-size:11px;background:#dcfce7;padding:3px 8px;border-radius:10px">{{p.category}}</span></div></div></div>
-{% else %}<p style="grid-column:1/-1;text-align:center;padding:40px;color:#888">Kahi Product Nahi. Pahila Product Add Kara!</p>{% endfor %}
+<!-- Category Horizontal Pills -->
+<div class="category-bar" id="categoryBar">
+    <button class="cat-pill active" data-cat="All" onclick="selectCategory(this)">All</button>
+    <button class="cat-pill" data-cat="Kirana" onclick="selectCategory(this)">🛒 Kirana</button>
+    <button class="cat-pill" data-cat="Kapde" onclick="selectCategory(this)">👕 Kapde</button>
+    <button class="cat-pill" data-cat="Bakery" onclick="selectCategory(this)">🎂 Bakery</button>
+    <button class="cat-pill" data-cat="Hotel" onclick="selectCategory(this)">🍛 Hotel</button>
+    <button class="cat-pill" data-cat="Mobile" onclick="selectCategory(this)">📱 Mobile</button>
+    <button class="cat-pill" data-cat="Beauty" onclick="selectCategory(this)">💄 Beauty</button>
+    <button class="cat-pill" data-cat="Medical" onclick="selectCategory(this)">💊 Medical</button>
+    <button class="cat-pill" data-cat="Electronics" onclick="selectCategory(this)">🔌 Electronics</button>
 </div>
 
-<!-- PRODUCT MODAL -->
-<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:260px;object-fit:cover;border-radius:14px"><h2 id="pTitle" style="margin-top:10px"></h2><p id="pStore" style="color:#888;font-size:13px"></p><div id="pDetails" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div><p id="pDesc" style="color:#444;font-size:14px;line-height:1.6"></p><div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:10px">₹<span id="pPrice"></span></div><a id="pWhats" target="_blank" style="display:block;text-align:center;background:#25D366;color:#fff;padding:14px;border-radius:12px;text-decoration:none;font-weight:800;margin-top:12px">📲 WhatsApp var Order Kara</a></div></div>
+<!-- 1. PRODUCTS FEED SECTION -->
+<main class="container" id="productsSection">
+    <div class="section-header">
+        <h2 id="feedTitle">Latest Products</h2>
+        <button id="backAllBtn" class="btn btn-outline" style="display:none; padding: 6px 12px; font-size: 12px;" onclick="resetHome()">← All Products</button>
+    </div>
+    <div class="product-grid" id="productGrid">
+        <div class="empty-state">Products load hot aahet...</div>
+    </div>
+</main>
 
-<!-- ADD MODAL -->
-<div id="addModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('addModal')">×</button><h2>+ Product Tak</h2>
-<form method="POST" action="/add" enctype="multipart/form-data">
-<input name="title" placeholder="Product Nav - Ex: Sadi / Cake" required>
-<select name="category" id="catSelect" onchange="showCustomFields()"><option>Kirana</option><option>Kapde</option><option>Hotel</option><option>Mobile</option><option>Beauty</option><option>Medical</option><option>Bakery</option><option>Electronics</option></select>
-<input name="price" type="number" placeholder="Kimmat ₹" required>
-<textarea name="description" placeholder="Mahiti..."></textarea>
-<div id="customFields"></div>
-<label>Photo</label><input type="file" name="product_pic" accept="image/*">
-<button class="btn-main">Add Product</button></form></div></div>
+<!-- 2. INTERACTIVE STORE MAP SECTION -->
+<section class="container" id="mapSection">
+    <div class="section-header">
+        <h2>📍 Tumchya Javalchi Dukane (Store Locator)</h2>
+        <button class="btn btn-primary" style="padding: 7px 12px; font-size: 12px;" onclick="locateUserOnMap()">🎯 Majhe Location</button>
+    </div>
+    <div id="storeMap"></div>
+    <div class="store-list-grid" id="storeListGrid"></div>
+</section>
 
-<!-- LOGIN -->
-<div id="loginModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('loginModal')">×</button><h2>Login</h2>
-<form method="POST" action="/login"><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><button class="btn-main">Login</button></form>
-<p style="text-align:center;margin-top:12px;font-size:13px">Navin aahat? <a href="#" onclick="closeModal('loginModal');openModal('regModal')">Register Kara</a></p></div></div>
+<!-- Mobile Bottom Navigation -->
+<nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchView('products')">
+        <span style="font-size: 19px;">🏠</span>
+        <span>Home</span>
+    </button>
+    <button class="nav-item" onclick="switchView('map')">
+        <span style="font-size: 19px;">🗺️</span>
+        <span>Map</span>
+    </button>
+    <button class="nav-item" onclick="handleAddClick()">
+        <div class="nav-add-circle">+</div>
+        <span>Add</span>
+    </button>
+    <button class="nav-item" onclick="handleProfileClick()">
+        <span style="font-size: 19px;">👤</span>
+        <span>Profile</span>
+    </button>
+</nav>
 
-<!-- REGISTER -->
-<div id="regModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('regModal')">×</button><h2>Register - Store Ughad</h2>
-<form method="POST" action="/register"><input name="name" placeholder="Tumcha Nav" required><input name="store_name" placeholder="Dukanache Nav" required><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><input name="phone" placeholder="Mobile Number" required><input name="location" placeholder="Gav / Area - Ex: Sangola" required><button class="btn-main">Register</button></form></div></div>
+<!-- PRODUCT DETAIL MODAL -->
+<div class="modal-backdrop" id="detailModal" onclick="closeModalOnBg(event, 'detailModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>Product Details</h3>
+            <button class="close-btn" onclick="closeModal('detailModal')">✕</button>
+        </div>
+        <div id="detailContent"></div>
+    </div>
+</div>
 
-<!-- PROFILE -->
-<div id="profileModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('profileModal')">×</button>
-{% if user %}<h2>👤 {{user.name}}</h2><p style="color:#888">{{user.email}}<br>🏪 {{user.store_name}} • 📍 {{user.location}}</p><a href="/my-products" style="display:block;text-align:center;background:#f1f5f9;padding:12px;border-radius:10px;text-decoration:none;color:#333;font-weight:700;margin-top:12px">Majhe Products Paha</a>{% if user.is_admin %}<a href="/admin" style="display:block;text-align:center;background:#fef3c7;padding:12px;border-radius:10px;text-decoration:none;color:#333;font-weight:700;margin-top:8px">🛡️ Admin Panel</a>{% endif %}<a href="/logout" style="display:block;text-align:center;background:#fee2e2;padding:12px;border-radius:10px;text-decoration:none;color:#b91c1c;font-weight:700;margin-top:8px">Logout</a>{% else %}<h2>Login Kara</h2><button class="btn-main" onclick="closeModal('profileModal');openModal('loginModal')">Login</button>{% endif %}
-</div></div>
+<!-- ADD PRODUCT MODAL -->
+<div class="modal-backdrop" id="addModal" onclick="closeModalOnBg(event, 'addModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3>➕ Navin Product Add Kara</h3>
+            <button class="close-btn" onclick="closeModal('addModal')">✕</button>
+        </div>
+        <form id="addProductForm" onsubmit="submitProduct(event)">
+            <div class="form-group">
+                <label>Product Title *</label>
+                <input type="text" name="title" class="form-control" placeholder="Udaharan: Cotton Shirt / Chocolate Cake" required>
+            </div>
+            <div class="form-group">
+                <label>Category *</label>
+                <select name="category" id="productCategory" class="form-control" onchange="renderDynamicFields()" required>
+                    <option value="Kirana">Kirana</option>
+                    <option value="Kapde">Kapde</option>
+                    <option value="Bakery">Bakery</option>
+                    <option value="Hotel">Hotel</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Beauty">Beauty</option>
+                    <option value="Medical">Medical</option>
+                    <option value="Electronics">Electronics</option>
+                </select>
+            </div>
+            <div class="dynamic-box" id="dynamicFieldsContainer"></div>
+            <div class="form-group">
+                <label>Kimmat / Price (₹) *</label>
+                <input type="number" name="price" step="0.01" class="form-control" placeholder="499" required>
+            </div>
+            <div class="form-group">
+                <label>Product Photo</label>
+                <input type="file" name="photo" accept="image/*" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="2" class="form-control" placeholder="Product baddal sampurna mahiti..."></textarea>
+            </div>
+            <button type="submit" id="addSubmitBtn" class="btn btn-primary" style="width: 100%; padding: 13px;">✅ Product Publish Kara</button>
+        </form>
+    </div>
+</div>
 
-<div class="bottom"><a href="/">🏠<span>Home</span></a><a href="#" onclick="checkLogin()">➕<span>Add</span></a><a href="#" onclick="openModal('profileModal')">👤<span>Profile</span></a></div>
+<!-- AUTH MODAL (LOGIN / REGISTER WITH MAP PIN) -->
+<div class="modal-backdrop" id="authModal" onclick="closeModalOnBg(event, 'authModal')">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3 id="authTitle">Dukandar Login</h3>
+            <button class="close-btn" onclick="closeModal('authModal')">✕</button>
+        </div>
 
-<script>
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
-function checkLogin(){ {% if user %}openModal('addModal'){% else %}openModal('loginModal'){% endif %} }
-function showCustomFields(){
-  let cat=document.getElementById('catSelect').value; let box=document.getElementById('customFields'); let html='';
-  if(cat=='Kapde'){ html=`<label>Size</label><select name="size"><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>Free Size</option></select><label>Color</label><input name="color" placeholder="Ex: Lal, Hirava"><label>Fabric / Kapad</label><input name="fabric" placeholder="Ex: Cotton, Silk, Georgette">`; }
-  else if(cat=='Bakery'){ html=`<label>Kilo / Vajan</label><select name="weight"><option>250 gm</option><option>500 gm</option><option>1 Kilo</option><option>2 Kilo</option></select><label>Packet</label><select name="packet"><option>1 Packet</option><option>2 Packet</option><option>Box</option></select><label>Flavour</label><input name="flavour" placeholder="Ex: Chocolate, Pineapple">`; }
-  else if(cat=='Kirana'){ html=`<label>Vajan</label><select name="weight"><option>250 gm</option><option>500 gm</option><option>1 Kilo</option><option>5 Kilo</option><option>1 Litre</option></select><label>Packet</label><input name="packet" placeholder="Ex: 1 Packet">`; }
-  else if(cat=='Hotel'){ html=`<label>Plate / Packet</label><select name="packet"><option>1 Plate</option><option>Full Plate</option><option>1 Packet</option></select><label>Vajan</label><input name="weight" placeholder="Ex: 250 gm">`; }
-  else { html=`<label>Material / Company</label><input name="material" placeholder="Ex: Samsung, Cotton, Steel">`; }
-  box.innerHTML=html;
-}
-showCustomFields();
-function openProduct(id,title,price,store,img,desc,phone,details){
-  document.getElementById('pImg').src=img; document.getElementById('pTitle').innerText=title;
-  document.getElementById('pStore').innerText='🏪 '+store; document.getElementById('pDesc').innerText=desc;
-  document.getElementById('pPrice').innerText=price;
-  document.getElementById('pWhats').href='https://wa.me/91'+phone+'?text='+encodeURIComponent('Namaste! Mala '+title+' pahije. Kimmat ₹'+price);
-  let d={}; try{d=JSON.parse(details||'{}')}catch(e){}
-  let h='';
-  if(d.size) h+=`<span class="chip" style="background:#dcfce7">Size: ${d.size}</span> `;
-  if(d.color) h+=`<span class="chip" style="background:#fee2e2">Color: ${d.color}</span> `;
-  if(d.fabric) h+=`<span class="chip" style="background:#dbeafe">Fabric: ${d.fabric}</span> `;
-  if(d.weight) h+=`<span class="chip" style="background:#fef9c3">Vajan: ${d.weight}</span> `;
-  if(d.packet) h+=`<span class="chip" style="background:#f3e8ff">Packet: ${d.packet}</span> `;
-  if(d.flavour) h+=`<span class="chip" style="background:#ffedd5">Flavour: ${d.flavour}</span> `;
-  if(d.material) h+=`<span class="chip" style="background:#e0e7ff">${d.material}</span> `;
-  document.getElementById('pDetails').innerHTML=h;
-  openModal('productModal');
-}
-</script></body></html>
+        <form id="loginForm" onsubmit="submitLogin(event)">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">Login Kara</button>
+            <p style="text-align: center; margin-top: 14px; font-size: 13px;">
+                Navin dukan aahe? <a href="javascript:void(0)" onclick="toggleAuthMode('register')" style="color: var(--primary); font-weight: 700;">Store Register Kara</a>
+            </p>
+        </form>
+
+        <form id="registerForm" style="display: none;" onsubmit="submitRegister(event)">
+            <div class="form-group">
+                <label>Malakache Naav (Owner Name) *</label>
+                <input type="text" id="regName" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Dukanache Naav (Store Name) *</label>
+                <input type="text" id="regStore" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>WhatsApp Mobile Number *</label>
+                <input type="tel" id="regPhone" class="form-control" placeholder="10 anki mobile number" required>
+            </div>
+            <div class="form-group">
+                <label>Shahar / Taluka Nivada *</label>
+                <select id="regCity" class="form-control" onchange="centerRegMapToCity()">
+                    <option value="Sangola">Sango
