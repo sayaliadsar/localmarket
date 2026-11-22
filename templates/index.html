@@ -1,788 +1,358 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Local Market - Shop Local in Sangola</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOCAL MARKET - Shop Local • Grow Local</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Inter, system-ui, sans-serif;
-}
-body {
-  background: #f8fafc;
-  padding-bottom: 85px;
-}
-header {
-  background: #fff;
-  padding: 14px 16px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 2px 10px rgba(0,0,0,.06);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.logo {
-  font-size: 22px;
-  font-weight: 900;
-}
-.logo span {
-  color: #16a34a;
-}
-.banner {
-  background: linear-gradient(135deg, #16a34a, #059669);
-  color: #fff;
-  margin: 12px;
-  border-radius: 16px;
-  padding: 20px;
-}
-.banner h2 {
-  font-size: 20px;
-}
-.banner p {
-  font-size: 13px;
-  opacity: .9;
-  margin-top: 4px;
-}
-.search {
-  display: flex;
-  gap: 8px;
-  padding: 0 12px 12px;
-}
-.search input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-}
-.search button {
-  padding: 12px 18px;
-  background: #16a34a;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-}
-.cats {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 0 12px 12px;
-}
-.cats a {
-  white-space: nowrap;
-  padding: 8px 16px;
-  background: #fff;
-  border-radius: 20px;
-  text-decoration: none;
-  color: #333;
-  font-size: 13px;
-  border: 1px solid #e2e8f0;
-}
-.cats a.active {
-  background: #16a34a;
-  color: #fff;
-}
-.sort {
-  display: flex;
-  gap: 8px;
-  padding: 0 12px 12px;
-  overflow-x: auto;
-}
-.sort a {
-  white-space: nowrap;
-  padding: 6px 12px;
-  background: #fff;
-  border-radius: 20px;
-  text-decoration: none;
-  color: #555;
-  font-size: 12px;
-  border: 1px solid #e2e8f0;
-}
-.sort a.active {
-  background: #111827;
-  color: #fff;
-}
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 0 12px;
-}
-.card {
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
-  cursor: pointer;
-  position: relative;
-}
-.card img {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-}
-.card-body {
-  padding: 10px;
-}
-.card-body b {
-  font-size: 14px;
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.price {
-  color: #16a34a;
-  font-weight: 900;
-  font-size: 18px;
-}
-.store {
-  font-size: 12px;
-  color: #888;
-}
-.heart {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #fff;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  z-index: 2;
-  text-decoration: none;
-}
-.off {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: #ef4444;
-  color: #fff;
-  padding: 3px 8px;
-  border-radius: 10px;
-  font-size: 11px;
-  font-weight: 800;
-}
-.btn-main {
-  width: 100%;
-  padding: 13px;
-  background: #16a34a;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 800;
-  margin-top: 10px;
-  cursor: pointer;
-}
-.btn-dark {
-  flex: 1;
-  padding: 12px;
-  background: #111827;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-weight: 800;
-  cursor: pointer;
-}
-.btn-wa {
-  flex: 1;
-  padding: 12px;
-  background: #25D366;
-  color: #fff;
-  border-radius: 12px;
-  font-weight: 800;
-  text-decoration: none;
-  text-align: center;
-}
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.6);
-  z-index: 100;
-  justify-content: center;
-  align-items: flex-end;
-}
-.modal.open {
-  display: flex;
-}
-.modal-box {
-  background: #fff;
-  width: 100%;
-  max-width: 480px;
-  max-height: 92vh;
-  overflow-y: auto;
-  border-radius: 20px 20px 0 0;
-  padding: 20px;
-  position: relative;
-}
-.modal-box input,
-.modal-box select,
-.modal-box textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  margin: 6px 0;
-}
-.modal-box label {
-  font-size: 12px;
-  font-weight: 700;
-  color: #555;
-}
-.close {
-  position: absolute;
-  right: 16px;
-  top: 12px;
-  border: none;
-  background: #f1f5f9;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  z-index: 10;
-}
-.bottom {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 1px solid #eee;
-  z-index: 20;
-}
-.bottom a {
-  text-decoration: none;
-  color: #64748b;
-  font-size: 12px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-}
-.toast {
-  background: #16a34a;
-  color: #fff;
-  padding: 12px;
-  text-align: center;
-  font-weight: 700;
-}
-#homeMap {
-  height: 260px;
-  border-radius: 16px;
-  margin: 0 12px 14px;
-  z-index: 1;
-  border: 2px solid #e2e8f0;
-}
-.cart-bar {
-  position: fixed;
-  bottom: 65px;
-  left: 12px;
-  right: 12px;
-  background: #111827;
-  color: #fff;
-  padding: 12px 16px;
-  border-radius: 14px;
-  display: none;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 25;
-}
-.chip {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  margin: 2px;
-}
+:root{--green:#0B6B3A;--orange:#FF6B00;--navy:#0A2342;--light:#F8FFF9}
+body{background:var(--light);font-family:'Segoe UI',sans-serif}
+.topbar{background:var(--navy);color:#fff;padding:8px 0;font-size:13px}
+.navbar{background:var(--green)!important}
+.logo{font-weight:900;font-size:24px;color:#fff!important}
+.logo span{color:var(--orange)}
+.hero{background:linear-gradient(135deg,var(--green),var(--navy));color:#fff;border-radius:20px;padding:28px 20px;margin:14px 0}
+.hero h1{font-weight:900;font-size:28px}
+.hero p{opacity:.9}
+.btn-orange{background:var(--orange);color:#fff;font-weight:700;border-radius:12px;padding:10px 18px;border:none}
+.btn-green{background:var(--green);color:#fff;font-weight:700;border-radius:12px;padding:10px 18px;border:none}
+.btn-navy{background:var(--navy);color:#fff;font-weight:700;border-radius:12px;padding:10px 18px;border:none}
+.cat-pill{background:#fff;border:2px solid #e5e5e5;border-radius:50px;padding:7px 16px;font-weight:600;font-size:14px;text-decoration:none;color:#333;white-space:nowrap}
+.cat-pill.active{background:var(--green);color:#fff;border-color:var(--green)}
+.p-card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.07);height:100%;position:relative}
+.p-card img{width:100%;height:180px;object-fit:cover}
+.p-card .body{padding:12px}
+.price{font-size:20px;font-weight:900;color:var(--green)}
+.mrp{font-size:13px;color:#999;text-decoration:line-through}
+.off{font-size:11px;background:#FFE5CC;color:var(--orange);padding:2px 7px;border-radius:20px;font-weight:700}
+.shop-tag{font-size:12px;color:#666}
+.stock-ok{font-size:12px;color:#0B6B3A;font-weight:700;background:#E6F7EE;padding:3px 9px;border-radius:20px}
+.stock-low{font-size:12px;color:#D32F2F;font-weight:700;background:#FFEBEB;padding:3px 9px;border-radius:20px}
+.heart{position:absolute;top:10px;right:10px;background:#fff;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+#map{height:360px;border-radius:18px;z-index:1}
+.filter-box{background:#fff;border-radius:16px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.offer-card{background:linear-gradient(135deg,#FFF3E0,#FFE0B2);border-radius:16px;padding:14px}
+.modal-content{border-radius:20px}
+input,select,textarea{border-radius:12px!important}
 </style>
 </head>
-<body>{% if msg %}
-<div class="toast">{{ msg }}</div>
-{% endif %}
+<body>
 
-<header>
-  <div class="logo">
-    Local<span>Market</span>
-    <div style="font-size:11px;color:#888;font-weight:400">
-      Sangola - Everything in one place
-    </div>
-  </div>
-  {% if user %}
-    <a href="/profile" style="font-size:13px;color:#16a34a;text-decoration:none;font-weight:800">
-      {{ user.name.split(' ')[0] }}
-    </a>
-  {% else %}
-    <button onclick="openModal('loginModal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:20px;font-weight:700">
-      Login
-    </button>
-  {% endif %}
-</header>
-
-<div class="banner">
-  <h2>Up to 50% Off Today</h2>
-  <p>All shops in Sangola are now in one place. Free home delivery.</p>
+<div class="topbar text-center">
+Shop Local • Grow Local | Malshiras Taluka | Cash / UPI at Shop - No Delivery
 </div>
 
-<form class="search" method="GET" action="/">
-  <input name="search" value="{{ search }}" placeholder="Search for Saree, Cake, Grocery...">
-  <button>Search</button>
+<nav class="navbar navbar-expand-lg navbar-dark">
+<div class="container">
+<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span></a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="nav">
+<ul class="navbar-nav ms-auto align-items-lg-center gap-2">
+<li class="nav-item"><a class="nav-link text-white" href="/">🏠 Home</a></li>
+<li class="nav-item"><a class="nav-link text-white" href="#map-section">🗺️ Map</a></li>
+<li class="nav-item"><a class="nav-link text-white" href="#products">🛒 Products</a></li>
+{% if user %}
+<li class="nav-item"><span class="nav-link text-white">👋 {{ user.name }} ({{ user.role }})</span></li>
+{% if user.role == 'seller' %}<li class="nav-item"><a class="btn btn-orange btn-sm" href="/seller">Seller Dashboard</a></li>{% endif %}
+{% if user.role == 'admin' %}<li class="nav-item"><a class="btn btn-orange btn-sm" href="/admin">Admin</a></li>{% endif %}
+<li class="nav-item"><a class="btn btn-light btn-sm fw-bold" href="/logout">Logout</a></li>
+{% else %}
+<li class="nav-item"><button class="btn btn-light btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button></li>
+<li class="nav-item"><button class="btn btn-orange btn-sm" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button></li>
+{% endif %}
+</ul>
+</div>
+</div>
+</nav>
+
+<div class="container">
+
+{% if msg %}
+<div class="alert alert-success mt-3 fw-bold" style="border-radius:14px">{{ msg }}</div>
+{% endif %}
+
+<!-- HERO -->
+<div class="hero">
+<div class="row align-items-center">
+<div class="col-md-7">
+<h1>तुमच्या गावातलं दुकान,<br>आता तुमच्या मोबाईलवर 📱</h1>
+<p>Product शोधा, किंमत Compare करा, Reserve करा आणि दुकानात जाऊन घ्या. No Delivery - Visit Store.</p>
+<div class="d-flex gap-2 flex-wrap">
+<a href="#products" class="btn btn-orange">🛒 Shop Now</a>
+<a href="#map-section" class="btn btn-light fw-bold">🗺️ Map वर शोधा</a>
+</div>
+</div>
+<div class="col-md-5 text-center d-none d-md-block">
+<div style="font-size:80px">🏪🛒📍</div>
+<p class="fw-bold">Malshiras • Akluj • Velapur • Natepute</p>
+</div>
+</div>
+</div>
+
+<!-- SEARCH + FILTER -->
+<div class="filter-box mb-3">
+<form method="GET" action="/">
+<div class="row g-2">
+<div class="col-md-5">
+<input name="search" value="{{ search }}" class="form-control" placeholder="🔍 Product शोधा... उदा. साखर, तांदूळ, मोबाईल">
+</div>
+<div class="col-md-2">
+<select name="village" class="form-select">
+<option value="All">📍 All Villages</option>
+{% for v in villages %}
+<option value="{{ v.name }}" {% if village==v.name %}selected{% endif %}>{{ v.name }}</option>
+{% endfor %}
+</select>
+</div>
+<div class="col-md-2">
+<select name="sort" class="form-select">
+<option value="new" {% if sort=='new' %}selected{% endif %}>🆕 Newest</option>
+<option value="low" {% if sort=='low' %}selected{% endif %}>💰 Low Price</option>
+<option value="high" {% if sort=='high' %}selected{% endif %}>💰 High Price</option>
+<option value="rating" {% if sort=='rating' %}selected{% endif %}>⭐ Top Rated</option>
+</select>
+</div>
+<div class="col-md-3">
+<button class="btn btn-green w-100">Search करा</button>
+</div>
+</div>
 </form>
 
-<div class="cats">
-  <a href="/?cat=All" class="{% if cat=='All' %}active{% endif %}">All</a>
-  <a href="/?cat=Kirana" class="{% if cat=='Kirana' %}active{% endif %}">Grocery</a>
-  <a href="/?cat=Kapde" class="{% if cat=='Kapde' %}active{% endif %}">Fashion</a>
-  <a href="/?cat=Bakery" class="{% if cat=='Bakery' %}active{% endif %}">Bakery</a>
-  <a href="/?cat=Hotel" class="{% if cat=='Hotel' %}active{% endif %}">Food</a>
-  <a href="/?cat=Mobile" class="{% if cat=='Mobile' %}active{% endif %}">Mobile</a>
-  <a href="/?cat=Beauty" class="{% if cat=='Beauty' %}active{% endif %}">Beauty</a>
-  <a href="/?cat=Medical" class="{% if cat=='Medical' %}active{% endif %}">Medical</a>
-  <a href="/?cat=Electronics" class="{% if cat=='Electronics' %}active{% endif %}">Electronics</a>
+<div class="d-flex gap-2 mt-3 overflow-auto pb-1">
+<a href="/?village={{ village }}" class="cat-pill {% if cat=='All' %}active{% endif %}">All</a>
+{% for c in cats %}
+<a href="/?cat={{ c.name }}&village={{ village }}" class="cat-pill {% if cat==c.name %}active{% endif %}">{{ c.icon }} {{ c.name }}</a>
+{% endfor %}
+</div>
+</div>
+<!-- MAP SECTION -->
+<div id="map-section" class="mb-4">
+<div class="d-flex justify-content-between align-items-center mb-2">
+<h4 class="fw-bold mb-0">🗺️ Product Map - कुठे मिळेल?</h4>
+<span class="badge bg-success">Live Shops</span>
+</div>
+<div class="row g-2 mb-2">
+<div class="col-md-9">
+<input id="mapSearch" class="form-control" placeholder="🗺️ Map वर Product शोधा... उदा. साखर">
+</div>
+<div class="col-md-3">
+<button onclick="searchMap()" class="btn btn-navy w-100">Map Search</button>
+</div>
+</div>
+<div id="map"></div>
+<p class="text-muted small mt-1">Map वर pin वर click करा - Shop, Price, Stock, Phone दिसेल. Call करून Reserve करा.</p>
 </div>
 
-<div class="sort">
-  <a href="/?cat={{ cat }}&sort=new" class="{% if sort=='new' %}active{% endif %}">Newest</a>
-  <a href="/?cat={{ cat }}&sort=low" class="{% if sort=='low' %}active{% endif %}">Price: Low to High</a>
-  <a href="/?cat={{ cat }}&sort=high" class="{% if sort=='high' %}active{% endif %}">Price: High to Low</a>
-  <a href="/?cat={{ cat }}&sort=rating" class="{% if sort=='rating' %}active{% endif %}">Top Rated</a>
+<!-- OFFERS -->
+{% if offers %}
+<h4 class="fw-bold mb-3">🔥 Today's Offers</h4>
+<div class="row g-3 mb-4">
+{% for p in offers %}
+<div class="col-md-4">
+<div class="offer-card d-flex gap-3 align-items-center">
+<img src="{{ p.image }}" style="width:80px;height:80px;object-fit:cover;border-radius:12px">
+<div>
+<div class="fw-bold">{{ p.title }}</div>
+<div><span class="price">₹{{ p.price }}</span> <span class="mrp">₹{{ p.mrp }}</span></div>
+<div class="small text-muted">{{ p.shop.shop_name }} • {{ p.shop.village }}</div>
+<a href="/product/{{ p.id }}" class="btn btn-sm btn-orange mt-1">View</a>
 </div>
-
-{% if offer_products %}
-<h3 style="padding:0 12px 10px">Offers</h3>
-<div class="grid" style="margin-bottom:16px">
-  {% for p in offer_products %}
-  <div class="card" onclick="openProduct({{ p.id }}, '{{ p.title }}', '{{ p.price }}', '{{ p.store_name }}', '{{ p.image }}', '{{ p.description or '' }}', '{{ p.owner_phone or '' }}', `{{ p.details or '{}' }}`, {{ p.rating or 0 }})">
-    <img src="{{ p.image }}">
-    <div class="card-body">
-      <b>{{ p.title }}</b>
-      <div>
-        <span class="price">₹{{ p.price }}</span>
-        <s style="color:#999;font-size:12px">₹{{ p.mrp }}</s>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
+</div>
+</div>
+{% endfor %}
 </div>
 {% endif %}
 
-<h3 style="padding:0 12px 10px;font-size:15px">Nearby Shops - Satellite Map</h3>
-<div id="homeMap"></div>
+<!-- PRODUCTS -->
+<h4 class="fw-bold mb-3" id="products">🛒 Products ({{ products|length }})</h4>
 
-<div class="grid">
-  {% for p in products %}
-  <div class="card" onclick="openProduct({{ p.id }}, '{{ p.title }}', '{{ p.price }}', '{{ p.store_name }}', '{{ p.image }}', '{{ p.description or '' }}', '{{ p.owner_phone or '' }}', `{{ p.details or '{}' }}`, {{ p.rating or 0 }})">
-    {% if p.off %}
-    <span class="off">{{ p.off }}% OFF</span>
-    {% endif %}
-    <a class="heart" href="/wishlist/{{ p.id }}" onclick="event.stopPropagation()">
-      {% if p.id in wish_ids %}❤️{% else %}🤍{% endif %}
-    </a>
-    <img src="{{ p.image }}">
-    <div class="card-body">
-      <b>{{ p.title }}</b>
-      <div class="store">{{ p.store_name }}</div>
-      {% if p.rating %}
-      <div style="font-size:12px">⭐ {{ "%.1f"|format(p.rating) }} ({{ p.rating_count }} reviews)</div>
-      {% endif %}
-      {% if p.shop_lat and p.shop_lng %}
-      <div class="shop-distance" data-lat="{{ p.shop_lat }}" data-lng="{{ p.shop_lng }}" style="display:none;font-size:11px;color:#2563eb;font-weight:700"></div>
-      {% endif %}
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span class="price">₹{{ p.price }}</span>
-        {% if p.mrp and p.mrp > p.price %}
-        <s style="color:#999;font-size:12px">₹{{ p.mrp }}</s>
-        {% endif %}
-        <span style="font-size:11px;background:#dcfce7;padding:3px 8px;border-radius:10px">{{ p.category }}</span>
-      </div>
-    </div>
-  </div>
-  {% else %}
-  <p style="grid-column:1/-1;text-align:center;padding:40px;color:#888">
-    No products found. Be the first to add one.
-  </p>
-  {% endfor %}
+{% if products %}
+<div class="row g-3">
+{% for p in products %}
+<div class="col-6 col-md-4 col-lg-3">
+<div class="p-card">
+<a href="/favorite/{{ p.id }}" class="heart">❤️</a>
+<a href="/product/{{ p.id }}"><img src="{{ p.image }}"></a>
+<div class="body">
+<div class="d-flex justify-content-between">
+<span class="badge bg-light text-dark border">{{ p.category }}</span>
+{% if p.stock_qty <= 5 %}<span class="stock-low">Low Stock</span>{% else %}<span class="stock-ok">In Stock: {{ p.stock_qty }}</span>{% endif %}
 </div>
-
-<div id="cartBar" class="cart-bar">
-  <span id="cartText"></span>
-  <button onclick="openModal('cartModal')" style="background:#16a34a;color:#fff;border:none;padding:8px 14px;border-radius:10px;font-weight:800">
-    View Cart →
-  </button>
-</div><!-- PRODUCT MODAL -->
-<div id="productModal" class="modal">
-  <div class="modal-box">
-    <button class="close" onclick="closeModal('productModal')">×</button>
-    <img id="pImg" style="width:100%;height:260px;object-fit:cover;border-radius:14px">
-    <h2 id="pTitle" style="margin-top:10px"></h2>
-    <p id="pStore" style="color:#888;font-size:13px"></p>
-    <div id="pRating" style="font-size:13px;margin-top:4px"></div>
-    <div id="pDetails" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
-    <p id="pDesc" style="color:#444;font-size:14px;line-height:1.6"></p>
-    <div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:10px">
-      ₹<span id="pPrice"></span>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
-      <label>Qty:</label>
-      <input id="pQty" type="number" value="1" min="1" style="width:70px">
-      <span id="pTotal" style="font-weight:800"></span>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button class="btn-dark" onclick="addToCartFromModal()">Add to Cart</button>
-      <a id="pWhats" target="_blank" class="btn-wa">WhatsApp Order</a>
-    </div>
-    <form id="orderForm" method="POST" style="margin-top:8px">
-      <input type="hidden" name="qty" id="orderQty" value="1">
-      <button class="btn-main" style="background:#f59e0b">Order Now</button>
-    </form>
-    <div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px">
-      <h4>Write a Review</h4>
-      <form id="reviewForm" method="POST" style="margin-top:8px">
-        <select name="rating">
-          <option value="5">5 Stars - Excellent</option>
-          <option value="4">4 Stars - Good</option>
-          <option value="3">3 Stars - Average</option>
-          <option value="2">2 Stars - Poor</option>
-          <option value="1">1 Star - Bad</option>
-        </select>
-        <input name="comment" placeholder="Share your experience...">
-        <button class="btn-main" style="background:#111827">Submit Review</button>
-      </form>
-    </div>
-  </div>
+<a href="/product/{{ p.id }}" class="text-decoration-none text-dark"><h6 class="fw-bold mt-2 mb-1">{{ p.title }}</h6></a>
+<div class="shop-tag">🏪 {{ p.shop.shop_name }} • {{ p.shop.village }} {% if p.shop.is_verified %}✅{% endif %}</div>
+<div class="mt-1">
+<span class="price">₹{{ p.price }}</span>
+<span class="mrp">₹{{ p.mrp }}</span>
+{% if p.mrp > p.price %}<span class="off">{{ ((p.mrp - p.price)*100/p.mrp)|int }}% OFF</span>{% endif %}
 </div>
-
-<!-- CART MODAL -->
-<div id="cartModal" class="modal">
-  <div class="modal-box">
-    <button class="close" onclick="closeModal('cartModal')">×</button>
-    <h2>My Cart</h2>
-    <div id="cartItems"></div>
-    <div id="cartTotal" style="font-size:18px;font-weight:900;margin-top:12px"></div>
-    <button class="btn-main" onclick="checkoutCart()">Order All via WhatsApp</button>
-    <button class="btn-main" style="background:#ef4444" onclick="clearCart()">Clear Cart</button>
-  </div>
+<div class="small">⭐ {{ p.rating }} ({{ p.rating_count }}) • 👁️ {{ p.views }}</div>
+<div class="d-grid gap-1 mt-2">
+<form method="POST" action="/reserve/{{ p.id }}" class="d-grid">
+<input type="hidden" name="qty" value="1">
+<button class="btn btn-green btn-sm">📦 Reserve करा</button>
+</form>
+<div class="d-flex gap-1">
+<a href="/product/{{ p.id }}" class="btn btn-outline-dark btn-sm flex-fill">View</a>
+<a href="tel:{{ p.shop.phone }}" class="btn btn-outline-success btn-sm flex-fill">📞 Call</a>
 </div>
-
-<!-- ADD MODAL -->
-<div id="addModal" class="modal">
-  <div class="modal-box">
-    <button class="close" onclick="closeModal('addModal')">×</button>
-    <h2>Add Product</h2>
-    <form method="POST" action="/add" enctype="multipart/form-data">
-      <label>Product Name</label>
-      <input name="title" placeholder="e.g. Saree / Cake" required>
-      <label>Category</label>
-      <select name="category" id="catSelect" onchange="showCustomFields()">
-        <option>Kirana</option>
-        <option>Kapde</option>
-        <option>Hotel</option>
-        <option>Mobile</option>
-        <option>Beauty</option>
-        <option>Medical</option>
-        <option>Bakery</option>
-        <option>Electronics</option>
-      </select>
-      <label>Selling Price ₹</label>
-      <input name="price" type="number" placeholder="Price ₹" required>
-      <label>MRP ₹ (For Offer)</label>
-      <input name="mrp" type="number" placeholder="e.g. 999 - Leave empty if no offer">
-      <label>Description</label>
-      <textarea name="description" placeholder="Product details..."></textarea>
-      <div id="customFields"></div>
-      <label>Product Photo</label>
-      <input type="file" name="product_pic" accept="image/*" required>
-      <button class="btn-main">Add Product</button>
-    </form>
-  </div>
 </div>
+</div>
+</div>
+</div>
+{% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 bg-white rounded-4">
+<div style="font-size:60px">😔</div>
+<h5>No Products Found</h5>
+<p class="text-muted">Search badla kinva Village badla</p>
+<a href="/" class="btn btn-green">All Products Paha</a>
+</div>
+{% endif %}
 
+<!-- SHOPS -->
+<h4 class="fw-bold mt-5 mb-3">🏪 Popular Shops</h4>
+<div class="row g-3 mb-4">
+{% for s in shops %}
+<div class="col-md-4">
+<div class="bg-white p-3 rounded-4 d-flex gap-3 align-items-center shadow-sm">
+<img src="{{ s.shop_pic }}" style="width:70px;height:70px;object-fit:cover;border-radius:50%">
+<div class="flex-grow-1">
+<div class="fw-bold">{{ s.shop_name }} {% if s.is_verified %}✅{% endif %}</div>
+<div class="small text-muted">{{ s.village }} • ⭐ {{ s.rating }} • 👁️ {{ s.views }}</div>
+<div class="small">{{ s.timings or '9 AM - 9 PM' }}</div>
+</div>
+<a href="/shop/{{ s.id }}" class="btn btn-sm btn-navy">Visit</a>
+</div>
+</div>
+{% endfor %}
+</div>
 <!-- LOGIN MODAL -->
-<div id="loginModal" class="modal">
-  <div class="modal-box">
-    <button class="close" onclick="closeModal('loginModal')">×</button>
-    <h2>Login</h2>
-    <form method="POST" action="/login">
-      <input name="email" placeholder="Email" required>
-      <input name="password" type="password" placeholder="Password" required>
-      <button class="btn-main">Login</button>
-    </form>
-    <p style="text-align:center;margin-top:12px;font-size:13px">
-      New here?
-      <a href="#" onclick="closeModal('loginModal');openModal('regModal')">Create an account</a>
-    </p>
-  </div>
+<div class="modal fade" id="loginModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content p-3">
+<h4 class="fw-bold text-center">Login 👋</h4>
+<form method="POST" action="/login">
+<input name="email" class="form-control mb-2" placeholder="Email" required>
+<input name="password" type="password" class="form-control mb-2" placeholder="Password" required>
+<button class="btn btn-green w-100">Login</button>
+</form>
+<p class="text-center small mt-2">Account nahi? <a href="#" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">Register kara</a></p>
+<div class="bg-light p-2 rounded small mt-2">
+<b>Demo:</b><br>Admin: admin@local.com / admin123<br>Seller: seller@local.com / seller123<br>Customer: cust@local.com / cust123
+</div>
+</div>
+</div>
 </div>
 
 <!-- REGISTER MODAL -->
-<div id="regModal" class="modal">
-  <div class="modal-box">
-    <button class="close" onclick="closeModal('regModal')">×</button>
-    <h2>Create Account - Open Your Store</h2>
-    <form method="POST" action="/register">
-      <input name="name" placeholder="Your Name" required>
-      <input name="store_name" placeholder="Store Name" required>
-      <input name="email" placeholder="Email" required>
-      <input name="password" type="password" placeholder="Password" required>
-      <input name="phone" placeholder="Mobile Number" required>
-      <input name="location" placeholder="Village / Area - e.g. Sangola" required>
-      <button class="btn-main">Create Account</button>
-    </form>
-  </div>
+<div class="modal fade" id="registerModal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content p-3">
+<h4 class="fw-bold text-center">Register 📝</h4>
+<form method="POST" action="/register">
+<input name="name" class="form-control mb-2" placeholder="Full Name" required>
+<input name="email" type="email" class="form-control mb-2" placeholder="Email" required>
+<input name="password" type="password" class="form-control mb-2" placeholder="Password" required>
+<input name="phone" class="form-control mb-2" placeholder="Phone - 98XXXXXXX" required>
+<input name="village" class="form-control mb-2" placeholder="Village - उदा. Malshiras" required>
+
+<select name="role" id="roleSelect" class="form-select mb-2" onchange="toggleShop()">
+<option value="customer">Customer - Mala kharedi karaychi aahe</option>
+<option value="seller">Seller - Mala dukan takaycha aahe</option>
+</select>
+
+<div id="shopField" style="display:none">
+<input name="shop_name" class="form-control mb-2" placeholder="Shop Name - उदा. Patil Kirana">
+<div class="alert alert-warning small">Seller zhalyavar tumhala Free Plan milel - 10 Products Free!</div>
 </div>
 
-<div class="bottom">
-  <a href="/">🏠<span>Home</span></a>
-  <a href="#" onclick="checkLogin()">➕<span>Add</span></a>
-  <a href="#" onclick="openCartModal()">🛒<span>Cart</span></a>
-  <a href="{% if user %}/profile{% else %}#{% endif %}" onclick="{% if not user %}openModal('loginModal');return false;{% endif %}">👤<span>Profile</span></a>
-</div><script>
-let currentProduct = {};
-let cart = JSON.parse(localStorage.getItem('localCart') || '[]');
+<button class="btn btn-orange w-100">Create Account</button>
+</form>
+</div>
+</div>
+</div>
+</div>
 
-function openModal(id) {
-  document.getElementById(id).classList.add('open');
+<!-- FOOTER -->
+<div class="bg-dark text-white text-center p-4 mt-5" style="border-radius:20px 20px 0 0">
+<h4 class="fw-bold">LOCAL <span style="color:var(--orange)">MARKET</span></h4>
+<p class="small opacity-75">Shop Local • Grow Local • Malshiras Taluka</p>
+<p class="small">No Delivery • Visit Shop • Pay Cash / UPI at Shop</p>
+<div class="d-flex justify-content-center gap-2 flex-wrap">
+<a href="/" class="btn btn-sm btn-outline-light">Home</a>
+<a href="#map-section" class="btn btn-sm btn-outline-light">Map</a>
+<button class="btn btn-sm btn-orange" data-bs-toggle="modal" data-bs-target="#registerModal">Seller Bana</button>
+</div>
+<p class="small mt-3 opacity-50">© 2026 Local Market - Made for Malshiras</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+function toggleShop(){
+  var r = document.getElementById('roleSelect').value;
+  document.getElementById('shopField').style.display = (r=='seller') ? 'block' : 'none';
 }
 
-function closeModal(id) {
-  document.getElementById(id).classList.remove('open');
+// --- MAP ---
+var map = L.map('map').setView([17.85, 75.05], 11);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap'
+}).addTo(map);
+
+var markers = [];
+
+function addMarker(lat, lng, title, price, shop, village, stock, phone, pid, image){
+  var html = `
+    <div style="min-width:220px">
+      <img src="${image}" style="width:100%;height:110px;object-fit:cover;border-radius:10px">
+      <b>${title}</b><br>
+      <span style="color:green;font-weight:800;font-size:18px">₹${price}</span>
+      <span style="font-size:12px">Stock: ${stock}</span><br>
+      <span style="font-size:13px">🏪 ${shop} • ${village}</span><br>
+      <a href="/product/${pid}" style="display:inline-block;background:#0B6B3A;color:#fff;padding:6px 12px;border-radius:8px;text-decoration:none;font-size:13px;margin-top:6px">View Product</a>
+      <a href="tel:${phone}" style="display:inline-block;background:#FF6B00;color:#fff;padding:6px 12px;border-radius:8px;text-decoration:none;font-size:13px;margin-top:6px">📞 Call</a>
+    </div>`;
+  var m = L.marker([lat, lng]).addTo(map).bindPopup(html);
+  markers.push(m);
 }
 
-function checkLogin() {
-  {% if user %}
-  openModal('addModal');
-  {% else %}
-  openModal('loginModal');
-  {% endif %}
-}
-
-function updateCartBar() {
-  let total = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  let count = cart.reduce((s, i) => s + i.qty, 0);
-  let bar = document.getElementById('cartBar');
-  if (count > 0) {
-    bar.style.display = 'flex';
-    document.getElementById('cartText').innerText = `Cart: ${count} items - ₹${total}`;
-  } else {
-    bar.style.display = 'none';
-  }
-}
-updateCartBar();
-
-function addToCartFromModal() {
-  let qty = parseInt(document.getElementById('pQty').value || 1);
-  let ex = cart.find(i => i.id == currentProduct.id);
-  if (ex) {
-    ex.qty += qty;
-  } else {
-    cart.push({
-      id: currentProduct.id,
-      title: currentProduct.title,
-      price: currentProduct.price,
-      img: currentProduct.img,
-      phone: currentProduct.phone,
-      qty: qty
-    });
-  }
-  localStorage.setItem('localCart', JSON.stringify(cart));
-  updateCartBar();
-  alert('Added to cart');
-  closeModal('productModal');
-}
-
-function openCartModal() {
-  let box = document.getElementById('cartItems');
-  let total = 0;
-  let html = '';
-  if (cart.length == 0) {
-    html = '<p style="text-align:center;padding:20px;color:#888">Your cart is empty.</p>';
-  }
-  cart.forEach((item, idx) => {
-    total += item.price * item.qty;
-    html += `
-      <div style="display:flex;gap:10px;background:#f8fafc;padding:10px;border-radius:12px;margin:8px 0">
-        <img src="${item.img}" style="width:60px;height:60px;object-fit:cover;border-radius:10px">
-        <div style="flex:1">
-          <b>${item.title}</b><br>
-          ₹${item.price} x ${item.qty} = ₹${item.price * item.qty}
-        </div>
-        <button onclick="removeCart(${idx})" style="border:none;background:#fee2e2;color:#ef4444;border-radius:8px;padding:6px 10px">✕</button>
-      </div>
-    `;
-  });
-  box.innerHTML = html;
-  document.getElementById('cartTotal').innerText = 'Total: ₹' + total;
-  openModal('cartModal');
-}
-
-function removeCart(idx) {
-  cart.splice(idx, 1);
-  localStorage.setItem('localCart', JSON.stringify(cart));
-  updateCartBar();
-  openCartModal();
-}
-
-function clearCart() {
-  cart = [];
-  localStorage.setItem('localCart', '[]');
-  updateCartBar();
-  openCartModal();
-}
-
-function checkoutCart() {
-  if (cart.length == 0) {
-    alert('Cart is empty');
-    return;
-  }
-  let msg = 'Hello! I want to order:\n';
-  cart.forEach(i => {
-    msg += `- ${i.title} x ${i.qty} = ₹${i.price * i.qty}\n`;
-  });
-  msg += 'Total: ₹' + cart.reduce((s, i) => s + i.price * i.qty, 0);
-  window.open('https://wa.me/91' + cart[0].phone + '?text=' + encodeURIComponent(msg), '_blank');
-}
-
-var homeMap = L.map('homeMap').setView([17.9236, 75.1937], 13);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution: '© Esri'}).addTo(homeMap);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(homeMap);
-
+// Default - All shops from page
 {% for s in shops %}
-L.marker([{{ s.lat }}, {{ s.lng }}]).addTo(homeMap).bindPopup("<b>{{ s.store_name }}</b><br>{{ s.location or '' }}");
+  {% if s.lat %}
+  addMarker({{ s.lat }}, {{ s.lng }}, "{{ s.shop_name }}", "", "{{ s.shop_name }}", "{{ s.village }}", "", "{{ s.phone }}", 0, "{{ s.shop_pic }}");
+  {% endif %}
 {% endfor %}
 
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(function(pos) {
-    let myLat = pos.coords.latitude;
-    let myLng = pos.coords.longitude;
-    L.circleMarker([myLat, myLng], {radius: 8, color: '#fff', fillColor: '#2563eb', fillOpacity: 1, weight: 3}).addTo(homeMap).bindPopup("<b>You are here</b>");
-    document.querySelectorAll('.shop-distance').forEach(function(el) {
-      let sLat = parseFloat(el.dataset.lat);
-      let sLng = parseFloat(el.dataset.lng);
-      if (sLat && sLng) {
-        let d = getDistance(myLat, myLng, sLat, sLng);
-        if (d < 1) {
-          el.innerText = '📍 ' + Math.round(d * 1000) + ' m away';
-        } else {
-          el.innerText = '📍 ' + d.toFixed(1) + ' km away';
-        }
-        el.style.display = 'block';
-      }
+function clearMarkers(){
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+}
+
+function searchMap(){
+  var q = document.getElementById('mapSearch').value;
+  if(!q){ alert('Product nav taka'); return; }
+  fetch('/api/map-search?q=' + encodeURIComponent(q))
+  .then(r => r.json())
+  .then(data => {
+    clearMarkers();
+    if(data.length == 0){ alert('Ha product javalpas kuthech nahi. Dusra nav try kara.'); return; }
+    data.forEach(d => {
+      addMarker(d.lat, d.lng, d.title, d.price, d.shop, d.village, d.stock, d.phone, d.pid, d.image);
     });
+    map.setView([data[0].lat, data[0].lng], 13);
   });
 }
 
-function getDistance(lat1, lon1, lat2, lon2) {
-  let R = 6371;
-  let dLat = (lat2 - lat1) * Math.PI / 180;
-  let dLon = (lon2 - lon1) * Math.PI / 180;
-  let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}function showCustomFields() {
-  let cat = document.getElementById('catSelect').value;
-  let box = document.getElementById('customFields');
-  let html = '';
-  if (cat == 'Kapde') {
-    html = `
-      <label>Size</label>
-      <input name="size" placeholder="e.g. S, M, L, XL">
-      <label>Color</label>
-      <input name="color" placeholder="e.g. Red, Blue">
-      <label>Fabric</label>
-      <input name="fabric" placeholder="e.g. Cotton, Silk">
-      <label>Brand</label>
-      <input name="brand" placeholder="Brand Name">
-      <label>Quantity</label>
-      <input name="quantity" placeholder="e.g. 10 Pieces">
-    `;
-  } else if (cat == 'Bakery') {
-    html = `
-      <label>Weight</label>
-      <input name="weight" placeholder="e.g. 500 gm, 1 Kg">
-      <label>Packet</label>
-      <input name="packet" placeholder="e.g. 1 Box">
-      <label>Flavour</label>
-      <input name="flavour" placeholder="e.g. Chocolate">
-      <label>Veg / Non-Veg</label>
-      <input name="veg_nonveg" placeholder="e.g. Veg">
-    `;
-  } else if (cat == 'Kirana') {
-    html = `
-      <label>Weight</label>
-      <input name="weight" placeholder="e.g. 1 Kg, 1 Litre">
-      <label>Brand</label>
-      <input name="brand" placeholder="e.g. Tata">
-      <label>Expiry</label>
-      <input name="expiry" placeholder="e.g. Dec 2026">
-    `;
-  } else {
-    html = `
-      <label>Brand</label>
-      <input name="brand" placeholder="Brand Name">
-      <label>Material</label>
-      <input name="material" placeholder="e.g. Steel">
-      <label>Quantity</label>
-      <input name="quantity" placeholder="e.g. 5 Pieces">
-    `;
-  }
-  box.innerHTML = html;
-}
-showCustomFields();
-
-function openProduct(id, title, price, store, img, desc, phone, details, rating) {
-  currentProduct = {
-    id: id,
-    title: title,
-    price: parseFloat(price),
-    img: img,
-    phone: phone
-  };
-  document.getElementById('pImg').src = img;
-  document.getElementById('pTitle').innerText = title;
-  document.getElementById('pStore').innerText = store;
-  document.getElementById('pDesc').innerText = desc;
-  document.getElementById('pPrice').innerText = price;
-  document.getElementById('pRating').innerText = rating ? '⭐ ' + parseFloat(rating).toFixed(1) + ' Rating' : '⭐ New Product - Be the first to review';
-  document.getElementById('pWhats').href = 'https://wa.me/91' + phone + '?text=' + encodeURIComponent('Hello! I want ' + title + '. Price ₹' + price);
-  document.getElementById('orderForm').action = '/order/' + id;
-  document.getElementById('reviewForm').action = '/review/' + id;
-  document.getElementById('pQty').value = 1;
-  document.getElementById('orderQty').value = 1;
-  document.getElementById('pTotal').innerText = 'Total: ₹' + price;
-  document.getElementById('pQty').oninput = function() {
-    document.getElementById('orderQty').value = this.value;
-    document.getElementById('pTotal').innerText = 'Total: ₹' + (price * this.value);
-  };
-  let d = {};
-  try {
-    d = JSON.parse(details || '{}');
-  } catch(e) {}
-  let h = '';
-  if (d.size) h += `<span class="chip" style="background:#dcfce7">Size: ${d.size}</span> `;
-  if (d.color) h += `<span class="chip" style="background:#fee2e2">Color: ${d.color}</span> `;
-  if (d.fabric) h += `<span class="chip" style="background:#dbeafe">Fabric: ${d.fabric}</span> `;
-  if (d.weight) h += `<span class="chip" style="background:#fef9c3">Weight: ${d.weight}</span> `;
-  if (d.packet) h += `<span class="chip" style="background:#f3e8ff">Pack: ${d.packet}</span> `;
-  if (d.flavour) h += `<span class="chip" style="background:#ffedd5">Flavour: ${d.flavour}</span> `;
-  if (d.brand) h += `<span class="chip" style="background:#e0e7ff">Brand: ${d.brand}</span> `;
-  if (d.expiry) h += `<span class="chip" style="background:#fecaca">Expiry: ${d.expiry}</span> `;
-  if (d.veg_nonveg) h += `<span class="chip" style="background:#dcfce7">${d.veg_nonveg}</span> `;
-  document.getElementById('pDetails').innerHTML = h;
-  openModal('productModal');
-}
+document.getElementById('mapSearch').addEventListener('keypress', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); searchMap(); }
+});
 </script>
 </body>
 </html>
