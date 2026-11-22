@@ -1,320 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="mr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Admin Dashboard - Local Market</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - LOCAL MARKET</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: Inter, system-ui, sans-serif;
-}
-body {
-  background: #f8fafc;
-  padding-bottom: 40px;
-}
-header {
-  background: #111827;
-  color: #fff;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-header a {
-  color: #fff;
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 700;
-}
-.stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  padding: 12px;
-}
-@media (min-width: 700px) {
-  .stats {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.stat {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
-}
-.stat small {
-  color: #888;
-  font-size: 12px;
-}
-.stat b {
-  display: block;
-  font-size: 22px;
-  margin-top: 4px;
-}
-.card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 16px;
-  margin: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.05);
-  overflow-x: auto;
-}
-.card h3 {
-  margin-bottom: 12px;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  min-width: 600px;
-}
-th {
-  text-align: left;
-  padding: 10px;
-  background: #f8fafc;
-  border-bottom: 1px solid #eee;
-}
-td {
-  padding: 10px;
-  border-bottom: 1px solid #f1f5f9;
-  vertical-align: middle;
-}
-td img {
-  width: 45px;
-  height: 45px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  margin: 5px 0;
-}
-.btn {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 10px;
-  font-weight: 800;
-  cursor: pointer;
-  color: #fff;
-  text-decoration: none;
-  display: inline-block;
-  font-size: 12px;
-  margin: 2px;
-}
-.btn-green {
-  background: #16a34a;
-}
-.btn-red {
-  background: #ef4444;
-}
-.btn-dark {
-  background: #111827;
-}
-.btn-orange {
-  background: #f59e0b;
-}
-.tabs {
-  display: flex;
-  gap: 8px;
-  padding: 0 12px;
-  overflow-x: auto;
-}
-.tabs button {
-  white-space: nowrap;
-  padding: 9px 16px;
-  border: none;
-  border-radius: 20px;
-  background: #fff;
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  border: 1px solid #e2e8f0;
-}
-.tabs button.active {
-  background: #111827;
-  color: #fff;
-}
-.tab {
-  display: none;
-}
-.tab.active {
-  display: block;
-}
+body{background:#F8FFF9;font-family:'Segoe UI',sans-serif}
+.navbar{background:#0A2342!important}
+.logo{font-weight:900;font-size:22px;color:#fff!important}
+.logo span{color:#FF6B00}
+.stat{background:#fff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.stat h3{font-weight:900;color:#0A2342;margin:0}
+.btn-green{background:#0B6B3A;color:#fff;font-weight:700;border-radius:12px;border:none;padding:10px}
 </style>
 </head>
-<body><header>
-  <div style="font-weight:900;font-size:19px">⚙️ Admin Dashboard</div>
-  <div style="display:flex;gap:12px">
-    <a href="/profile">Profile</a>
-    <a href="/">Home</a>
-    <a href="/logout">Logout</a>
-  </div>
-</header>
+<body>
 
-<div class="stats">
-  <div class="stat">
-    <small>Total Users</small>
-    <b>{{ users|length }}</b>
-  </div>
-  <div class="stat">
-    <small>Total Products</small>
-    <b>{{ products|length }}</b>
-  </div>
-  <div class="stat">
-    <small>Total Orders</small>
-    <b>{{ orders|length }}</b>
-  </div>
-  <div class="stat">
-    <small>Total Revenue</small>
-    <b>₹{{ "%.0f"|format(orders|sum(attribute='price') if orders else 0) }}</b>
-  </div>
+<nav class="navbar navbar-dark">
+<div class="container">
+<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span> <span class="badge bg-warning text-dark">ADMIN</span></a>
+<a href="/" class="btn btn-light btn-sm fw-bold">Home</a>
+</div>
+</nav>
+
+<div class="container py-3">
+
+<h3 class="fw-bold">🛡️ Admin Panel</h3>
+<p class="text-muted">Sagla control ithe ahe.</p>
+
+{% if msg %}<div class="alert alert-success fw-bold" style="border-radius:14px">{{ msg }}</div>{% endif %}
+
+<!-- STATS -->
+<div class="row g-3">
+<div class="col-6 col-md-3"><div class="stat"><h3>{{ users|length }}</h3><div class="small text-muted">Total Users</div></div></div>
+<div class="col-6 col-md-3"><div class="stat"><h3>{{ shops|length }}</h3><div class="small text-muted">Shops</div></div></div>
+<div class="col-6 col-md-3"><div class="stat"><h3>{{ products|length }}</h3><div class="small text-muted">Products</div></div></div>
+<div class="col-6 col-md-3"><div class="stat"><h3>{{ orders|length }}</h3><div class="small text-muted">Orders</div></div></div>
 </div>
 
-<div class="tabs">
-  <button class="active" onclick="showTab('t-prod', this)">Products</button>
-  <button onclick="showTab('t-users', this)">Users</button>
-  <button onclick="showTab('t-orders', this)">Orders</button>
-  <button onclick="showTab('t-rev', this)">Reviews</button>
+<!-- ALL USERS -->
+<h4 class="fw-bold mt-4 mb-3">👥 All Users ({{ users|length }})</h4>
+<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+<div class="table-responsive">
+<table class="table table-hover mb-0 small">
+<thead class="table-dark"><tr><th>Name</th><th>Role</th><th>Phone</th><th>Village</th><th>Shop</th><th>Action</th></tr></thead>
+<tbody>
+{% for u in users %}
+<tr>
+<td><b>{{ u.name }}</b><br><span class="text-muted">{{ u.phone }}</span></td>
+<td><span class="badge {% if u.role=='seller' %}bg-success{% elif u.role=='admin' %}bg-dark{% else %}bg-secondary{% endif %}">{{ u.role }}</span></td>
+<td>{{ u.phone }}</td>
+<td>{{ u.village }}</td>
+<td>{{ u.shop_name or '-' }}</td>
+<td>
+<div class="d-flex gap-1 flex-wrap">
+{% if u.role != 'admin' %}
+<a href="/admin/verify/{{ u.id }}" class="btn btn-sm btn-success">{% if u.is_verified %}✅ Verified{% else %}Verify{% endif %}</a>
+<a href="/admin/delete-user/{{ u.id }}" class="btn btn-sm btn-danger" onclick="return confirm('User delete?')">Delete</a>
+{% else %}
+<span class="badge bg-dark">Admin</span>
+{% endif %}
+</div>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+<!-- ALL PRODUCTS -->
+<h4 class="fw-bold mt-4 mb-3">🛒 All Products ({{ products|length }})</h4>
+<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+<div class="table-responsive">
+<table class="table table-hover mb-0 small">
+<thead class="table-dark"><tr><th>Product</th><th>Price</th><th>Shop</th><th>Views</th><th>Action</th></tr></thead>
+<tbody>
+{% for p in products %}
+<tr>
+<td><b>{{ p.title }}</b><br><span class="text-muted">{{ p.category }}</span></td>
+<td>₹{{ p.price }} <s class="text-muted">₹{{ p.mrp }}</s></td>
+<td>{{ p.shop_name or p.shop.shop_name if p.shop else '-' }}</td>
+<td>{{ p.views }}</td>
+<td><a href="/admin/delete-product/{{ p.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Product delete?')">Delete</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
 </div>
 
-<!-- PRODUCTS -->
-<div id="t-prod" class="tab active">
-  <div class="card">
-    <h3>All Products ({{ products|length }})</h3>
-    <table>
-      <tr>
-        <th>Image</th>
-        <th>Title</th>
-        <th>Price</th>
-        <th>Seller</th>
-        <th>Category</th>
-        <th>Action</th>
-      </tr>
-      {% for p in products %}
-      <tr>
-        <td><img src="{{ p.image }}"></td>
-        <td><b>{{ p.title }}</b></td>
-        <td>₹{{ p.price }}</td>
-        <td>{{ p.store_name or p.seller_name or '-' }}</td>
-        <td>{{ p.category }}</td>
-        <td>
-          <a class="btn btn-red" href="/admin/delete-product/{{ p.id }}" onclick="return confirm('Delete this product?')">Delete</a>
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" style="text-align:center;color:#888">No products found.</td></tr>
-      {% endfor %}
-    </table>
-  </div>
+<!-- ALL ORDERS -->
+<h4 class="fw-bold mt-4 mb-3">📦 All Orders ({{ orders|length }})</h4>
+<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+<div class="table-responsive">
+<table class="table table-hover mb-0 small">
+<thead class="table-dark"><tr><th>Product</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
+<tbody>
+{% for o in orders %}
+<tr>
+<td>{{ o.product_title }}</td>
+<td>{{ o.customer_name }} - {{ o.customer_phone }}</td>
+<td><b>₹{{ o.total }}</b></td>
+<td><span class="badge bg-secondary">{{ o.status }}</span></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
 </div>
 
-<!-- USERS -->
-<div id="t-users" class="tab">
-  <div class="card">
-    <h3>All Users ({{ users|length }})</h3>
-    <table>
-      <tr>
-        <th>Name</th>
-        <th>Phone</th>
-        <th>Store</th>
-        <th>Plan</th>
-        <th>Action</th>
-      </tr>
-      {% for u in users %}
-      <tr>
-        <td><b>{{ u.name }}</b><br><span style="color:#888">{{ u.location or '' }}</span></td>
-        <td>{{ u.phone }}</td>
-        <td>{{ u.store_name or '-' }}</td>
-        <td>
-          {% if u.is_pro %}<span style="color:#f59e0b;font-weight:800">⭐ PRO</span>{% else %}Free{% endif %}
-          {% if u.is_admin %}<br><span style="color:#7c3aed;font-weight:800">Admin</span>{% endif %}
-        </td>
-        <td>
-          <a class="btn btn-orange" href="/admin/toggle-pro/{{ u.id }}">
-            {% if u.is_pro %}Remove Pro{% else %}Make Pro{% endif %}
-          </a>
-          <a class="btn btn-red" href="/admin/delete-user/{{ u.id }}" onclick="return confirm('Delete this user and all their products?')">Delete</a>
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" style="text-align:center;color:#888">No users found.</td></tr>
-      {% endfor %}
-    </table>
-  </div>
-</div><!-- ORDERS -->
-<div id="t-orders" class="tab">
-  <div class="card">
-    <h3>All Orders ({{ orders|length }})</h3>
-    <table>
-      <tr>
-        <th>Product</th>
-        <th>Buyer</th>
-        <th>Seller</th>
-        <th>Price</th>
-        <th>Status</th>
-      </tr>
-      {% for o in orders %}
-      <tr>
-        <td><b>{{ o.product_title }}</b><br><span style="color:#888;font-size:12px">Qty: {{ o.qty }}</span></td>
-        <td>{{ o.buyer_name }}<br><span style="color:#888">{{ o.buyer_phone }}</span></td>
-        <td>{{ o.store_name or '-' }}</td>
-        <td>₹{{ o.price }}</td>
-        <td>{{ o.status }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" style="text-align:center;color:#888">No orders found.</td></tr>
-      {% endfor %}
-    </table>
-  </div>
+<!-- CATEGORIES -->
+<h4 class="fw-bold mt-4 mb-3">📂 Categories</h4>
+<div class="row g-3">
+<div class="col-md-4">
+<div class="bg-white p-3 rounded-4 shadow-sm">
+<h6 class="fw-bold">+ Navin Category</h6>
+<form method="POST" action="/admin/add-category">
+<input name="name" class="form-control mb-2" placeholder="Category Name - Kirana" required>
+<input name="icon" class="form-control mb-2" placeholder="Icon - 🛒" value="🛒">
+<input name="image" class="form-control mb-2" placeholder="Category Image URL">
+<button class="btn btn-green w-100">Add Category</button>
+</form>
+</div>
+</div>
+<div class="col-md-8">
+<div class="bg-white p-3 rounded-4 shadow-sm">
+{% for c in cats %}
+<div class="d-flex justify-content-between align-items-center border-bottom py-2">
+<span>{{ c.icon }} <b>{{ c.name }}</b></span>
+<a href="/admin/delete-category/{{ c.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')">Delete</a>
+</div>
+{% else %}
+<p class="text-muted mb-0">Category nahi.</p>
+{% endfor %}
+</div>
+</div>
+</div>
+<!-- VILLAGES -->
+<h4 class="fw-bold mt-4 mb-3">📍 Villages / Areas</h4>
+<div class="row g-3">
+<div class="col-md-4">
+<div class="bg-white p-3 rounded-4 shadow-sm">
+<h6 class="fw-bold">+ Navin Village</h6>
+<form method="POST" action="/admin/add-village">
+<input name="name" class="form-control mb-2" placeholder="Village Name - Malshiras" required>
+<input name="taluka" class="form-control mb-2" placeholder="Taluka - Malshiras">
+<button class="btn btn-green w-100">Add Village</button>
+</form>
+</div>
+</div>
+<div class="col-md-8">
+<div class="bg-white p-3 rounded-4 shadow-sm">
+{% for v in villages %}
+<div class="d-flex justify-content-between align-items-center border-bottom py-2">
+<span>📍 <b>{{ v.name }}</b> <span class="text-muted small">{{ v.taluka }}</span></span>
+<a href="/admin/delete-village/{{ v.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')">Delete</a>
+</div>
+{% else %}
+<p class="text-muted mb-0">Village nahi.</p>
+{% endfor %}
+</div>
+</div>
 </div>
 
-<!-- REVIEWS -->
-<div id="t-rev" class="tab">
-  <div class="card">
-    <h3>All Reviews ({{ reviews|length }})</h3>
-    <table>
-      <tr>
-        <th>Product</th>
-        <th>User</th>
-        <th>Rating</th>
-        <th>Comment</th>
-        <th>Action</th>
-      </tr>
-      {% for r in reviews %}
-      <tr>
-        <td>{{ r.product_title or 'Product' }}</td>
-        <td>{{ r.user_name or '-' }}</td>
-        <td>⭐ {{ r.rating }}</td>
-        <td>{{ r.comment or '' }}</td>
-        <td>
-          <a class="btn btn-red" href="/admin/delete-review/{{ r.id }}" onclick="return confirm('Delete this review?')">Delete</a>
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="5" style="text-align:center;color:#888">No reviews found.</td></tr>
-      {% endfor %}
-    </table>
-  </div>
 </div>
 
-<script>
-function showTab(id, btn) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
