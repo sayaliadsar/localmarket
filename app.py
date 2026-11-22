@@ -10,15 +10,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# Environment Variables
-app.secret_key = os.environ.get("SECRET_KEY", "sangola_malshiras_akluj_natepute_secret_2026")
-DATABASE_URL = os.environ.get("DATABASE_URL")
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+app.secret_key = os.environ.get("SECRET_KEY", "sangola_local_market_secret_2026")
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").strip().rstrip("/")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "").strip()
 
 FALLBACK_IMAGE = "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=600&q=80"
 
-# चारही शहरांचे डिफॉल्ट कोऑर्डिनेट्स
 CITY_COORDS = {
     "Sangola": (17.4368, 75.1886),
     "Malshiras": (17.8569, 74.9125),
@@ -28,20 +26,27 @@ CITY_COORDS = {
 
 
 def get_db():
-    """PostgreSQL (Supabase) डेटाबेस कनेक्शन."""
-    return psycopg2.connect(DATABASE_URL, cursor_factory=RealDictCursor)
+    if not DATABASE_URL:
+        raise RuntimeError("DATABASE_URL Render Environment madhe set kelela nahi!")
+    # Supabase SSL आवश्यक असते
+    db_url = DATABASE_URL
+    if "sslmode=" not in db_url:
+        sep = "&" if "?" in db_url else "?"
+        db_url = f"{db_url}{sep}sslmode=require"
+    return psycopg2.connect(db_url, cursor_factory=RealDictCursor, connect_timeout=10)
 
 
 def init_db():
-    """डेटाबेस टेबल्स, सुरक्षित मायग्रेशन आणि डिफॉल्ट ॲडमिन सेटअप."""
     if not DATABASE_URL:
-        print("WARNING: DATABASE_URL missing!")
+        print("ERROR: DATABASE_URL missing in Environment Variables!")
         return
 
-    conn = get_db()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     try:
-        # १. Users (Stores) टेबल
+        conn = get_db()
+        cur = conn.cursor()
+
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -62,7 +67,6 @@ def init_db():
             );
         """)
 
-        # २. Products टेबल
         cur.execute("""
             CREATE TABLE IF NOT EXISTS products (
                 id SERIAL PRIMARY KEY,
@@ -81,7 +85,6 @@ def init_db():
             );
         """)
 
-        # सुरक्षित मायग्रेशन (जुने टेबल्स असल्यास नवीन कॉलम जोडणे)
         cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS city VARCHAR(80) DEFAULT 'Sangola';")
         cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS store_bio TEXT DEFAULT '';")
         cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS shop_timing VARCHAR(100) DEFAULT 'Sakali 9 te Ratri 9';")
@@ -93,7 +96,6 @@ def init_db():
         cur.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS owner_loc VARCHAR(150);")
         cur.execute("ALTER TABLE products ADD COLUMN IF NOT EXISTS details TEXT DEFAULT '{}';")
 
-        # ३. डिफॉल्ट ॲडमिन युजर
         admin_email = "admin@localmarket.com"
         admin_pass = os.environ.get("ADMIN_PASSWORD", "SangolaAdmin@2026")
         cur.execute("SELECT id FROM users WHERE email = %s;", (admin_email,))
@@ -105,16 +107,19 @@ def init_db():
             """, ("Platform Admin", admin_email, hashed_pw, "9999999999", "Sangola", "Main Market", "Local Market HQ", 17.4368, 75.1886))
 
         conn.commit()
+        print("SUCCESS: Database tables ready!")
     except Exception as e:
-        conn.rollback()
+        if conn:
+            conn.rollback()
         print(f"DB Init Error: {e}")
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 def upload_to_supabase(file_obj):
-    """Supabase Storage 'product-images' बकेटमध्ये फोटो अपलोड करणे."""
     if not file_obj or file_obj.filename == "" or not SUPABASE_URL or not SUPABASE_KEY:
         return FALLBACK_IMAGE
 
@@ -136,6 +141,7 @@ def upload_to_supabase(file_obj):
         response = requests.put(upload_url, data=file_obj.read(), headers=headers, timeout=15)
         if response.status_code in (200, 201):
             return f"{SUPABASE_URL}/storage/v1/object/public/product-images/{filename}"
+        print(f"Supabase Storage Error: {response.status_code} {response.text}")
         return FALLBACK_IMAGE
     except Exception as e:
         print(f"Upload Error: {e}")
@@ -155,11 +161,13 @@ with app.app_context():
     init_db()
 
 
-# ==================== PAGE ROUTES ====================
+@app.route("/favicon.ico")
+def favicon():
+    return "", 204
+
 
 @app.route("/")
 def index():
-    """मुख्य होम पेज (Products + Interactive Store Map)."""
     user = None
     if session.get("user_id"):
         user = {
@@ -170,34 +178,26 @@ def index():
             "city": session.get("city", "Sangola"),
             "location": session.get("location"),
             "phone": session.get("phone"),
-            "is_admin": session.get("is_admin", False)
+            "is_admin": bool(session.get("is_admin", False))
         }
     return render_template("index.html", user=user)
 
 
 @app.route("/store/<int:store_id>")
 def store_profile(store_id):
-    """प्रत्येक दुकानाचे स्वतंत्र Store Profile Page."""
     conn = get_db()
     cur = conn.cursor()
     try:
         cur.execute("""
             SELECT id, name, store_name, phone, city, location, store_bio, shop_timing, latitude, longitude, is_blocked
-            FROM users
-            WHERE id = %s AND is_admin = FALSE;
+            FROM users WHERE id = %s AND is_admin = FALSE;
         """, (store_id,))
         store = cur.fetchone()
-
         if not store or store["is_blocked"]:
             return redirect(url_for("index"))
 
-        cur.execute("""
-            SELECT * FROM products
-            WHERE user_id = %s
-            ORDER BY created_at DESC;
-        """, (store_id,))
+        cur.execute("SELECT * FROM products WHERE user_id = %s ORDER BY created_at DESC;", (store_id,))
         rows = cur.fetchall()
-
         products = []
         for r in rows:
             item = dict(r)
@@ -214,14 +214,11 @@ def store_profile(store_id):
         conn.close()
 
 
-# ==================== API ROUTES ====================
-
 @app.route("/api/stores", methods=["GET"])
 def get_stores():
-    """मॅपवर दाखवण्यासाठी सर्व सक्रिय दुकानांची यादी आणि लोकेशन."""
-    conn = get_db()
-    cur = conn.cursor()
     try:
+        conn = get_db()
+        cur = conn.cursor()
         cur.execute("""
             SELECT u.id, u.store_name, u.name, u.phone, u.city, u.location, u.shop_timing, u.latitude, u.longitude,
                    COUNT(p.id) AS product_count
@@ -232,16 +229,17 @@ def get_stores():
             ORDER BY product_count DESC;
         """)
         stores = [dict(row) for row in cur.fetchall()]
-        return jsonify({"success": True, "stores": stores})
-    finally:
         cur.close()
         conn.close()
+        return jsonify({"success": True, "stores": stores})
+    except Exception as e:
+        print(f"API /stores error: {e}")
+        return jsonify({"success": False, "stores": [], "message": str(e)}), 500
 
 
 @app.route("/api/register", methods=["POST"])
 def register():
-    """नवीन दुकान रजिस्टर करणे (शहर आणि मॅप लोकेशनसह)."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     name = data.get("name", "").strip()
     store_name = data.get("store_name", "").strip()
     email = data.get("email", "").strip().lower()
@@ -259,7 +257,6 @@ def register():
     if len(clean_phone) != 10:
         return jsonify({"success": False, "message": "Yogya 10 anki mobile number taka!"}), 400
 
-    # कोऑर्डिनेट्स मिळवणे (जर युजरने पिन केले नसतील तर शहराचे डिफॉल्ट कोऑर्डिनेट्स घेणे)
     default_lat, default_lng = CITY_COORDS.get(city, (17.4368, 75.1886))
     try:
         lat = float(data.get("latitude")) if data.get("latitude") else default_lat
@@ -267,9 +264,11 @@ def register():
     except ValueError:
         lat, lng = default_lat, default_lng
 
-    conn = get_db()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     try:
+        conn = get_db()
+        cur = conn.cursor()
         cur.execute("SELECT id FROM users WHERE email = %s;", (email,))
         if cur.fetchone():
             return jsonify({"success": False, "message": "Ha email adhich register aahe!"}), 400
@@ -280,7 +279,7 @@ def register():
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id, name, email, store_name, city, location, phone, is_admin;
         """, (name, email, hashed_pw, clean_phone, city, location, store_name, store_bio, shop_timing, lat, lng))
-        new_user = cur.fetchone()
+        new_user = dict(cur.fetchone())
         conn.commit()
 
         session["user_id"] = new_user["id"]
@@ -290,27 +289,32 @@ def register():
         session["city"] = new_user["city"]
         session["location"] = new_user["location"]
         session["phone"] = new_user["phone"]
-        session["is_admin"] = new_user["is_admin"]
+        session["is_admin"] = bool(new_user["is_admin"])
 
         return jsonify({"success": True, "message": "Dukan Register Zala!", "user": new_user})
     except Exception as e:
-        conn.rollback()
-        return jsonify({"success": False, "message": "Server error!"}), 500
+        if conn:
+            conn.rollback()
+        print(f"Register Error: {e}")
+        return jsonify({"success": False, "message": f"Database Error: {str(e)}"}), 500
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @app.route("/api/login", methods=["POST"])
 def login():
-    """दुकानदार लॉगिन."""
-    data = request.json or {}
+    data = request.get_json(silent=True) or {}
     email = data.get("email", "").strip().lower()
     password = data.get("password", "").strip()
 
-    conn = get_db()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     try:
+        conn = get_db()
+        cur = conn.cursor()
         cur.execute("SELECT * FROM users WHERE email = %s;", (email,))
         user = cur.fetchone()
 
@@ -327,25 +331,17 @@ def login():
         session["city"] = user.get("city", "Sangola")
         session["location"] = user["location"]
         session["phone"] = user["phone"]
-        session["is_admin"] = user["is_admin"]
+        session["is_admin"] = bool(user["is_admin"])
 
-        return jsonify({
-            "success": True,
-            "message": "Login Zala!",
-            "user": {
-                "id": user["id"],
-                "name": user["name"],
-                "email": user["email"],
-                "store_name": user["store_name"],
-                "city": user.get("city", "Sangola"),
-                "location": user["location"],
-                "phone": user["phone"],
-                "is_admin": user["is_admin"]
-            }
-        })
+        return jsonify({"success": True, "message": "Login Zala!"})
+    except Exception as e:
+        print(f"Login Error: {e}")
+        return jsonify({"success": False, "message": f"Database Error: {str(e)}"}), 500
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @app.route("/api/logout", methods=["POST"])
@@ -356,11 +352,12 @@ def logout():
 
 @app.route("/api/products", methods=["GET"])
 def get_products():
-    """सर्व प्रॉडक्ट्स किंवा 'My Products' मिळवणे."""
     mine_only = request.args.get("mine") == "true"
-    conn = get_db()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     try:
+        conn = get_db()
+        cur = conn.cursor()
         if mine_only:
             if not session.get("user_id"):
                 return jsonify({"success": False, "message": "Aadhi login kara!"}), 401
@@ -377,6 +374,8 @@ def get_products():
         for r in rows:
             item = dict(r)
             item["price"] = float(item["price"])
+            if item.get("created_at"):
+                item["created_at"] = str(item["created_at"])
             try:
                 item["details"] = json.loads(item["details"]) if item["details"] else {}
             except Exception:
@@ -384,14 +383,18 @@ def get_products():
             products.append(item)
 
         return jsonify({"success": True, "products": products})
+    except Exception as e:
+        print(f"Get Products Error: {e}")
+        return jsonify({"success": False, "products": [], "message": str(e)}), 500
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @app.route("/api/products", methods=["POST"])
 def add_product():
-    """नवीन प्रॉडक्ट ॲड करणे."""
     if not session.get("user_id"):
         return jsonify({"success": False, "message": "Aadhi login kara!"}), 401
 
@@ -416,9 +419,11 @@ def add_product():
 
     image_url = upload_to_supabase(request.files.get("photo"))
 
-    conn = get_db()
-    cur = conn.cursor()
+    conn = None
+    cur = None
     try:
+        conn = get_db()
+        cur = conn.cursor()
         cur.execute("SELECT is_blocked, store_name, phone, city, location FROM users WHERE id = %s;", (session["user_id"],))
         seller = cur.fetchone()
         if not seller or seller["is_blocked"]:
@@ -438,18 +443,21 @@ def add_product():
         conn.commit()
         return jsonify({"success": True, "message": "Product Add Zala!"})
     except Exception as e:
-        conn.rollback()
-        return jsonify({"success": False, "message": "Product save kartana adchan aali!"}), 500
+        if conn:
+            conn.rollback()
+        print(f"Add Product Error: {e}")
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
     finally:
-        cur.close()
-        conn.close()
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
 
 
 @app.route("/api/products/<int:product_id>", methods=["DELETE"])
 def delete_product(product_id):
     if not session.get("user_id"):
         return jsonify({"success": False, "message": "Unauthorized"}), 401
-
     conn = get_db()
     cur = conn.cursor()
     try:
@@ -464,8 +472,6 @@ def delete_product(product_id):
         conn.close()
 
 
-# ==================== ADMIN ROUTES ====================
-
 @app.route("/admin")
 @admin_required
 def admin_panel():
@@ -474,19 +480,10 @@ def admin_panel():
     try:
         cur.execute("SELECT COALESCE(SUM(price), 0) AS total_value FROM products;")
         total_value = float(cur.fetchone()["total_value"])
-
-        cur.execute("""
-            SELECT id, name, email, phone, city, location, store_name, is_blocked, created_at
-            FROM users WHERE is_admin = FALSE ORDER BY created_at DESC;
-        """)
+        cur.execute("SELECT id, name, email, phone, city, location, store_name, is_blocked FROM users WHERE is_admin = FALSE ORDER BY created_at DESC;")
         users = cur.fetchall()
-
-        cur.execute("""
-            SELECT id, title, category, price, store_name, owner_city, created_at
-            FROM products ORDER BY created_at DESC;
-        """)
+        cur.execute("SELECT id, title, category, price, store_name, owner_city FROM products ORDER BY created_at DESC;")
         products = cur.fetchall()
-
         return render_template("admin.html", total_value=total_value, users=users, products=products)
     finally:
         cur.close()
@@ -499,14 +496,10 @@ def toggle_block_user(user_id):
     conn = get_db()
     cur = conn.cursor()
     try:
-        cur.execute("""
-            UPDATE users SET is_blocked = NOT is_blocked
-            WHERE id = %s AND is_admin = FALSE RETURNING is_blocked;
-        """, (user_id,))
+        cur.execute("UPDATE users SET is_blocked = NOT is_blocked WHERE id = %s AND is_admin = FALSE RETURNING is_blocked;", (user_id,))
         res = cur.fetchone()
         conn.commit()
-        status = "Block Zala!" if res and res["is_blocked"] else "Unblock Zala!"
-        return jsonify({"success": True, "message": f"User {status}"})
+        return jsonify({"success": True, "message": "Status updated!"})
     finally:
         cur.close()
         conn.close()
@@ -520,7 +513,7 @@ def delete_user(user_id):
     try:
         cur.execute("DELETE FROM users WHERE id = %s AND is_admin = FALSE;", (user_id,))
         conn.commit()
-        return jsonify({"success": True, "message": "User ani tyache products delete zale!"})
+        return jsonify({"success": True, "message": "User deleted!"})
     finally:
         cur.close()
         conn.close()
