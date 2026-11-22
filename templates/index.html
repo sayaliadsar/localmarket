@@ -1,165 +1,37 @@
-<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Local Market - Sangola</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{background:#f8fafc;padding-bottom:85px}
-header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:22px;font-weight:900}.logo span{color:#16a34a}
-.banner{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;margin:12px;border-radius:16px;padding:18px;position:relative;overflow:hidden}
-.banner h2{font-size:20px}.banner p{font-size:13px;opacity:.9;margin-top:4px}
-.search{display:flex;gap:8px;padding:0 12px 12px}.search input{flex:1;padding:12px;border-radius:12px;border:1px solid #e2e8f0}.search button{padding:12px 18px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-weight:700}
-.cats{display:flex;gap:8px;overflow-x:auto;padding:0 12px 12px}.cats a{white-space:nowrap;padding:8px 16px;background:#fff;border-radius:20px;text-decoration:none;color:#333;font-size:13px;border:1px solid #e2e8f0}.cats a.active{background:#16a34a;color:#fff}
-.sortbar{display:flex;gap:8px;padding:0 12px 12px;overflow-x:auto}.sortbar a{white-space:nowrap;padding:6px 12px;background:#fff;border-radius:20px;text-decoration:none;color:#555;font-size:12px;border:1px solid #e2e8f0}.sortbar a.active{background:#111827;color:#fff}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 12px}@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
-.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;position:relative}.card img{width:100%;height:160px;object-fit:cover}.card-body{padding:10px}.card-body b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.price{color:#16a34a;font-weight:900;font-size:18px}.store{font-size:12px;color:#888}
-.heart{position:absolute;top:8px;right:8px;background:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:2;text-decoration:none}
-.off{position:absolute;top:8px;left:8px;background:#ef4444;color:#fff;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:800}
-.btn-main{width:100%;padding:13px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-weight:800;font-size:15px;margin-top:10px;cursor:pointer}
-.btn-cart{flex:1;padding:12px;background:#111827;color:#fff;border:none;border-radius:12px;font-weight:800;cursor:pointer}
-.btn-wa{flex:1;padding:12px;background:#25D366;color:#fff;border:none;border-radius:12px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:flex-end}.modal.open{display:flex}
-.modal-box{background:#fff;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}
-.modal-box input,.modal-box select,.modal-box textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0}.modal-box label{font-size:12px;font-weight:700;color:#555}
-.close{position:absolute;right:16px;top:12px;border:none;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;z-index:10}
-.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee;z-index:20}.bottom a{text-decoration:none;color:#64748b;font-size:12px;text-align:center;display:flex;flex-direction:column}
-.chip{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:2px}
-.toast{background:#16a34a;color:#fff;padding:12px;text-align:center;font-weight:700}
-#homeMap{height:260px;border-radius:16px;margin:0 12px 14px;z-index:1;border:2px solid #e2e8f0}
-.cart-bar{position:fixed;bottom:65px;left:12px;right:12px;background:#111827;color:#fff;padding:12px 16px;border-radius:14px;display:none;justify-content:space-between;align-items:center;z-index:25;box-shadow:0 8px 20px rgba(0,0,0,.25)}
-</style></head><body>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Local Market - Shop Local in Sangola</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui,sans-serif}body{background:#f8fafc;padding-bottom:85px}header{background:#fff;padding:14px 16px;position:sticky;top:0;z-index:10;box-shadow:0 2px 10px rgba(0,0,0,.06);display:flex;justify-content:space-between;align-items:center}.logo{font-size:22px;font-weight:900}.logo span{color:#16a34a}.banner{background:linear-gradient(135deg,#16a34a,#059669);color:#fff;margin:12px;border-radius:16px;padding:20px}.banner h2{font-size:20px}.banner p{font-size:13px;opacity:.9;margin-top:4px}.search{display:flex;gap:8px;padding:0 12px 12px}.search input{flex:1;padding:12px;border-radius:12px;border:1px solid #e2e8f0}.search button{padding:12px 18px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-weight:700}.cats{display:flex;gap:8px;overflow-x:auto;padding:0 12px 12px}.cats a{white-space:nowrap;padding:8px 16px;background:#fff;border-radius:20px;text-decoration:none;color:#333;font-size:13px;border:1px solid #e2e8f0}.cats a.active{background:#16a34a;color:#fff}.sort{display:flex;gap:8px;padding:0 12px 12px;overflow-x:auto}.sort a{white-space:nowrap;padding:6px 12px;background:#fff;border-radius:20px;text-decoration:none;color:#555;font-size:12px;border:1px solid #e2e8f0}.sort a.active{background:#111827;color:#fff}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 12px}@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}.card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;position:relative}.card img{width:100%;height:160px;object-fit:cover}.card-body{padding:10px}.card-body b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.price{color:#16a34a;font-weight:900;font-size:18px}.store{font-size:12px;color:#888}.heart{position:absolute;top:8px;right:8px;background:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:2;text-decoration:none}.off{position:absolute;top:8px;left:8px;background:#ef4444;color:#fff;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:800}.btn-main{width:100%;padding:13px;background:#16a34a;color:#fff;border:none;border-radius:12px;font-weight:800;margin-top:10px;cursor:pointer}.btn-dark{flex:1;padding:12px;background:#111827;color:#fff;border:none;border-radius:12px;font-weight:800;cursor:pointer}.btn-wa{flex:1;padding:12px;background:#25D366;color:#fff;border:none;border-radius:12px;font-weight:800;cursor:pointer;text-decoration:none;text-align:center}.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;justify-content:center;align-items:flex-end}.modal.open{display:flex}.modal-box{background:#fff;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;padding:20px;position:relative}.modal-box input,.modal-box select,.modal-box textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:10px;margin:6px 0}.modal-box label{font-size:12px;font-weight:700;color:#555}.close{position:absolute;right:16px;top:12px;border:none;background:#f1f5f9;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;z-index:10}.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;justify-content:space-around;padding:10px 0;border-top:1px solid #eee;z-index:20}.bottom a{text-decoration:none;color:#64748b;font-size:12px;text-align:center;display:flex;flex-direction:column}.toast{background:#16a34a;color:#fff;padding:12px;text-align:center;font-weight:700}#homeMap{height:260px;border-radius:16px;margin:0 12px 14px;z-index:1;border:2px solid #e2e8f0}.cart-bar{position:fixed;bottom:65px;left:12px;right:12px;background:#111827;color:#fff;padding:12px 16px;border-radius:14px;display:none;justify-content:space-between;align-items:center;z-index:25}.chip{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600;margin:2px}</style></head><body>
 {% if msg %}<div class="toast">{{msg}}</div>{% endif %}
-<header><div class="logo">🛒 Local<span>Market</span><div style="font-size:11px;color:#888;font-weight:400">Sangola • Sagla Kahi Ekach Jagi</div></div>
-{% if user %}<a href="/profile" style="font-size:13px;color:#16a34a;text-decoration:none;font-weight:800">👤 {{ user.name.split(' ')[0] }}</a>{% else %}<button onclick="openModal('loginModal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:20px;font-weight:700">Login</button>{% endif %}</header>
-
-<div class="banner"><h2>🎉 Aajchi Offer - 50% paryant Off!</h2><p>Sangola madhil sagli dukana aata ekach jagi. Free Home Delivery.</p><div style="margin-top:10px"><span style="background:#fff;color:#16a34a;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:800">🛒 Aata Kharedi Kara →</span></div></div>
-
-<form class="search" method="GET" action="/"><input name="search" value="{{search}}" placeholder="Shodha... Sadi, Cake, Kirana..."><button>Shodha</button></form>
-<div class="cats">
-<a href="/?cat=All" class="{% if cat=='All' %}active{% endif %}">🌍 Sagla</a><a href="/?cat=Kirana" class="{% if cat=='Kirana' %}active{% endif %}">🛒 Kirana</a><a href="/?cat=Kapde" class="{% if cat=='Kapde' %}active{% endif %}">👗 Kapde</a><a href="/?cat=Bakery" class="{% if cat=='Bakery' %}active{% endif %}">🍰 Bakery</a><a href="/?cat=Hotel" class="{% if cat=='Hotel' %}active{% endif %}">🍔 Hotel</a><a href="/?cat=Mobile" class="{% if cat=='Mobile' %}active{% endif %}">📱 Mobile</a><a href="/?cat=Beauty" class="{% if cat=='Beauty' %}active{% endif %}">💄 Beauty</a><a href="/?cat=Medical" class="{% if cat=='Medical' %}active{% endif %}">💊 Medical</a><a href="/?cat=Electronics" class="{% if cat=='Electronics' %}active{% endif %}">🔌 Electronics</a>
-</div>
-<div class="sortbar"><a href="/?cat={{cat}}&sort=new" class="{% if sort=='new' %}active{% endif %}">🆕 Navin</a><a href="/?cat={{cat}}&sort=low" class="{% if sort=='low' %}active{% endif %}">💰 Swast Adhi</a><a href="/?cat={{cat}}&sort=high" class="{% if sort=='high' %}active{% endif %}">💎 Mahag Adhi</a><a href="/?cat={{cat}}&sort=rating" class="{% if sort=='rating' %}active{% endif %}">⭐ Top Rated</a></div>
-
-{% if offer_products %}
-<h3 style="padding:0 12px 10px">🏷️ Offer Wale Products</h3>
-<div class="grid" style="margin-bottom:16px">
-{% for p in offer_products %}<div class="card" onclick="openProduct({{p.id}},'{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}', `{{p.details or '{}'}}`, '{{p.custom_name or ''}}', {{p.rating or 0}})"><img src="{{p.image}}"><div class="card-body"><b>{{p.title}}</b><div><span class="price">₹{{p.price}}</span> <s style="color:#999;font-size:12px">₹{{p.mrp}}</s></div></div></div>{% endfor %}
-</div>{% endif %}
-
-<div style="display:flex;justify-content:space-between;align-items:center;padding:0 12px 8px"><h3 style="font-size:15px">🗺️ Jawalchi Dukana - Satellite Map</h3><span style="font-size:12px;color:#888">Logo var dab</span></div>
-<div id="homeMap"></div>
-
-<div class="grid">
-{% for p in products %}
-<div class="card" onclick="openProduct({{p.id}},'{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}', `{{p.details or '{}'}}`, '{{p.custom_name or ''}}', {{p.rating or 0}})">
-{% if p.off %}<span class="off">{{p.off}}% OFF</span>{% endif %}
-<a class="heart" href="/wishlist/{{p.id}}" onclick="event.stopPropagation()">{% if p.id in wish_ids %}❤️{% else %}🤍{% endif %}</a>
-<img src="{{p.image}}"><div class="card-body">
-{% if p.custom_name %}<div style="font-size:11px;color:#2563eb;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">✨ {{p.custom_name}}</div>{% endif %}
-<b>{{p.title}}</b><div class="store">🏪 {{p.store_name}}</div>
-{% if p.rating %}<div style="font-size:12px">⭐ {{ "%.1f"|format(p.rating) }} ({{p.rating_count}} reviews)</div>{% endif %}
-{% if p.shop_lat and p.shop_lng %}<div class="shop-distance" data-lat="{{p.shop_lat}}" data-lng="{{p.shop_lng}}" style="display:none;font-size:11px;color:#2563eb;font-weight:700">📍 Antar mojtoy...</div>{% endif %}
-<div style="display:flex;justify-content:space-between;align-items:center"><span class="price">₹{{p.price}}</span>{% if p.mrp and p.mrp > p.price %}<s style="color:#999;font-size:12px">₹{{p.mrp}}</s>{% endif %}<span style="font-size:11px;background:#dcfce7;padding:3px 8px;border-radius:10px">{{p.category}}</span></div></div></div>
-{% else %}<p style="grid-column:1/-1;text-align:center;padding:40px;color:#888">Kahi Product Nahi. Pahila Product Add Kara!</p>{% endfor %}
-</div>
-
-<!-- CART BAR -->
-<div id="cartBar" class="cart-bar"><span id="cartText">🛒 Cart: 0 items - ₹0</span><button onclick="openModal('cartModal')" style="background:#16a34a;color:#fff;border:none;padding:8px 14px;border-radius:10px;font-weight:800">Cart Bagha →</button></div>
-
-<!-- PRODUCT MODAL -->
-<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:260px;object-fit:cover;border-radius:14px"><div id="pCustom" style="font-size:13px;color:#2563eb;font-weight:800;margin-top:10px"></div><h2 id="pTitle" style="margin-top:4px"></h2><p id="pStore" style="color:#888;font-size:13px"></p><div id="pRating" style="font-size:13px;margin-top:4px"></div><div id="pDetails" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div><p id="pDesc" style="color:#444;font-size:14px;line-height:1.6"></p><div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:10px">₹<span id="pPrice"></span> <s id="pMrp" style="color:#999;font-size:14px"></s></div>
-<div style="display:flex;gap:8px;margin-top:12px;align-items:center"><label>Qty:</label><input id="pQty" type="number" value="1" min="1" style="width:70px"><span id="pTotal" style="font-weight:800"></span></div>
-<div style="display:flex;gap:8px;margin-top:12px"><button class="btn-cart" onclick="addToCartFromModal()">🛒 Cart madhe Tak</button><a id="pWhats" target="_blank" class="btn-wa">📲 WhatsApp Order</a></div>
-<form id="orderForm" method="POST" style="margin-top:8px"><input type="hidden" name="qty" id="orderQty" value="1"><button class="btn-main" style="background:#f59e0b">📦 Aata Order Kara</button></form>
-<div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px"><h4>⭐ Review Dya</h4><form id="reviewForm" method="POST" style="margin-top:8px"><select name="rating"><option value="5">⭐⭐⭐⭐⭐ - Khup Chhan</option><option value="4">⭐⭐⭐⭐ - Chhan</option><option value="3">⭐⭐⭐ - Barobar</option><option value="2">⭐⭐ - Kami</option><option value="1">⭐ - Vait</option></select><input name="comment" placeholder="Tumcha anubhav liha..."><button class="btn-main" style="background:#111827">Review Pathva</button></form></div>
-</div></div>
-
-<!-- CART MODAL -->
-<div id="cartModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('cartModal')">×</button><h2>🛒 Majha Cart</h2><div id="cartItems"></div><div id="cartTotal" style="font-size:18px;font-weight:900;margin-top:12px"></div><button class="btn-main" onclick="checkoutCart()">📦 Sagla Order Kara - WhatsApp</button><button class="btn-main" style="background:#ef4444" onclick="clearCart()">🗑️ Cart Clear Kara</button></div></div>
-
-<!-- ADD PRODUCT -->
-<div id="addModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('addModal')">×</button><h2>+ Product Tak</h2>
-<form method="POST" action="/add" enctype="multipart/form-data">
-<label>Product Nav</label><input name="title" placeholder="Ex: Sadi / Cake" required>
-<label>✨ Customize Name</label><input name="custom_name" placeholder="Ex: Sayali Special Sadi - Optional">
-<label>Category</label><select name="category" id="catSelect" onchange="showCustomFields()"><option>Kirana</option><option>Kapde</option><option>Hotel</option><option>Mobile</option><option>Beauty</option><option>Medical</option><option>Bakery</option><option>Electronics</option></select>
-<label>Kimmat ₹ (Vikri Kimmat)</label><input name="price" type="number" placeholder="Kimmat ₹" required>
-<label>MRP ₹ (Juni Kimmat - Offer dakhvaycha asel tar)</label><input name="mrp" type="number" placeholder="Ex: 999 - Nasel tar rikama thev">
-<label>Mahiti</label><textarea name="description" placeholder="Mahiti..."></textarea>
-<div id="customFields"></div>
-<label>📸 Product Photo</label><input type="file" name="product_pic" accept="image/*" required>
-<button class="btn-main">Add Product</button></form></div></div>
-
-<div id="loginModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('loginModal')">×</button><h2>Login</h2>
-<form method="POST" action="/login"><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><button class="btn-main">Login</button></form>
-<p style="text-align:center;margin-top:12px;font-size:13px">Navin aahat? <a href="#" onclick="closeModal('loginModal');openModal('regModal')">Register Kara</a></p></div></div>
-
-<div id="regModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('regModal')">×</button><h2>Register - Store Ughad</h2>
-<form method="POST" action="/register"><input name="name" placeholder="Tumcha Nav" required><input name="store_name" placeholder="Dukanache Nav" required><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><input name="phone" placeholder="Mobile Number" required><input name="location" placeholder="Gav / Area - Ex: Sangola" required><button class="btn-main">Register</button></form></div></div>
-
+<header><div class="logo">Local<span>Market</span><div style="font-size:11px;color:#888;font-weight:400">Sangola • Everything in one place</div></div>
+{% if user %}<a href="/profile" style="font-size:13px;color:#16a34a;text-decoration:none;font-weight:800">{{user.name.split(' ')[0]}}</a>{% else %}<button onclick="openModal('loginModal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:20px;font-weight:700">Login</button>{% endif %}</header>
+<div class="banner"><h2>Up to 50% Off Today</h2><p>All shops in Sangola are now in one place. Free home delivery.</p></div>
+<form class="search" method="GET" action="/"><input name="search" value="{{search}}" placeholder="Search for Saree, Cake, Grocery..."><button>Search</button></form>
+<div class="cats"><a href="/?cat=All" class="{% if cat=='All' %}active{% endif %}">All</a><a href="/?cat=Kirana" class="{% if cat=='Kirana' %}active{% endif %}">Grocery</a><a href="/?cat=Kapde" class="{% if cat=='Kapde' %}active{% endif %}">Fashion</a><a href="/?cat=Bakery" class="{% if cat=='Bakery' %}active{% endif %}">Bakery</a><a href="/?cat=Hotel" class="{% if cat=='Hotel' %}active{% endif %}">Food</a><a href="/?cat=Mobile" class="{% if cat=='Mobile' %}active{% endif %}">Mobile</a><a href="/?cat=Beauty" class="{% if cat=='Beauty' %}active{% endif %}">Beauty</a><a href="/?cat=Medical" class="{% if cat=='Medical' %}active{% endif %}">Medical</a><a href="/?cat=Electronics" class="{% if cat=='Electronics' %}active{% endif %}">Electronics</a></div>
+<div class="sort"><a href="/?cat={{cat}}&sort=new" class="{% if sort=='new' %}active{% endif %}">Newest</a><a href="/?cat={{cat}}&sort=low" class="{% if sort=='low' %}active{% endif %}">Price: Low to High</a><a href="/?cat={{cat}}&sort=high" class="{% if sort=='high' %}active{% endif %}">Price: High to Low</a><a href="/?cat={{cat}}&sort=rating" class="{% if sort=='rating' %}active{% endif %}">Top Rated</a></div>
+{% if offer_products %}<h3 style="padding:0 12px 10px">Offers</h3><div class="grid" style="margin-bottom:16px">{% for p in offer_products %}<div class="card" onclick="openProduct({{p.id}},'{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}',`{{p.details or '{}'}}`,{{p.rating or 0}})"><img src="{{p.image}}"><div class="card-body"><b>{{p.title}}</b><div><span class="price">₹{{p.price}}</span> <s style="color:#999;font-size:12px">₹{{p.mrp}}</s></div></div></div>{% endfor %}</div>{% endif %}
+<h3 style="padding:0 12px 10px;font-size:15px">Nearby Shops - Satellite Map</h3><div id="homeMap"></div>
+<div class="grid">{% for p in products %}<div class="card" onclick="openProduct({{p.id}},'{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}',`{{p.details or '{}'}}`,{{p.rating or 0}})">{% if p.off %}<span class="off">{{p.off}}% OFF</span>{% endif %}<a class="heart" href="/wishlist/{{p.id}}" onclick="event.stopPropagation()">{% if p.id in wish_ids %}❤️{% else %}🤍{% endif %}</a><img src="{{p.image}}"><div class="card-body"><b>{{p.title}}</b><div class="store">{{p.store_name}}</div>{% if p.rating %}<div style="font-size:12px">⭐ {{"%.1f"|format(p.rating)}} ({{p.rating_count}} reviews)</div>{% endif %}{% if p.shop_lat and p.shop_lng %}<div class="shop-distance" data-lat="{{p.shop_lat}}" data-lng="{{p.shop_lng}}" style="display:none;font-size:11px;color:#2563eb;font-weight:700"></div>{% endif %}<div style="display:flex;justify-content:space-between;align-items:center"><span class="price">₹{{p.price}}</span>{% if p.mrp and p.mrp > p.price %}<s style="color:#999;font-size:12px">₹{{p.mrp}}</s>{% endif %}<span style="font-size:11px;background:#dcfce7;padding:3px 8px;border-radius:10px">{{p.category}}</span></div></div></div>{% else %}<p style="grid-column:1/-1;text-align:center;padding:40px;color:#888">No products found. Be the first to add one.</p>{% endfor %}</div>
+<div id="cartBar" class="cart-bar"><span id="cartText"></span><button onclick="openModal('cartModal')" style="background:#16a34a;color:#fff;border:none;padding:8px 14px;border-radius:10px;font-weight:800">View Cart →</button></div>
+<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:260px;object-fit:cover;border-radius:14px"><h2 id="pTitle" style="margin-top:10px"></h2><p id="pStore" style="color:#888;font-size:13px"></p><div id="pRating" style="font-size:13px;margin-top:4px"></div><div id="pDetails" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div><p id="pDesc" style="color:#444;font-size:14px;line-height:1.6"></p><div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:10px">₹<span id="pPrice"></span></div><div style="display:flex;gap:8px;margin-top:12px;align-items:center"><label>Qty:</label><input id="pQty" type="number" value="1" min="1" style="width:70px"><span id="pTotal" style="font-weight:800"></span></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-dark" onclick="addToCartFromModal()">Add to Cart</button><a id="pWhats" target="_blank" class="btn-wa">WhatsApp Order</a></div><form id="orderForm" method="POST" style="margin-top:8px"><input type="hidden" name="qty" id="orderQty" value="1"><button class="btn-main" style="background:#f59e0b">Order Now</button></form><div style="margin-top:16px;border-top:1px solid #eee;padding-top:12px"><h4>Write a Review</h4><form id="reviewForm" method="POST" style="margin-top:8px"><select name="rating"><option value="5">5 Stars - Excellent</option><option value="4">4 Stars - Good</option><option value="3">3 Stars - Average</option><option value="2">2 Stars - Poor</option><option value="1">1 Star - Bad</option></select><input name="comment" placeholder="Share your experience..."><button class="btn-main" style="background:#111827">Submit Review</button></form></div></div></div>
+<div id="cartModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('cartModal')">×</button><h2>My Cart</h2><div id="cartItems"></div><div id="cartTotal" style="font-size:18px;font-weight:900;margin-top:12px"></div><button class="btn-main" onclick="checkoutCart()">Order All via WhatsApp</button><button class="btn-main" style="background:#ef4444" onclick="clearCart()">Clear Cart</button></div></div>
+<div id="addModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('addModal')">×</button><h2>Add Product</h2><form method="POST" action="/add" enctype="multipart/form-data"><label>Product Name</label><input name="title" placeholder="e.g. Saree / Cake" required><label>Category</label><select name="category" id="catSelect" onchange="showCustomFields()"><option>Kirana</option><option>Kapde</option><option>Hotel</option><option>Mobile</option><option>Beauty</option><option>Medical</option><option>Bakery</option><option>Electronics</option></select><label>Selling Price ₹</label><input name="price" type="number" placeholder="Price ₹" required><label>MRP ₹ (For Offer)</label><input name="mrp" type="number" placeholder="e.g. 999 - Leave empty if no offer"><label>Description</label><textarea name="description" placeholder="Product details..."></textarea><div id="customFields"></div><label>Product Photo</label><input type="file" name="product_pic" accept="image/*" required><button class="btn-main">Add Product</button></form></div></div>
+<div id="loginModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('loginModal')">×</button><h2>Login</h2><form method="POST" action="/login"><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><button class="btn-main">Login</button></form><p style="text-align:center;margin-top:12px;font-size:13px">New here? <a href="#" onclick="closeModal('loginModal');openModal('regModal')">Create an account</a></p></div></div>
+<div id="regModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('regModal')">×</button><h2>Create Account - Open Your Store</h2><form method="POST" action="/register"><input name="name" placeholder="Your Name" required><input name="store_name" placeholder="Store Name" required><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><input name="phone" placeholder="Mobile Number" required><input name="location" placeholder="Village / Area - e.g. Sangola" required><button class="btn-main">Create Account</button></form></div></div>
 <div class="bottom"><a href="/">🏠<span>Home</span></a><a href="#" onclick="checkLogin()">➕<span>Add</span></a><a href="#" onclick="openCartModal()">🛒<span>Cart</span></a><a href="{% if user %}/profile{% else %}#{% endif %}" onclick="{% if not user %}openModal('loginModal');return false;{% endif %}">👤<span>Profile</span></a></div>
-
 <script>
-let currentProduct = {};
-let cart = JSON.parse(localStorage.getItem('localCart') || '[]');
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
+let currentProduct={}; let cart=JSON.parse(localStorage.getItem('localCart')||'[]');
+function openModal(id){document.getElementById(id).classList.add('open')} function closeModal(id){document.getElementById(id).classList.remove('open')}
 function checkLogin(){ {% if user %}openModal('addModal'){% else %}openModal('loginModal'){% endif %} }
-function updateCartBar(){
-  let total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  let count = cart.reduce((s,i)=>s+i.qty,0);
-  let bar = document.getElementById('cartBar');
-  if(count>0){ bar.style.display='flex'; document.getElementById('cartText').innerText = `🛒 Cart: ${count} items - ₹${total}`; } else { bar.style.display='none'; }
-}
-updateCartBar();
-function addToCartFromModal(){
-  let qty = parseInt(document.getElementById('pQty').value||1);
-  let ex = cart.find(i=>i.id==currentProduct.id);
-  if(ex) ex.qty += qty; else cart.push({id:currentProduct.id, title:currentProduct.title, price:currentProduct.price, img:currentProduct.img, phone:currentProduct.phone, qty:qty});
-  localStorage.setItem('localCart', JSON.stringify(cart)); updateCartBar(); alert('Cart madhe Add Zala! 🛒'); closeModal('productModal');
-}
-function openCartModal(){
-  let box = document.getElementById('cartItems'); let total=0; let html='';
-  if(cart.length==0) html='<p style="text-align:center;padding:20px;color:#888">Cart Rikama Aahe.</p>';
-  cart.forEach((item,idx)=>{
-    total += item.price*item.qty;
-    html += `<div style="display:flex;gap:10px;background:#f8fafc;padding:10px;border-radius:12px;margin:8px 0"><img src="${item.img}" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div style="flex:1"><b>${item.title}</b><br>₹${item.price} x ${item.qty} = ₹${item.price*item.qty}</div><button onclick="removeCart(${idx})" style="border:none;background:#fee2e2;color:#ef4444;border-radius:8px;padding:6px 10px">✕</button></div>`;
-  });
-  box.innerHTML = html; document.getElementById('cartTotal').innerText = 'Total: ₹'+total; openModal('cartModal');
-}
-function removeCart(idx){ cart.splice(idx,1); localStorage.setItem('localCart', JSON.stringify(cart)); updateCartBar(); openCartModal(); }
-function clearCart(){ cart=[]; localStorage.setItem('localCart','[]'); updateCartBar(); openCartModal(); }
-function checkoutCart(){
-  if(cart.length==0){ alert('Cart rikama aahe'); return; }
-  let msg = 'Namaste! Mala he Order karayche aahe:\n';
-  cart.forEach(i=>{ msg += `- ${i.title} x ${i.qty} = ₹${i.price*i.qty}\n`; });
-  msg += 'Total: ₹'+cart.reduce((s,i)=>s+i.price*i.qty,0);
-  // Pahila product cha seller la pathav
-  window.open('https://wa.me/91'+cart[0].phone+'?text='+encodeURIComponent(msg), '_blank');
-  alert('Order WhatsApp var gela! Seller tumhala call karel.');
-}
-var homeMap = L.map('homeMap').setView([17.9236, 75.1937], 13);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {attribution:'© Esri Satellite'}).addTo(homeMap);
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(homeMap);
-{% for s in shops %}
-(function(){
-  var iconHtml = `{% if s.profile_pic %}<img src="{{s.profile_pic}}" style="width:100%;height:100%;object-fit:cover">{% else %}🏪{% endif %}`;
-  var shopIcon = L.divIcon({className:'', html:`<div style="background:#fff;border:2px solid #16a34a;border-radius:50%;width:46px;height:46px;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 3px 10px rgba(0,0,0,.4)">${iconHtml}</div>`, iconSize:[46,46], iconAnchor:[23,46]});
-  L.marker([{{s.lat}}, {{s.lng}}], {icon: shopIcon}).addTo(homeMap).bindPopup("<b>{{s.store_name}}</b><br>{{s.location or ''}}<br><a href='/?search={{s.store_name}}' style='color:#16a34a;font-weight:700'>Product Bagha →</a>");
-})();
-{% endfor %}
-if(navigator.geolocation){
-  navigator.geolocation.getCurrentPosition(function(pos){
-    let myLat=pos.coords.latitude, myLng=pos.coords.longitude;
-    L.circleMarker([myLat,myLng], {radius:8, color:'#fff', fillColor:'#2563eb', fillOpacity:1, weight:3}).addTo(homeMap).bindPopup("<b>📍 Tu Ithe Aahes</b>");
-    document.querySelectorAll('.shop-distance').forEach(function(el){
-      let sLat=parseFloat(el.dataset.lat), sLng=parseFloat(el.dataset.lng);
-      if(sLat && sLng){ let d=getDistance(myLat,myLng,sLat,sLng); el.innerText = d<1 ? '📍 '+Math.round(d*1000)+' mtr dur' : '📍 '+d.toFixed(1)+' km dur'; el.style.display='block'; }
-    });
-  });
-}
-function getDistance(lat1,lon1,lat2,lon2){ let R=6371; let dLat=(lat2-lat1)*Math.PI/180; let dLon=(lon2-lon1)*Math.PI/180; let a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2); return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
-function showCustomFields(){
-  let cat=document.getElementById('catSelect').value; let box=document.getElementById('customFields'); let html='';
-  if(cat=='Kapde'){ html=`<label>Size</label><input name="size" placeholder="Ex: S, M, L, XL, Free Size"><label>Color</label><input name="color" placeholder="Ex: Lal, Hirava"><label>Fabric / Kapad</label><input name="fabric" placeholder="Ex: Cotton, Silk"><label>Brand</label><input name="brand" placeholder="Ex: Brand Nav"><label>Quantity</label><input name="quantity" placeholder="Ex: 10 Piece">`; }
-  else if(cat=='Bakery'){ html=`<label>Kilo / Vajan</label><input 
+function updateCartBar(){let total=cart.reduce((s,i)=>s+i.price*i.qty,0);let count=cart.reduce((s,i)=>s+i.qty,0);let bar=document.getElementById('cartBar');if(count>0){bar.style.display='flex';document.getElementById('cartText').innerText=`Cart: ${count} items - ₹${total}`;}else{bar.style.display='none';}} updateCartBar();
+function addToCartFromModal(){let qty=parseInt(document.getElementById('pQty').value||1);let ex=cart.find(i=>i.id==currentProduct.id);if(ex)ex.qty+=qty;else cart.push({id:currentProduct.id,title:currentProduct.title,price:currentProduct.price,img:currentProduct.img,phone:currentProduct.phone,qty:qty});localStorage.setItem('localCart',JSON.stringify(cart));updateCartBar();alert('Added to cart');closeModal('productModal');}
+function openCartModal(){let box=document.getElementById('cartItems');let total=0;let html='';if(cart.length==0)html='<p style="text-align:center;padding:20px;color:#888">Your cart is empty.</p>';cart.forEach((item,idx)=>{total+=item.price*item.qty;html+=`<div style="display:flex;gap:10px;background:#f8fafc;padding:10px;border-radius:12px;margin:8px 0"><img src="${item.img}" style="width:60px;height:60px;object-fit:cover;border-radius:10px"><div style="flex:1"><b>${item.title}</b><br>₹${item.price} x ${item.qty} = ₹${item.price*item.qty}</div><button onclick="removeCart(${idx})" style="border:none;background:#fee2e2;color:#ef4444;border-radius:8px;padding:6px 10px">✕</button></div>`;});box.innerHTML=html;document.getElementById('cartTotal').innerText='Total: ₹'+total;openModal('cartModal');}
+function removeCart(idx){cart.splice(idx,1);localStorage.setItem('localCart',JSON.stringify(cart));updateCartBar();openCartModal();}
+function clearCart(){cart=[];localStorage.setItem('localCart','[]');updateCartBar();openCartModal();}
+function checkoutCart(){if(cart.length==0){alert('Cart is empty');return;}let msg='Hello! I want to order:\n';cart.forEach(i=>{msg+=`- ${i.title} x ${i.qty} = ₹${i.price*i.qty}\n`;});msg+='Total: ₹'+cart.reduce((s,i)=>s+i.price*i.qty,0);window.open('https://wa.me/91'+cart[0].phone+'?text='+encodeURIComponent(msg),'_blank');}
+var homeMap=L.map('homeMap').setView([17.9236,75.1937],13); L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'© Esri'}).addTo(homeMap); L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}').addTo(homeMap);
+{% for s in shops %}L.marker([{{s.lat}},{{s.lng}}]).addTo(homeMap).bindPopup("<b>{{s.store_name}}</b><br>{{s.location or ''}}");{% endfor %}
+if(navigator.geolocation){navigator.geolocation.getCurrentPosition(function(pos){let myLat=pos.coords.latitude,myLng=pos.coords.longitude;L.circleMarker([myLat,myLng],{radius:8,color:'#fff',fillColor:'#2563eb',fillOpacity:1,weight:3}).addTo(homeMap).bindPopup("<b>You are here</b>");document.querySelectorAll('.shop-distance').forEach(function(el){let sLat=parseFloat(el.dataset.lat),sLng=parseFloat(el.dataset.lng);if(sLat&&sLng){let d=getDistance(myLat,myLng,sLat,sLng);el.innerText=d<1?'📍 '+Math.round(d*1000)+' m away':'📍 '+d.toFixed(1)+' km away';el.style.display='block';}});});}
+function getDistance(lat1,lon1,lat2,lon2){let R=6371;let dLat=(lat2-lat1)*Math.PI/180;let dLon=(lon2-lon1)*Math.PI/180;let a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)*Math.sin(dLon/2);return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function showCustomFields(){let cat=document.getElementById('catSelect').value;let box=document.getElementById('customFields');let html='';if(cat=='Kapde'){html=`<label>Size</label><input name="size" placeholder="e.g. S, M, L, XL"><label>Color</label><input name="color" placeholder="e.g. Red, Blue"><label>Fabric</label><input name="fabric" placeholder="e.g. Cotton, Silk"><label>Brand</label><input name="brand" placeholder="Brand Name"><label>Quantity</label><input name="quantity" placeholder="e.g. 10 Pieces">`;}else if(cat=='Bakery'){html=`<label>Weight</label><input name="weight" placeholder="e.g. 500 gm, 1 Kg"><label>Packet</label><input name="packet" placeholder="e.g. 1 Box"><label>Flavour</label><input name="flavour" placeholder="e.g. Chocolate"><label>Veg / Non-Veg</label><input name="veg_nonveg" placeholder="e.g. Veg">`;}else if(cat=='Kirana'){html=`<label>Weight</label><input name="weight" placeholder="e.g. 1 Kg, 1 Litre"><label>Brand</label><input name="brand" placeholder="e.g. Tata"><label>Expiry</label><input name="expiry" placeholder="e.g. Dec 2026">`;}else{html=`<label>Brand</label><input name="brand" placeholder="Brand Name"><label>Material</label><input name="material" placeholder="e.g. Steel"><label>Quantity</label><input name="quantity" placeholder="e.g. 5 Pieces">`;}box.innerHTML=html;} showCustomFields();
+function openProduct(id,title,price,store,img,desc,phone,details,rating){currentProduct={id:id,title:title,price:parseFloat(price),img:img,phone:phone};document.getElementById('pImg').src=img;document.getElementById('pTitle').innerText=title;document.getElementById('pStore').innerText=store;document.getElementById('pDesc').innerText=desc;document.getElementById('pPrice').innerText=price;document.getElementById('pRating').innerText=rating?'⭐ '+parseFloat(rating).toFixed(1)+' Rating':'⭐ New Product - Be the first to review';document.getElementById('pWhats').href='https://wa.me/91'+phone+'?text='+encodeURIComponent('Hello! I want '+title+'. Price ₹'+price);document.getElementById('orderForm').action='/order/'+id;document.getElementById('reviewForm').action='/review/'+id;document.getElementById('pQty').value=1;document.getElementById('orderQty').value=1;document.getElementById('pTotal').innerText='Total: ₹'+price;document.getElementById('pQty').oninput=function(){document.getElementById('orderQty').value=this.value;document.getElementById('pTotal').innerText='Total: ₹'+(price*this.value);};let d={};try{d=JSON.parse(details||'{}')}catch(e){}let h='';if(d.size)h+=`<span class="chip" style="background:#dcfce7">Size: ${d.size}</span> `;if(d.color)h+=`<span class="chip" style="background:#fee2e2">Color: ${d.color}</span> `;if(d.fabric)h+=`<span class="chip" style="background:#dbeafe">Fabric: ${d 
