@@ -55,23 +55,48 @@ input,select,textarea{border-radius:12px!important}
 <div class="modal-dialog modal-lg">
 <div class="modal-content p-3">
 <h4 class="fw-bold">+ Navin Product Add Kara</h4>
-<form method="POST" action="/seller/add-product">
+<form method="POST" action="/seller/add-product" enctype="multipart/form-data">
 <div class="row g-2">
 <div class="col-md-6"><input name="title" class="form-control" placeholder="Product Name - उदा. Basmati Tandul 5kg" required></div>
+
 <div class="col-md-6">
+<div class="input-group">
 <select name="category" class="form-select" required>
 <option value="">Category Nivda</option>
 {% for c in cats %}<option value="{{ c.name }}">{{ c.icon }} {{ c.name }}</option>{% endfor %}
 </select>
+<button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addCatModal">+ New</button>
 </div>
+</div>
+
 <div class="col-md-4"><input name="price" type="number" class="form-control" placeholder="Selling Price ₹" required></div>
 <div class="col-md-4"><input name="mrp" type="number" class="form-control" placeholder="MRP ₹" required></div>
 <div class="col-md-4"><input name="stock_qty" type="number" class="form-control" placeholder="Stock Qty" value="10" required></div>
 <div class="col-12"><textarea name="description" class="form-control" placeholder="Description - Quality, Weight, Brand..."></textarea></div>
-<div class="col-12"><input name="image" class="form-control" placeholder="Product Photo URL - https://... (Imgur / Unsplash link)"></div>
+
+<!-- GALLERY PHOTO -->
+<div class="col-12">
+<label class="fw-bold small">📸 Product Photo - Gallery Madhun Nivda</label>
+<input type="file" name="product_pic" id="prodPicInput" class="form-control" accept="image/*" onchange="document.getElementById('prodPreview').src=window.URL.createObjectURL(this.files[0]); document.getElementById('prodPreview').style.display='block'">
+<img id="prodPreview" style="display:none; width:100%; height:180px; object-fit:cover; border-radius:12px; margin-top:8px;">
+<p class="small text-muted mt-1">Photo nahi nivadla tar default photo lagel.</p>
+</div>
+
 </div>
 <button class="btn btn-green w-100 mt-3">✅ Product Publish Kara</button>
-<p class="small text-muted mt-2">Tip: Google var product photo shodha > Right Click > Copy Image Address > Ithe paste kara.</p>
+</form>
+</div>
+</div>
+</div>
+
+<!-- ADD CATEGORY SMALL MODAL -->
+<div class="modal fade" id="addCatModal" tabindex="-1">
+<div class="modal-dialog modal-sm">
+<div class="modal-content p-3">
+<h5 class="fw-bold">+ Navin Category</h5>
+<form method="POST" action="/seller/add-category">
+<input name="name" class="form-control" placeholder="उदा. Dairy, Stationery, Pooja..." required>
+<button class="btn btn-success w-100 mt-2">Add Kara</button>
 </form>
 </div>
 </div>
