@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LocalMarket - Mohane</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
@@ -10,8 +9,7 @@ body{background:#f6f8f6;padding-bottom:85px}
 a{text-decoration:none;color:inherit}
 .top{background:#16a34a;color:white;padding:12px 14px 14px;position:sticky;top:0;z-index:100;border-radius:0 0 18px 18px}
 .top-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.logo{font-size:22px;font-weight:800;line-height:1}
-.logo span{font-size:12px;font-weight:400;opacity:.9;display:block}
+.logo{font-size:22px;font-weight:800;line-height:1}.logo span{font-size:12px;font-weight:400;opacity:.9;display:block}
 .loc{background:rgba(255,255,255,.2);padding:6px 10px;border-radius:20px;font-size:12px;white-space:nowrap}
 .search{margin-top:12px;background:white;border-radius:12px;display:flex;overflow:hidden;align-items:center}
 .search input{flex:1;border:none;outline:none;padding:12px;font-size:15px}
@@ -19,19 +17,15 @@ a{text-decoration:none;color:inherit}
 .btn-top{background:white;color:#16a34a;border:none;padding:8px 14px;border-radius:20px;font-weight:700;cursor:pointer;font-size:13px}
 .profile-btn{width:38px;height:38px;border-radius:50%;background:white;color:#16a34a;border:none;font-size:18px;cursor:pointer;overflow:hidden;flex-shrink:0}
 .profile-btn img{width:100%;height:100%;object-fit:cover}
-.cats{display:flex;gap:8px;overflow-x:auto;padding:12px 14px;scrollbar-width:none}
-.cats::-webkit-scrollbar{display:none}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:12px 14px;scrollbar-width:none}.cats::-webkit-scrollbar{display:none}
 .cat{flex-shrink:0;background:white;border:1px solid #e5e7eb;padding:8px 14px;border-radius:20px;font-size:13px;cursor:pointer}
 .cat.active{background:#16a34a;color:white;border-color:#16a34a}
 .sec{padding:0 14px;font-size:17px;font-weight:800;display:flex;justify-content:space-between;align-items:center}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 14px}
 .card{background:white;border-radius:16px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06);cursor:pointer}
 .card img{width:100%;height:130px;object-fit:cover}
-.card-body{padding:10px}
-.card-body h4{font-size:14px;line-height:1.3;height:36px;overflow:hidden}
-.price{color:#16a34a;font-weight:800;font-size:16px;margin-top:4px}
-.store{font-size:11px;color:#666;margin-top:2px}
-.rating{font-size:11px;color:#f59e0b}
+.card-body{padding:10px}.card-body h4{font-size:14px;line-height:1.3;height:36px;overflow:hidden}
+.price{color:#16a34a;font-weight:800;font-size:16px;margin-top:4px}.store{font-size:11px;color:#666;margin-top:2px}.rating{font-size:11px;color:#f59e0b}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:10px 0 14px;border-top:1px solid #eee;z-index:200}
 .bottom a,.bottom button{border:none;background:none;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#666;cursor:pointer}
 .bottom .active{color:#16a34a}
@@ -46,8 +40,7 @@ a{text-decoration:none;color:inherit}
 .btn-main{width:100%;background:#16a34a;color:white;border:none;padding:13px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer}
 .btn-sec{width:100%;background:#f3f4f6;border:none;padding:11px;border-radius:12px;font-weight:700;margin-top:8px;cursor:pointer}
 .profile-menu{display:none;position:absolute;right:12px;top:64px;background:white;color:#111;border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:8px;width:200px;z-index:1000}
-.profile-menu a{display:block;padding:10px;border-radius:8px;font-size:14px}
-.profile-menu a:hover{background:#f3f4f6}
+.profile-menu a{display:block;padding:10px;border-radius:8px;font-size:14px}.profile-menu a:hover{background:#f3f4f6}
 .empty{text-align:center;padding:30px;color:#888}
 @media(min-width:768px){.grid{grid-template-columns:repeat(4,1fr)}.modal{align-items:center}.modal-box{border-radius:20px}body{max-width:800px;margin:0 auto}.bottom{max-width:800px;margin:0 auto;left:0;right:0}}
 </style>
@@ -60,69 +53,41 @@ a{text-decoration:none;color:inherit}
       <div class="loc">📍 Mohane</div>
       {% if user %}
         <button class="profile-btn" onclick="toggleProfile()" type="button">{% if user.profile_pic %}<img src="{{user.profile_pic}}" onerror="this.style.display='none'">{% else %}👤{% endif %}</button>
-        <div id="profileMenu" class="profile-menu">
-          <b style="padding:10px;display:block">Hi, {{user.name}} 👋</b>
-          <a href="/profile/{{user.id}}">👤 My Profile</a>
-          {% if user.is_admin %}<a href="/admin">🛡️ Admin Panel</a>{% endif %}
-          <a href="/logout">🚪 Logout</a>
-        </div>
+        <div id="profileMenu" class="profile-menu"><b style="padding:10px;display:block">Hi, {{user.name}} 👋</b><a href="/profile/{{user.id}}">👤 My Profile</a>{% if user.is_admin %}<a href="/admin">🛡️ Admin Panel</a>{% endif %}<a href="/logout">🚪 Logout</a></div>
       {% else %}
         <button class="btn-top" onclick="openModal('loginModal')">Login</button>
         <button class="btn-top" style="background:#facc15;color:#111" onclick="openModal('registerModal')">Register</button>
       {% endif %}
     </div>
   </div>
-  <form class="search" method="GET" action="/">
-    <input name="q" value="{{q or ''}}" placeholder="Search products, stores...">
-    <button>Search</button>
-  </form>
+  <form class="search" method="GET" action="/"><input name="q" value="{{q or ''}}" placeholder="Search products, stores..."><button>Search</button></form>
 </div>
-
-<div class="cats">
-  <a href="/?cat=All" class="cat {% if not cat or cat=='All' %}active{% endif %}">All</a>
-  {% for c in ['Kirana','Kapde','Hotel','Mobile','Beauty','Medical','Bakery','Electronics'] %}
-  <a href="/?cat={{c}}" class="cat {% if cat==c %}active{% endif %}">{{c}}</a>
-  {% endfor %}
-</div>
-
+<div class="cats"><a href="/?cat=All" class="cat {% if not cat or cat=='All' %}active{% endif %}">All</a>
+{% for c in ['Kirana','Kapde','Hotel','Mobile','Beauty','Medical','Bakery','Electronics'] %}<a href="/?cat={{c}}" class="cat {% if cat==c %}active{% endif %}">{{c}}</a>{% endfor %}</div>
 <div class="sec"><span>Fresh Products Near You</span><a href="/" style="font-size:12px;color:#16a34a">View All →</a></div>
 {% if products %}
 <div class="grid">
-  {% for p in products %}
-  <div class="card" onclick="openProduct('{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}')">
-    <img src="{{p.image}}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=600'">
-    <div class="card-body">
-      <h4>{{p.title}}</h4>
-      <div class="price">₹{{p.price}}</div>
-      <div class="store">{{p.store_name}} • {{p.owner_loc or 'Mohane'}}</div>
-      <div class="rating">⭐ {{p.rating or 4.5}}</div>
-    </div>
-  </div>
-  {% endfor %}
+{% for p in products %}
+<div class="card" onclick="openProduct({{p.id}},'{{p.title}}','{{p.price}}','{{p.store_name}}','{{p.image}}','{{p.description or ''}}','{{p.owner_phone or ''}}')">
+<img src="{{p.image}}" onerror="this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=600'">
+<div class="card-body"><h4>{{p.title}}</h4><div class="price">₹{{p.price}}</div><div class="store">{{p.store_name}} • {{p.owner_loc or 'Mohane'}}</div><div class="rating">⭐ {{p.rating or 4.5}}</div></div>
 </div>
-{% else %}
-<div class="empty">😔 Aajun Product nahi.<br><b>Dukandar mhanun Register karun pahila Product tak!</b></div>
-{% endif %}
-
+{% endfor %}
+</div>
+{% else %}<div class="empty">😔 Aajun Product nahi.<br><b>Dukandar mhanun Register karun pahila Product tak!</b></div>{% endif %}
 <div class="bottom">
-  <button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="active">🏠<span>Home</span></button>
-  <button onclick="focusSearch()">🔍<span>Search</span></button>
-  <button class="add-btn" onclick="{% if user %}openModal('addModal'){% else %}openModal('loginModal'){% endif %}">+</button>
-  {% if user %}<a href="/profile/{{user.id}}">👤<span>Profile</span></a>{% else %}<button onclick="openModal('loginModal')">👤<span>Profile</span></button>{% endif %}
-  {% if user and user.is_admin %}<a href="/admin">🛡️<span>Admin</span></a>{% else %}<button onclick="openModal('loginModal')">✨
-<span>Admin</span></button>{% endif %}
+<button onclick="window.scrollTo({top:0,behavior:'smooth'})" class="active">🏠<span>Home</span></button>
+<button onclick="focusSearch()">🔍<span>Search</span></button>
+<button class="add-btn" onclick="{% if user %}openModal('addModal'){% else %}openModal('loginModal'){% endif %}">+</button>
+{% if user %}<a href="/profile/{{user.id}}">👤<span>Profile</span></a>{% else %}<button onclick="openModal('loginModal')">👤<span>Profile</span></button>{% endif %}
+{% if user and user.is_admin %}<a href="/admin">🛡️<span>Admin</span></a>{% else %}<button onclick="openModal('loginModal')">🛡️<span>Admin</span></button>{% endif %}
 </div>
-
 <div id="loginModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('loginModal')">×</button><h2>Login Kar</h2><form method="POST" action="/login"><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><button class="btn-main">Login</button></form><button class="btn-sec" onclick="closeModal('loginModal');openModal('registerModal')">Navin aahes? Register kar</button><p style="font-size:11px;color:#888;margin-top:10px">Admin: admin@localmarket.com / admin123</p></div></div>
-
-<div id="registerModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('registerModal')">×</button><h2>Register Kar - Mohane</h2><form method="POST" action="/register" enctype="multipart/form-data"><label>Tuzha Nav</label><input name="name" placeholder="Ex: Sayali" required><label>Dukan Nav</label><input name="store_name" placeholder="Ex: Sayali Kirana"><label>Phone</label><input name="phone" placeholder="9876543210"><label>Email</label><input name="email" type="email" placeholder="Email" required><label>Password</label><input name="password" type="password" placeholder="Password" required><label>Tu Kon?</label><select name="role"><option value="Customer">Mi Customer aahe</option><option value="Store">Mi Dukandar aahe</option></select><label>Profile Photo</label><input type="file" name="profile_pic" accept="image/*"><label>Dukanabaddal</label><textarea name="bio" placeholder="Mazya dukanat taza maal milto..."></textarea><label>Location</label><input name="location" value="malshiras, Maharashtra"><input type="hidden" name="lat" value="19.2144"><input type="hidden" name="lng" value="73.0978"><button class="btn-main">Register & Profile Banav</button></form></div></div>
-
+<div id="registerModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('registerModal')">×</button><h2>Register Kar - Mohane</h2><form method="POST" action="/register" enctype="multipart/form-data"><label>Tuzha Nav</label><input name="name" placeholder="Ex: Sayali" required><label>Dukan Nav</label><input name="store_name" placeholder="Ex: Sayali Kirana"><label>Phone</label><input name="phone" placeholder="9876543210"><label>Email</label><input name="email" type="email" placeholder="Email" required><label>Password</label><input name="password" type="password" placeholder="Password" required><label>Tu Kon?</label><select name="role"><option value="Customer">Mi Customer aahe</option><option value="Store">Mi Dukandar aahe</option></select><label>Profile Photo</label><input type="file" name="profile_pic" accept="image/*"><label>Dukanabaddal</label><textarea name="bio" placeholder="Mazya dukanat taza maal milto..."></textarea><label>Location</label><input name="location" value="Mohane, Maharashtra"><input type="hidden" name="lat" value="19.2144"><input type="hidden" name="lng" value="73.0978"><button class="btn-main">Register & Profile Banav</button></form></div></div>
 <div id="addModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('addModal')">×</button><h2>+ Product Tak</h2><form method="POST" action="/add" enctype="multipart/form-data"><input name="title" placeholder="Product Nav - Ex: Taza Tomato" required><select name="category"><option>Kirana</option><option>Kapde</option><option>Hotel</option><option>Mobile</option><option>Beauty</option><option>Medical</option><option>Bakery</option></select><input name="price" type="number" placeholder="Kimmat ₹" required><textarea name="description" placeholder="Mahiti..."></textarea><label>Photo</label><input type="file" name="product_pic" accept="image/*"><button class="btn-main">Add Product</button></form></div></div>
-
-<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:200px;object-fit:cover;border-radius:12px"><h2 id="pTitle" style="margin-top:10px"></h2><p id="pDesc" style="color:#666;font-size:14px"></p><h3 id="pPrice" style="color:#16a34a;margin:8px 0"></h3><p id="pStore" style="font-size:13px"></p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-main" style="flex:1" id="pCall">📞 Call</button>
-</div></div></div>
-
+<div id="productModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('productModal')">×</button><img id="pImg" style="width:100%;height:200px;object-fit:cover;border-radius:12px"><h2 id="pTitle" style="margin-top:10px"></h2><p id="pDesc" style="color:#666;font-size:14px"></p><h3 id="pPrice" style="color:#16a34a;margin:8px 0"></h3><p id="pStore" style="font-size:13px"></p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-main" style="flex:1" id="pCall">📞 Call</button><button class="btn-main" style="flex:1;background:#f3f4f6;color:#111" onclick="closeModal('productModal')">Band Kar</button></div><hr style="margin:14px 0"><h3 style="font-size:16px">⭐ Ya Product la Feedback De</h3><div id="pFeedbacks" style="margin:8px 0;font-size:13px;color:#444"></div>{% if user %}<form id="pFeedbackForm" method="POST" action=""><select name="rating"><option value="5">⭐⭐⭐⭐⭐ - 5 - Ekdam Bhari</option><option value="4">⭐⭐⭐⭐ - 4</option><option value="3">⭐⭐⭐ - 3</option><option value="2">⭐⭐ - 2</option><option value="1">⭐ - 1</option></select><textarea name="comment" placeholder="Ha product kasa hota?"></textarea><button class="btn-main">Feedback Pathav</button></form>{% else %}<p style="font-size:13px">Feedback dyaycha asel tar Login kara.</p>{% endif %}</div></div>
 <script>
+let ALL_FEEDBACKS = {{ feedbacks|tojson }};
 function openModal(id){ closeAll(); document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function closeAll(){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('open')); }
@@ -130,19 +95,21 @@ document.querySelectorAll('.modal').forEach(m=>{ m.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
 function toggleProfile(){ let m=document.getElementById('profileMenu'); if(m) m.style.display=(m.style.display==='block'?'none':'block'); }
 document.addEventListener('click',e=>{ let m=document.getElementById('profileMenu'); if(m && !e.target.closest('.profile-btn') && !e.target.closest('#profileMenu')) m.style.display='none'; });
-function openProduct(title,price,store,img,desc,phone){
+function openProduct(id,title,price,store,img,desc,phone){
   document.getElementById('pImg').src=img;
   document.getElementById('pTitle').innerText=title;
   document.getElementById('pPrice').innerText='₹ '+price;
   document.getElementById('pStore').innerText='Dukan: '+store;
   document.getElementById('pDesc').innerText=desc||'Taza aani changla maal.';
   document.getElementById('pCall').onclick=()=>{ if(phone) window.location.href='tel:'+phone; else alert('Phone number nahi'); };
+  let f = document.getElementById('pFeedbackForm'); if(f) f.action='/feedback/'+id;
+  let list = ALL_FEEDBACKS.filter(x=>x.product_id==id);
+  let box = document.getElementById('pFeedbacks');
+  if(list.length==0) box.innerHTML='<p style="color:#888">Aajun Feedback nahi. Pahila Feedback tu de!</p>';
+  else box.innerHTML = list.map(x=>'<p><b>'+x.customer_name+'</b> ⭐'+x.rating+'<br>'+(x.comment||'')+'</p><hr>').join('');
   openModal('productModal');
 }
-function focusSearch(){
-  window.scrollTo({top:0, behavior:'smooth'});
-  setTimeout(()=>{ document.querySelector('.search input').focus(); }, 500);
-}
+function focusSearch(){ window.scrollTo({top:0, behavior:'smooth'}); setTimeout(()=>{ document.querySelector('.search input').focus(); }, 500); }
 {% if msg %}alert("{{msg}}");{% endif %}
 </script>
 </body>
