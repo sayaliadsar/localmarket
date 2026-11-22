@@ -19,7 +19,7 @@ header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:10;box-sh
 </style></head><body>
 {% if msg %}<div class="toast">{{msg}}</div>{% endif %}
 <header><div class="logo">🛒 Local<span>Market</span><div style="font-size:11px;color:#888;font-weight:400">Sangola • Sagla Kahi Ekach Jagi</div></div>
-{% if user %}<a href="/logout" style="font-size:13px;color:#ef4444;text-decoration:none;font-weight:700">Logout</a>{% else %}<button onclick="openModal('loginModal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:20px;font-weight:700">Login</button>{% endif %}</header>
+{% if user %}<a href="/profile" style="font-size:13px;color:#16a34a;text-decoration:none;font-weight:800">👤 {{ user.name.split(' ')[0] }}</a>{% else %}<button onclick="openModal('loginModal')" style="padding:8px 16px;background:#16a34a;color:#fff;border:none;border-radius:20px;font-weight:700">Login</button>{% endif %}</header>
 
 <form class="search" method="GET" action="/"><input name="search" value="{{search}}" placeholder="Shodha... Sadi, Cake, Kirana..."><button>Shodha</button></form>
 <div class="cats">
@@ -52,11 +52,7 @@ header{background:#fff;padding:12px 16px;position:sticky;top:0;z-index:10;box-sh
 <div id="regModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('regModal')">×</button><h2>Register - Store Ughad</h2>
 <form method="POST" action="/register"><input name="name" placeholder="Tumcha Nav" required><input name="store_name" placeholder="Dukanache Nav" required><input name="email" placeholder="Email" required><input name="password" type="password" placeholder="Password" required><input name="phone" placeholder="Mobile Number" required><input name="location" placeholder="Gav / Area - Ex: Sangola" required><button class="btn-main">Register</button></form></div></div>
 
-<div id="profileModal" class="modal"><div class="modal-box"><button class="close" onclick="closeModal('profileModal')">×</button>
-{% if user %}<h2>👤 {{user.name}}</h2><p style="color:#888">{{user.email}}<br>🏪 {{user.store_name}} • 📍 {{user.location}}</p><a href="/my-products" style="display:block;text-align:center;background:#f1f5f9;padding:12px;border-radius:10px;text-decoration:none;color:#333;font-weight:700;margin-top:12px">Majhe Products Paha</a>{% if user.is_admin %}<a href="/admin" style="display:block;text-align:center;background:#fef3c7;padding:12px;border-radius:10px;text-decoration:none;color:#333;font-weight:700;margin-top:8px">🛡️ Admin Panel</a>{% endif %}<a href="/logout" style="display:block;text-align:center;background:#fee2e2;padding:12px;border-radius:10px;text-decoration:none;color:#b91c1c;font-weight:700;margin-top:8px">Logout</a>{% else %}<h2>Login Kara</h2><button class="btn-main" onclick="closeModal('profileModal');openModal('loginModal')">Login</button>{% endif %}
-</div></div>
-
-<div class="bottom"><a href="/">🏠<span>Home</span></a><a href="#" onclick="checkLogin()">➕<span>Add</span></a><a href="#" onclick="openModal('profileModal')">👤<span>Profile</span></a></div>
+<div class="bottom"><a href="/">🏠<span>Home</span></a><a href="#" onclick="checkLogin()">➕<span>Add</span></a><a href="{% if user %}/profile{% else %}#{% endif %}" onclick="{% if not user %}openModal('loginModal');return false;{% endif %}">👤<span>Profile</span></a></div>
 
 <script>
 function openModal(id){document.getElementById(id).classList.add('open')}
