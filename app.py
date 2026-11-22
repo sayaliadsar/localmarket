@@ -1,811 +1,856 @@
 import os
-import json
-import uuid
-import base64
-import requests
-import psycopg2
-import psycopg2.extras
-from flask import Flask, render_template, request, redirect, session
+from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, session, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+import base64
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "local-market-key")
-DATABASE_URL = os.environ.get("DATABASE_URL")
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+app.secret_key = os.environ.get("SECRET_KEY", "local-market-key-2026")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL", "sqlite:///localmarket.db")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-FALLBACK = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600"
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace("postgres://", "postgresql://", 1)
 
+db = SQLAlchemy(app)
 
-def get_db():
-    return psycopg2.connect(DATABASE_URL, sslmode="require")
+# ---------- MODELS ----------
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(300), nullable=False)
+    phone = db.Column(db.String(20))
+    role = db.Column(db.String(20), default='customer')
+    village = db.Column(db.String(100))
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
+    profile_pic = db.Column(db.Text)
+    is_blocked = db.Column(db.Boolean, default=False)
+    is_verified = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    shop = db.relationship('Shop', backref='owner', uselist=False, cascade="all, delete-orphan")
 
-def init_db():
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users(
-            id SERIAL PRIMARY KEY,
-            name TEXT,
-            email TEXT UNIQUE,
-            password TEXT,
-            phone TEXT,
-            location TEXT,
-            store_name TEXT,
-            profile_pic TEXT,
-            lat DOUBLE PRECISION,
-            lng DOUBLE PRECISION,
-            is_admin BOOLEAN DEFAULT FALSE,
-            is_blocked BOOLEAN DEFAULT FALSE,
-            is_pro BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMP DEFAULT NOW()
-        )
-        """
-    )
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS products(
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER,
-            title TEXT,
-            category TEXT,
-            price NUMERIC,
-            mrp NUMERIC DEFAULT 0,
-            description TEXT,
-            image TEXT,
-            store_name TEXT,
-            owner_phone TEXT,
-            details TEXT,
-            rating NUMERIC DEFAULT 0,
-            rating_count INTEGER DEFAULT 0,
-            is_available BOOLEAN DEFAULT TRUE,
-            created_at TIMESTAMP DEFAULT NOW()
-        )
-        """
-    )
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS orders(
-            id SERIAL PRIMARY KEY,
-            buyer_id INTEGER,
-            buyer_name TEXT,
-            buyer_phone TEXT,
-            product_id INTEGER,
-            product_title TEXT,
-            product_image TEXT,
-            store_name TEXT,
-            owner_phone TEXT,
-            price NUMERIC,
-            qty INTEGER DEFAULT 1,
-            status TEXT DEFAULT 'Pending',
-            created_at TIMESTAMP DEFAULT NOW()
-        )
-        """
-    )
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS reviews(
-            id SERIAL PRIMARY KEY,
-            product_id INTEGER,
-            user_id INTEGER,
-            user_name TEXT,
-            rating INTEGER,
-            comment TEXT,
-            created_at TIMESTAMP DEFAULT NOW()
-        )
-        """
-    )
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS wishlist(
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER,
-            product_id INTEGER,
-            UNIQUE(user_id, product_id)
-        )
-        """
-    )
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS subscriptions(
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER,
-            store_name TEXT,
-            plan TEXT,
-            price NUMERIC DEFAULT 0,
-            days INTEGER DEFAULT 30,
-            status TEXT DEFAULT 'Active',
-            created_at TIMESTAMP DEFAULT NOW()
-        )
-        """
-    )
-    cur.execute("SELECT id FROM users WHERE email='admin@localmarket.com'")
-    if not cur.fetchone():
-        admin_pw_hash = generate_password_hash("admin123")
-        cur.execute(
-            """
-            INSERT INTO users (name, email, password, phone, location, store_name, is_admin)
-            VALUES (%s, %s, %s, %s, %s, %s, TRUE)
-            """,
-            ("Admin", "admin@localmarket.com", admin_pw_hash, "9876543210", "Sangola", "Local Market Admin"),
-        )
-    conn.commit()
-    cur.close()
-    conn.close()
+class Village(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    taluka = db.Column(db.String(100), default='Malshiras')
+    district = db.Column(db.String(100), default='Solapur')
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
 
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    icon = db.Column(db.String(50), default='🛒')
+
+class Shop(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), unique=True)
+    shop_name = db.Column(db.String(150), nullable=False)
+    village = db.Column(db.String(100))
+    address = db.Column(db.Text)
+    phone = db.Column(db.String(20))
+    timings = db.Column(db.String(100), default='9 AM - 9 PM')
+    lat = db.Column(db.Float)
+    lng = db.Column(db.Float)
+    shop_pic = db.Column(db.Text)
+    is_verified = db.Column(db.Boolean, default=False)
+    views = db.Column(db.Integer, default=0)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    title = db.Column(db.String(200), nullable=False)
+    category = db.Column(db.String(100))
+    price = db.Column(db.Float, nullable=False)
+    mrp = db.Column(db.Float, default=0)
+    description = db.Column(db.Text)
+    image = db.Column(db.Text)
+    stock_qty = db.Column(db.Integer, default=10)
+    is_available = db.Column(db.Boolean, default=True)
+    views = db.Column(db.Integer, default=0)
+    rating = db.Column(db.Float, default=0)
+    rating_count = db.Column(db.Integer, default=0)
+    last_stock_check = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    shop = db.relationship('Shop', backref='products')
+    images = db.relationship('ProductImage', backref='product', cascade="all, delete-orphan")
+    inventory = db.relationship('Inventory', backref='product', uselist=False, cascade="all, delete-orphan")
+
+class ProductImage(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    image_url = db.Column(db.Text)
+
+class Inventory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), unique=True)
+    qty = db.Column(db.Integer, default=0)
+    low_stock_at = db.Column(db.Integer, default=5)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Reservation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    customer_name = db.Column(db.String(100))
+    customer_phone = db.Column(db.String(20))
+    qty = db.Column(db.Integer, default=1)
+    status = db.Column(db.String(20), default='Pending')
+    note = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    product = db.relationship('Product', backref='reservations')
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_name = db.Column(db.String(100))
+    rating = db.Column(db.Integer, default=5)
+    comment = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Favorite(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=True)
+    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    title = db.Column(db.String(200))
+    message = db.Column(db.Text)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SubscriptionPlan(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+    monthly_price = db.Column(db.Float, default=0)
+    yearly_price = db.Column(db.Float, default=0)
+    product_limit = db.Column(db.Integer, default=10)
+    features = db.Column(db.Text, default='')
+    is_active = db.Column(db.Boolean, default=True)
+
+class SellerSubscription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    shop_id = db.Column(db.Integer, db.ForeignKey('shop.id'), nullable=True)
+    plan_id = db.Column(db.Integer, db.ForeignKey('subscription_plan.id'))
+    plan_name = db.Column(db.String(50))
+    duration = db.Column(db.String(20), default='monthly')
+    price = db.Column(db.Float, default=0)
+    start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    expiry_date = db.Column(db.DateTime)
+    status = db.Column(db.String(20), default='Pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    plan = db.relationship('SubscriptionPlan')
+
+class SubscriptionPayment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subscription_id = db.Column(db.Integer, db.ForeignKey('seller_subscription.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    amount = db.Column(db.Float, default=0)
+    method = db.Column(db.String(50), default='UPI - At Shop / Manual')
+    status = db.Column(db.String(20), default='Pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class SubscriptionHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    action = db.Column(db.String(200))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+class AuditLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    admin_id = db.Column(db.Integer)
+    action = db.Column(db.String(300))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+# ---------- HELPERS ----------
+
+def current_user():
+    if 'user_id' not in session:
+        return None
+    return User.query.get(session['user_id'])
 
 def save_photo(f):
-    if not f or f.filename == "":
+    if not f or f.filename == '':
         return None
     try:
-        ext = f.filename.rsplit(".", 1)[-1].lower() if "." in f.filename else "jpg"
-        fname = f"{uuid.uuid4()}.{ext}"
         data = f.read()
-        if SUPABASE_URL and SUPABASE_KEY:
-            url = f"{SUPABASE_URL}/storage/v1/object/product-images/{fname}"
-            headers = {
-                "Authorization": f"Bearer {SUPABASE_KEY}",
-                "Content-Type": f.content_type or "image/jpeg",
-            }
-            resp = requests.put(url, data=data, headers=headers, timeout=20)
-            if resp.status_code in [200, 201]:
-                return f"{SUPABASE_URL}/storage/v1/object/public/product-images/{fname}"
         return f"data:{f.content_type or 'image/jpeg'};base64,{base64.b64encode(data).decode()}"
-    except Exception as e:
-        print("Photo upload error:", e)
+    except:
         return None
 
+def log_audit(admin_id, action):
+    try:
+        db.session.add(AuditLog(admin_id=admin_id, action=action))
+        db.session.commit()
+    except:
+        db.session.rollback()
 
-@app.route("/")
+def get_active_sub(user_id):
+    sub = SellerSubscription.query.filter_by(user_id=user_id, status='Active').order_by(SellerSubscription.expiry_date.desc()).first()
+    if sub and sub.expiry_date and sub.expiry_date < datetime.utcnow():
+        sub.status = 'Expired'
+        db.session.commit()
+        return None
+    return sub
+
+def init_db():
+    with app.app_context():
+        db.create_all()
+
+        if not Village.query.first():
+            villages = ["Malshiras", "Akluj", "Velapur", "Natepute", "Piliv", "Sangola", "Pandharpur", "Mohol", "Mardi", "Borgaon", "Khandali", "Gondhave", "Jinti", "Tandulwadi", "Kurduwadi"]
+            for v in villages:
+                db.session.add(Village(name=v))
+
+        if not Category.query.first():
+            for c, i in [("Kirana", "🛒"), ("Kapad / Cloth", "👕"), ("Electronics", "📱"), ("Medical", "💊"), ("Hardware", "🔧"), ("Bakery", "🍞"), ("Sheti / Agro", "🌾"), ("Beauty", "💄"), ("Mobile Shop", "📞"), ("General", "🏪")]:
+                db.session.add(Category(name=c, icon=i))
+
+        if not SubscriptionPlan.query.first():
+            db.session.add(SubscriptionPlan(name='Free', monthly_price=0, yearly_price=0, product_limit=10, features='Basic Shop Profile,10 Products,Basic Discovery'))
+            db.session.add(SubscriptionPlan(name='Silver', monthly_price=199, yearly_price=1999, product_limit=50, features='50 Products,Insights,Enquiry Management,Extra Visibility'))
+            db.session.add(SubscriptionPlan(name='Gold', monthly_price=499, yearly_price=4999, product_limit=-1, features='Unlimited Products,Advanced Analytics,Featured Shop,Promotions,Demand Insights'))
+
+        if not User.query.filter_by(email='admin@localmarket.com').first():
+            db.session.add(User(name='Admin', email='admin@localmarket.com', password=generate_password_hash('admin123'), phone='9876543210', role='admin', village='Malshiras'))
+
+        db.session.commit()
+
+# ---------- CUSTOMER - HOME ----------
+
+@app.route('/')
 def home():
-    search = request.args.get("search", "").strip()
-    cat = request.args.get("cat", "All")
-    sort = request.args.get("sort", "new")
+    init_db()
+    search = request.args.get('search', '').strip()
+    cat = request.args.get('cat', 'All')
+    village = request.args.get('village', 'All')
+    sort = request.args.get('sort', 'new')
 
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    q = Product.query.join(Shop, Product.shop_id == Shop.id).filter(Product.is_available == True)
 
-    q = """
-        SELECT p.*, u.lat AS shop_lat, u.lng AS shop_lng
-        FROM products p
-        LEFT JOIN users u ON p.user_id = u.id
-        WHERE p.is_available = TRUE
-    """
-    pms = []
-    if cat != "All":
-        q += " AND p.category = %s"
-        pms.append(cat)
+    if cat != 'All':
+        q = q.filter(Product.category == cat)
+
+    if village != 'All':
+        q = q.filter(Shop.village == village)
+
     if search:
-        q += " AND (p.title ILIKE %s OR p.store_name ILIKE %s)"
-        pms.extend([f"%{search}%", f"%{search}%"])
+        q = q.filter(Product.title.ilike(f"%{search}%"))
 
-    if sort == "low":
-        q += " ORDER BY p.price ASC"
-    elif sort == "high":
-        q += " ORDER BY p.price DESC"
-    elif sort == "rating":
-        q += " ORDER BY p.rating DESC"
+    if sort == 'low':
+        q = q.order_by(Product.price.asc())
+    elif sort == 'high':
+        q = q.order_by(Product.price.desc())
+    elif sort == 'rating':
+        q = q.order_by(Product.rating.desc())
     else:
-        q += " ORDER BY p.id DESC"
+        q = q.order_by(Product.id.desc())
 
-    cur.execute(q, pms)
-    products = cur.fetchall()
+    products = q.all()
+    shops = Shop.query.filter(Shop.lat.isnot(None)).all()
 
-    try:
-        cur.execute(
-            "SELECT store_name, lat, lng, profile_pic, location FROM users WHERE lat IS NOT NULL AND lng IS NOT NULL"
-        )
-        shops = cur.fetchall()
-    except Exception:
-        shops = []
+    map_shops = []
+    for p in products:
+        if p.shop and p.shop.lat:
+            map_shops.append({
+                'pid': p.id,
+                'title': p.title,
+                'price': p.price,
+                'image': p.image,
+                'shop': p.shop.shop_name,
+                'village': p.shop.village,
+                'lat': p.shop.lat,
+                'lng': p.shop.lng,
+                'stock': p.stock_qty,
+                'phone': p.shop.phone
+            })
 
-    wish = []
-    if "user" in session:
-        cur.execute("SELECT product_id FROM wishlist WHERE user_id = %s", (session["user"]["id"],))
-        wish = [r["product_id"] for r in cur.fetchall()]
+    fav_ids = []
+    u = current_user()
+    if u:
+        fav_ids = [f.product_id for f in Favorite.query.filter_by(user_id=u.id).all()]
 
-    cur.execute("SELECT * FROM products WHERE mrp > price ORDER BY id DESC LIMIT 4")
-    offers = cur.fetchall()
+    offers = Product.query.filter(Product.mrp > Product.price).order_by(Product.id.desc()).limit(4).all()
+    villages = Village.query.all()
+    cats = Category.query.all()
 
-    cur.close()
-    conn.close()
+    return render_template('index.html', products=products, shops=shops, map_shops=map_shops, fav_ids=fav_ids, user=u, search=search, cat=cat, village=village, sort=sort, offers=offers, villages=villages, cats=cats, msg=request.args.get('msg', ''))
+# ---------- AUTH ----------
 
-    for x in products:
-        if not x.get("details"):
-            x["details"] = "{}"
-        mrp_val = float(x.get("mrp") or 0)
-        price_val = float(x.get("price") or 0)
-        x["off"] = round((1 - price_val / mrp_val) * 100) if mrp_val > price_val and mrp_val > 0 else 0
-
-    return render_template(
-        "index.html",
-        products=products,
-        shops=shops,
-        offer_products=offers,
-        wish_ids=wish,
-        user=session.get("user"),
-        search=search,
-        cat=cat,
-        sort=sort,
-        msg=request.args.get("msg", ""),
-    )
-
-
-@app.route("/register", methods=["POST"])
+@app.route('/register', methods=['POST'])
 def register():
-    conn = get_db()
-    cur = conn.cursor()
-    try:
-        pw_hash = generate_password_hash(request.form.get("password") or "")
-        cur.execute(
-            "INSERT INTO users (name, email, password, phone, location, store_name) VALUES (%s, %s, %s, %s, %s, %s)",
-            (
-                request.form.get("name"),
-                request.form.get("email"),
-                pw_hash,
-                request.form.get("phone"),
-                request.form.get("location"),
-                request.form.get("store_name"),
-            ),
+    role = request.form.get('role', 'customer')
+
+    if User.query.filter_by(email=request.form.get('email')).first():
+        return redirect('/?msg=Email already registered')
+
+    u = User(
+        name=request.form.get('name'),
+        email=request.form.get('email'),
+        password=generate_password_hash(request.form.get('password')),
+        phone=request.form.get('phone'),
+        village=request.form.get('village'),
+        role=role
+    )
+    db.session.add(u)
+    db.session.commit()
+
+    if role == 'seller':
+        shop = Shop(
+            user_id=u.id,
+            shop_name=request.form.get('shop_name') or f"{u.name} Store",
+            village=u.village,
+            phone=u.phone
         )
-        conn.commit()
-        return redirect("/?msg=Account created successfully. Please login.")
-    except Exception:
-        conn.rollback()
-        return redirect("/?msg=This email is already registered.")
-    finally:
-        cur.close()
-        conn.close()
+        db.session.add(shop)
+        db.session.commit()
 
+        free = SubscriptionPlan.query.filter_by(name='Free').first()
+        if free:
+            sub = SellerSubscription(
+                user_id=u.id,
+                shop_id=shop.id,
+                plan_id=free.id,
+                plan_name='Free',
+                duration='monthly',
+                price=0,
+                start_date=datetime.utcnow(),
+                expiry_date=datetime.utcnow() + timedelta(days=3650),
+                status='Active'
+            )
+            db.session.add(sub)
+            db.session.commit()
 
-@app.route("/login", methods=["POST"])
+    return redirect('/?msg=Account created. Please login.')
+
+@app.route('/login', methods=['POST'])
 def login():
-    email = request.form.get("email")
-    password = request.form.get("password") or ""
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-    u = cur.fetchone()
-    cur.close()
-    conn.close()
+    u = User.query.filter_by(email=request.form.get('email')).first()
 
-    if not u:
-        return redirect("/?msg=Invalid email or password.")
+    if not u or not check_password_hash(u.password, request.form.get('password')):
+        return redirect('/?msg=Invalid email or password')
 
-    stored_pw = u.get("password") or ""
-    is_valid = check_password_hash(stored_pw, password) or stored_pw == password
-    if not is_valid:
-        return redirect("/?msg=Invalid email or password.")
-    if u["is_blocked"]:
-        return redirect("/?msg=Your account is blocked.")
+    if u.is_blocked:
+        return redirect('/?msg=Your account is blocked')
 
-    u_safe = dict(u)
-    u_safe.pop("password", None)
-    session["user"] = u_safe
-    return redirect("/?msg=Welcome, " + u["name"])
+    session['user_id'] = u.id
+    return redirect('/?msg=Welcome, ' + u.name)
 
-
-@app.route("/logout")
+@app.route('/logout')
 def logout():
     session.clear()
-    return redirect("/")
+    return redirect('/')
 
+# ---------- SHOP & PRODUCT DETAIL ----------
 
-@app.route("/add", methods=["POST"])
-def add_product():
-    if "user" not in session:
-        return redirect("/")
+@app.route('/shop/<int:shop_id>')
+def shop_detail(shop_id):
+    shop = Shop.query.get_or_404(shop_id)
+    shop.views += 1
+    db.session.commit()
 
-    img = save_photo(request.files.get("product_pic")) or FALLBACK
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT store_name, phone, location FROM users WHERE id = %s", (session["user"]["id"],))
-    u = cur.fetchone() or {}
+    prods = Product.query.filter_by(shop_id=shop_id, is_available=True).all()
+    revs = Review.query.filter_by(shop_id=shop_id).order_by(Review.id.desc()).all()
 
-    detail_keys = [
-        "size", "color", "fabric", "weight", "packet",
-        "flavour", "material", "brand", "expiry", "veg_nonveg", "quantity",
-    ]
-    det = {k: request.form.get(k) for k in detail_keys if request.form.get(k)}
-    mrp = request.form.get("mrp") or request.form.get("price")
+    return render_template('shop.html', shop=shop, products=prods, reviews=revs, user=current_user())
 
-    cur2 = conn.cursor()
-    cur2.execute(
-        """
-        INSERT INTO products (user_id, title, category, price, mrp, description, image, store_name, owner_phone, details)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """,
-        (
-            session["user"]["id"],
-            request.form.get("title"),
-            request.form.get("category"),
-            request.form.get("price"),
-            mrp,
-            request.form.get("description"),
-            img,
-            u.get("store_name") or session["user"]["name"],
-            u.get("phone"),
-            json.dumps(det, ensure_ascii=False),
-        ),
+@app.route('/product/<int:pid>')
+def product_detail(pid):
+    p = Product.query.get_or_404(pid)
+    p.views += 1
+    db.session.commit()
+
+    revs = Review.query.filter_by(product_id=pid).order_by(Review.id.desc()).all()
+
+    return render_template('product.html', p=p, reviews=revs, user=current_user())
+# ---------- RESERVE - NO DELIVERY, FAKT RESERVE ----------
+
+@app.route('/reserve/<int:pid>', methods=['POST'])
+def reserve(pid):
+    u = current_user()
+    if not u:
+        return redirect('/?msg=Please login to reserve')
+
+    p = Product.query.get_or_404(pid)
+
+    r = Reservation(
+        product_id=pid,
+        shop_id=p.shop_id,
+        customer_id=u.id,
+        customer_name=u.name,
+        customer_phone=u.phone,
+        qty=int(request.form.get('qty', 1)),
+        note=request.form.get('note', '')
     )
-    conn.commit()
-    cur.close()
-    cur2.close()
-    conn.close()
-    return redirect("/?msg=Product added successfully.")
+    db.session.add(r)
 
+    db.session.add(Notification(
+        user_id=p.user_id,
+        title='New Reservation',
+        message=f"{u.name} ne {p.title} reserve kelay ({r.qty} qty)"
+    ))
 
-@app.route("/toggle-available/<int:pid>")
-def toggle_available(pid):
-    if "user" not in session:
-        return redirect("/profile")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE products SET is_available = NOT is_available WHERE id = %s AND user_id = %s",
-        (pid, session["user"]["id"]),
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/profile")
+    db.session.commit()
+    return redirect('/?msg=Reservation request sent! Seller will confirm. Visit shop to collect.')
 
+# ---------- FAVORITE ----------
 
-@app.route("/delete/<int:pid>")
-def delete_product(pid):
-    if "user" not in session:
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    if session["user"].get("is_admin"):
-        cur.execute("DELETE FROM products WHERE id = %s", (pid,))
+@app.route('/favorite/<int:pid>')
+def toggle_fav(pid):
+    u = current_user()
+    if not u:
+        return redirect('/?msg=Please login first')
+
+    f = Favorite.query.filter_by(user_id=u.id, product_id=pid).first()
+
+    if f:
+        db.session.delete(f)
     else:
-        cur.execute("DELETE FROM products WHERE id = %s AND user_id = %s", (pid, session["user"]["id"]))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(request.referrer or "/")
-@app.route("/profile")
-def profile():
-    if "user" not in session:
-        return redirect("/")
-    try:
-        conn = get_db()
-        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        uid = session["user"]["id"]
+        db.session.add(Favorite(user_id=u.id, product_id=pid))
 
-        cur.execute("SELECT * FROM users WHERE id = %s", (uid,))
-        u = cur.fetchone()
-        cur.execute("SELECT * FROM products WHERE user_id = %s ORDER BY id DESC", (uid,))
-        my = cur.fetchall()
-        cur.execute("SELECT * FROM orders WHERE buyer_id = %s ORDER BY id DESC", (uid,))
-        myo = cur.fetchall()
-        cur.execute("SELECT o.* FROM orders o JOIN products p ON o.product_id = p.id WHERE p.user_id = %s ORDER BY o.id DESC", (uid,))
-        shopo = cur.fetchall()
-        cur.execute("SELECT * FROM subscriptions WHERE user_id = %s ORDER BY id DESC LIMIT 1", (uid,))
-        sub = cur.fetchone()
+    db.session.commit()
+    return redirect(request.referrer or '/')
 
-        cur.close()
-        conn.close()
-        if u:
-            u_safe = dict(u)
-            u_safe.pop("password", None)
-            session["user"] = u_safe
+@app.route('/favorite-shop/<int:sid>')
+def toggle_fav_shop(sid):
+    u = current_user()
+    if not u:
+        return redirect('/?msg=Please login first')
 
-        return render_template(
-            "profile.html",
-            user=session.get("user"),
-            products=my,
-            my_orders=myo,
-            shop_orders=shopo,
-            my_sub=sub,
-        )
-    except Exception as e:
-        return f"Profile Error: {e} <br><a href='/'>Go Home</a>"
+    f = Favorite.query.filter_by(user_id=u.id, shop_id=sid).first()
 
-
-@app.route("/profile/edit", methods=["POST"])
-def edit_profile():
-    if "user" not in session:
-        return redirect("/")
-    pic = save_photo(request.files.get("profile_pic"))
-    conn = get_db()
-    cur = conn.cursor()
-    lat = request.form.get("lat") or None
-    lng = request.form.get("lng") or None
-
-    if pic:
-        cur.execute(
-            """
-            UPDATE users
-            SET name = %s, store_name = %s, phone = %s, location = %s, profile_pic = %s, lat = %s, lng = %s
-            WHERE id = %s
-            """,
-            (
-                request.form.get("name"),
-                request.form.get("store_name"),
-                request.form.get("phone"),
-                request.form.get("location"),
-                pic,
-                lat,
-                lng,
-                session["user"]["id"],
-            ),
-        )
+    if f:
+        db.session.delete(f)
     else:
-        cur.execute(
-            """
-            UPDATE users
-            SET name = %s, store_name = %s, phone = %s, location = %s, lat = %s, lng = %s
-            WHERE id = %s
-            """,
-            (
-                request.form.get("name"),
-                request.form.get("store_name"),
-                request.form.get("phone"),
-                request.form.get("location"),
-                lat,
-                lng,
-                session["user"]["id"],
-            ),
-        )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/profile?msg=Profile updated successfully.")
+        db.session.add(Favorite(user_id=u.id, shop_id=sid))
 
+    db.session.commit()
+    return redirect(request.referrer or '/')
 
-@app.route("/profile/change-password", methods=["POST"])
-def change_password():
-    if "user" not in session:
-        return redirect("/")
-    old_pw = request.form.get("old_password") or ""
-    new_pw = request.form.get("new_password") or ""
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT password FROM users WHERE id = %s", (session["user"]["id"],))
-    row = cur.fetchone()
-    stored_pw = (row[0] if row else "") or ""
+# ---------- REVIEW ----------
 
-    if not row or not (check_password_hash(stored_pw, old_pw) or stored_pw == old_pw):
-        cur.close()
-        conn.close()
-        return redirect("/profile?msg=Old password is incorrect.")
-
-    cur.execute(
-        "UPDATE users SET password = %s WHERE id = %s",
-        (generate_password_hash(new_pw), session["user"]["id"]),
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/profile?msg=Password changed successfully.")
-
-
-@app.route("/wishlist/<int:pid>")
-def toggle_wishlist(pid):
-    if "user" not in session:
-        return redirect("/?msg=Please login first.")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "SELECT id FROM wishlist WHERE user_id = %s AND product_id = %s",
-        (session["user"]["id"], pid),
-    )
-    if cur.fetchone():
-        cur.execute(
-            "DELETE FROM wishlist WHERE user_id = %s AND product_id = %s",
-            (session["user"]["id"], pid),
-        )
-    else:
-        cur.execute(
-            "INSERT INTO wishlist (user_id, product_id) VALUES (%s, %s)",
-            (session["user"]["id"], pid),
-        )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect(request.referrer or "/")
-
-
-@app.route("/order/<int:pid>", methods=["POST"])
-def create_order(pid):
-    if "user" not in session:
-        return redirect("/?msg=Please login first.")
-    qty = int(request.form.get("qty", 1))
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT * FROM products WHERE id = %s", (pid,))
-    p = cur.fetchone()
-    if not p:
-        cur.close()
-        conn.close()
-        return redirect("/")
-
-    cur2 = conn.cursor()
-    cur2.execute(
-        """
-        INSERT INTO orders (buyer_id, buyer_name, buyer_phone, product_id, product_title, product_image, store_name, owner_phone, price, qty)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """,
-        (
-            session["user"]["id"],
-            session["user"]["name"],
-            session["user"].get("phone", ""),
-            pid,
-            p["title"],
-            p["image"],
-            p["store_name"],
-            p["owner_phone"],
-            p["price"],
-            qty,
-        ),
-    )
-    conn.commit()
-    cur.close()
-    cur2.close()
-    conn.close()
-    return redirect("/?msg=Order placed successfully.")
-
-
-@app.route("/order/status/<int:oid>/<status>")
-def order_status(oid, status):
-    if "user" not in session:
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE orders SET status = %s WHERE id = %s", (status, oid))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/profile?msg=Order status updated.")
-
-
-@app.route("/review/<int:pid>", methods=["POST"])
+@app.route('/review/<int:pid>', methods=['POST'])
 def add_review(pid):
-    if "user" not in session:
-        return redirect("/?msg=Please login first.")
-    rating = int(request.form.get("rating", 5))
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute(
-        "INSERT INTO reviews (product_id, user_id, user_name, rating, comment) VALUES (%s, %s, %s, %s, %s)",
-        (pid, session["user"]["id"], session["user"]["name"], rating, request.form.get("comment", "")),
+    u = current_user()
+    if not u:
+        return redirect('/?msg=Please login first')
+
+    p = Product.query.get_or_404(pid)
+
+    db.session.add(Review(
+        product_id=pid,
+        shop_id=p.shop_id,
+        user_id=u.id,
+        user_name=u.name,
+        rating=int(request.form.get('rating', 5)),
+        comment=request.form.get('comment', '')
+    ))
+
+    all_r = Review.query.filter_by(product_id=pid).all()
+    p.rating = round(sum([x.rating for x in all_r]) / len(all_r), 1)
+    p.rating_count = len(all_r)
+
+    db.session.commit()
+    return redirect('/?msg=Thank you for review!')
+# ---------- SELLER ----------
+
+@app.route('/seller')
+def seller_dashboard():
+    u = current_user()
+    if not u or u.role not in ['seller', 'admin']:
+        return redirect('/?msg=Login as Seller')
+
+    shop = Shop.query.filter_by(user_id=u.id).first()
+    if not shop:
+        return redirect('/?msg=Shop not found')
+
+    prods = Product.query.filter_by(shop_id=shop.id).order_by(Product.id.desc()).all()
+    res = Reservation.query.filter_by(shop_id=shop.id).order_by(Reservation.id.desc()).all()
+    revs = Review.query.filter_by(shop_id=shop.id).order_by(Review.id.desc()).all()
+    followers = Favorite.query.filter_by(shop_id=shop.id).count()
+    sub = get_active_sub(u.id)
+
+    total_views = sum([p.views for p in prods]) + shop.views
+    low_stock = [p for p in prods if p.stock_qty <= 5]
+    pending_res = len([r for r in res if r.status == 'Pending'])
+
+    village_demand = {}
+    for r in res:
+        cu = User.query.get(r.customer_id)
+        if cu:
+            village_demand[cu.village or 'Unknown'] = village_demand.get(cu.village or 'Unknown', 0) + 1
+
+    notifs = Notification.query.filter_by(user_id=u.id).order_by(Notification.id.desc()).limit(10).all()
+    plans = SubscriptionPlan.query.filter_by(is_active=True).all()
+
+    return render_template('seller.html', user=u, shop=shop, products=prods, reservations=res, reviews=revs, followers=followers, sub=sub, total_views=total_views, low_stock=low_stock, pending_res=pending_res, village_demand=village_demand, notifs=notifs, plans=plans, msg=request.args.get('msg', ''))
+
+@app.route('/seller/add-product', methods=['POST'])
+def seller_add_product():
+    u = current_user()
+    if not u:
+        return redirect('/')
+
+    shop = Shop.query.filter_by(user_id=u.id).first()
+
+    sub = get_active_sub(u.id)
+    limit = 10
+    if sub and sub.plan:
+        limit = sub.plan.product_limit
+
+    count = Product.query.filter_by(shop_id=shop.id).count()
+
+    if limit != -1 and count >= limit:
+        return redirect('/seller?msg=Product limit reached! Upgrade to Silver/Gold plan.')
+
+    img = save_photo(request.files.get('product_pic')) or "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600"
+    price = float(request.form.get('price', 0))
+    mrp = float(request.form.get('mrp') or price)
+
+    p = Product(
+        shop_id=shop.id,
+        user_id=u.id,
+        title=request.form.get('title'),
+        category=request.form.get('category'),
+        price=price,
+        mrp=mrp,
+        description=request.form.get('description'),
+        image=img,
+        stock_qty=int(request.form.get('stock_qty', 10))
     )
-    cur.execute("SELECT AVG(rating) AS avg, COUNT(*) AS cnt FROM reviews WHERE product_id = %s", (pid,))
-    r = cur.fetchone()
+    db.session.add(p)
+    db.session.commit()
 
-    cur2 = conn.cursor()
-    cur2.execute(
-        "UPDATE products SET rating = %s, rating_count = %s WHERE id = %s",
-        (float(r["avg"] or 0), r["cnt"], pid),
+    db.session.add(Inventory(product_id=p.id, qty=p.stock_qty))
+    db.session.commit()
+
+    return redirect('/seller?msg=Product added successfully!')
+
+@app.route('/seller/update-stock/<int:pid>', methods=['POST'])
+def update_stock(pid):
+    u = current_user()
+    p = Product.query.get_or_404(pid)
+
+    if p.user_id != u.id and u.role != 'admin':
+        return redirect('/seller')
+
+    qty = int(request.form.get('qty', 0))
+    p.stock_qty = qty
+    p.is_available = qty > 0
+    p.last_stock_check = datetime.utcnow()
+
+    inv = Inventory.query.filter_by(product_id=pid).first()
+    if inv:
+        inv.qty = qty
+        inv.updated_at = datetime.utcnow()
+
+    db.session.commit()
+    return redirect('/seller?msg=Stock updated!')
+
+@app.route('/seller/reservation/<int:rid>/<status>')
+def update_reservation(rid, status):
+    u = current_user()
+    r = Reservation.query.get_or_404(rid)
+    r.status = status
+    db.session.commit()
+
+    db.session.add(Notification(
+        user_id=r.customer_id,
+        title=f'Reservation {status}',
+        message=f'Tumchi reservation {status} zali aahe. Shop la visit kara.'
+    ))
+    db.session.commit()
+
+    return redirect('/seller?msg=Reservation ' + status)
+
+@app.route('/seller/shop-update', methods=['POST'])
+def shop_update():
+    u = current_user()
+    shop = Shop.query.filter_by(user_id=u.id).first()
+
+    shop.shop_name = request.form.get('shop_name')
+    shop.village = request.form.get('village')
+    shop.address = request.form.get('address')
+    shop.phone = request.form.get('phone')
+    shop.timings = request.form.get('timings')
+
+    if request.form.get('lat'):
+        shop.lat = float(request.form.get('lat'))
+
+    if request.form.get('lng'):
+        shop.lng = float(request.form.get('lng'))
+
+    pic = save_photo(request.files.get('shop_pic'))
+    if pic:
+        shop.shop_pic = pic
+
+    db.session.commit()
+    return redirect('/seller?msg=Shop updated!')
+# ---------- SELLER SUBSCRIBE ----------
+
+@app.route('/seller/subscribe/<int:plan_id>/<duration>')
+def seller_subscribe(plan_id, duration):
+    u = current_user()
+    if not u:
+        return redirect('/')
+
+    plan = SubscriptionPlan.query.get_or_404(plan_id)
+    price = plan.monthly_price if duration == 'monthly' else plan.yearly_price
+    days = 30 if duration == 'monthly' else 365
+
+    shop = Shop.query.filter_by(user_id=u.id).first()
+
+    sub = SellerSubscription(
+        user_id=u.id,
+        shop_id=shop.id if shop else None,
+        plan_id=plan.id,
+        plan_name=plan.name,
+        duration=duration,
+        price=price,
+        start_date=datetime.utcnow(),
+        expiry_date=datetime.utcnow() + timedelta(days=days),
+        status='Pending' if price > 0 else 'Active'
     )
-    conn.commit()
-    cur.close()
-    cur2.close()
-    conn.close()
-    return redirect("/?msg=Thank you for your review.")
+    db.session.add(sub)
+    db.session.commit()
 
+    db.session.add(SubscriptionPayment(
+        subscription_id=sub.id,
+        user_id=u.id,
+        amount=price,
+        status='Pending' if price > 0 else 'Verified'
+    ))
 
-@app.route("/subscribe/<plan>")
-def subscribe_request(plan):
-    if "user" not in session:
-        return redirect("/?msg=Please login first.")
-    price = 199 if plan == "Pro" else 499 if plan == "Premium" else 0
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO subscriptions (user_id, store_name, plan, price, days, status) VALUES (%s, %s, %s, %s, 30, 'Pending')",
-        (session["user"]["id"], session["user"].get("store_name", ""), plan, price),
+    db.session.add(SubscriptionHistory(
+        user_id=u.id,
+        action=f"Subscribed to {plan.name} ({duration}) - Rs.{price}"
+    ))
+
+    db.session.commit()
+
+    if price == 0:
+        return redirect('/seller?msg=Free plan activated!')
+
+    return redirect('/seller?msg=Subscription request sent! Admin will verify payment.')
+
+# ---------- ADMIN DASHBOARD ----------
+
+@app.route('/admin')
+def admin_dashboard():
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/?msg=Admin only')
+
+    users = User.query.order_by(User.id.desc()).all()
+    shops = Shop.query.order_by(Shop.id.desc()).all()
+    products = Product.query.order_by(Product.id.desc()).all()
+    reservations = Reservation.query.order_by(Reservation.id.desc()).all()
+    plans = SubscriptionPlan.query.all()
+    subs = SellerSubscription.query.order_by(SellerSubscription.id.desc()).all()
+    payments = SubscriptionPayment.query.order_by(SubscriptionPayment.id.desc()).all()
+    reviews = Review.query.order_by(Review.id.desc()).all()
+    villages = Village.query.all()
+    cats = Category.query.all()
+    logs = AuditLog.query.order_by(AuditLog.id.desc()).limit(20).all()
+
+    revenue = sum([p.amount for p in payments if p.status == 'Verified'])
+    active_subs = len([s for s in subs if s.status == 'Active'])
+
+    return render_template('admin.html', user=u, users=users, shops=shops, products=products, reservations=reservations, plans=plans, subs=subs, payments=payments, reviews=reviews, villages=villages, cats=cats, logs=logs, revenue=revenue, active_subs=active_subs, msg=request.args.get('msg', ''))
+
+# ---------- ADMIN - PLAN ----------
+
+@app.route('/admin/plan', methods=['POST'])
+def admin_plan_create():
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
+
+    plan = SubscriptionPlan(
+        name=request.form.get('name'),
+        monthly_price=float(request.form.get('monthly_price', 0)),
+        yearly_price=float(request.form.get('yearly_price', 0)),
+        product_limit=int(request.form.get('product_limit', 10)),
+        features=request.form.get('features', '')
     )
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/profile?msg=Subscription request sent. Admin will confirm.")
-@app.route("/admin")
-def admin():
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
+    db.session.add(plan)
+    db.session.commit()
+    log_audit(u.id, f"Created plan {plan.name}")
 
-    conn = get_db()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    return redirect('/admin?msg=Plan created!')
 
-    cur.execute("SELECT * FROM users ORDER BY id DESC")
-    users = cur.fetchall()
-    cur.execute("SELECT * FROM products ORDER BY id DESC")
-    products = cur.fetchall()
-    cur.execute("SELECT * FROM orders ORDER BY id DESC")
-    orders = cur.fetchall()
-    cur.execute("SELECT * FROM subscriptions ORDER BY id DESC")
-    subs = cur.fetchall()
-    cur.execute("SELECT r.*, p.title AS product_title FROM reviews r LEFT JOIN products p ON r.product_id = p.id ORDER BY r.id DESC")
-    reviews = cur.fetchall()
+@app.route('/admin/plan/edit/<int:pid>', methods=['POST'])
+def admin_plan_edit(pid):
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
-    ot = sum(float(o["price"] or 0) * int(o["qty"] or 1) for o in orders)
-    comm = round(ot * 0.05, 2)
-    pend = len([o for o in orders if o["status"] == "Pending"])
-    deli = len([o for o in orders if o["status"] == "Delivered"])
+    p = SubscriptionPlan.query.get_or_404(pid)
+    p.name = request.form.get('name')
+    p.monthly_price = float(request.form.get('monthly_price', 0))
+    p.yearly_price = float(request.form.get('yearly_price', 0))
+    p.product_limit = int(request.form.get('product_limit', 10))
+    p.features = request.form.get('features', '')
 
-    cur.execute("SELECT store_name, COUNT(*) AS cnt, SUM(price * qty) AS total FROM orders GROUP BY store_name ORDER BY total DESC LIMIT 5")
-    tops = cur.fetchall()
-    cur.execute("SELECT TO_CHAR(created_at, 'DD Mon') AS day, COUNT(*) AS cnt, SUM(price * qty) AS total FROM orders GROUP BY day ORDER BY MIN(created_at) DESC LIMIT 7")
-    daily = cur.fetchall()
+    db.session.commit()
+    log_audit(u.id, f"Edited plan {p.name}")
 
-    sub_inc = sum(float(s["price"] or 0) for s in subs if s["status"] == "Active")
-    pro = len([s for s in subs if s["status"] == "Active"])
-    ts = sum(float(p["price"] or 0) for p in products)
+    return redirect('/admin?msg=Plan updated!')
 
-    cur.close()
-    conn.close()
+@app.route('/admin/plan/toggle/<int:pid>')
+def admin_plan_toggle(pid):
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
-    return render_template(
-        "admin.html",
-        users=users,
-        products=products,
-        orders=orders,
-        subs=subs,
-        reviews=reviews,
-        total_sell=ts,
-        order_total=ot,
-        commission=comm,
-        pending=pend,
-        delivered=deli,
-        top_sellers=tops,
-        daily=daily,
-        sub_income=sub_inc,
-        pro_users=pro,
-        user=session.get("user"),
-    )
+    p = SubscriptionPlan.query.get_or_404(pid)
+    p.is_active = not p.is_active
+    db.session.commit()
 
+    return redirect('/admin')
+# ---------- ADMIN - SUBSCRIPTION ACTIONS ----------
 
-@app.route("/admin/subscription/add", methods=["POST"])
-def add_subscription():
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO subscriptions (user_id, store_name, plan, price, days, status) VALUES (%s, %s, %s, %s, %s, 'Active')",
-        (
-            request.form.get("user_id"),
-            request.form.get("store_name"),
-            request.form.get("plan"),
-            request.form.get("price"),
-            request.form.get("days"),
-        ),
-    )
-    cur.execute("UPDATE users SET is_pro = TRUE WHERE id = %s", (request.form.get("user_id"),))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin?msg=Subscription added.")
+@app.route('/admin/sub/<int:sid>/<action>')
+def admin_sub_action(sid, action):
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
+    s = SellerSubscription.query.get_or_404(sid)
 
-@app.route("/admin/subscription/approve/<int:sid>")
-def approve_sub(sid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("SELECT user_id FROM subscriptions WHERE id = %s", (sid,))
-    row = cur.fetchone()
-    cur.execute("UPDATE subscriptions SET status = 'Active' WHERE id = %s", (sid,))
-    if row:
-        cur.execute("UPDATE users SET is_pro = TRUE WHERE id = %s", (row[0],))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin?msg=Subscription approved.")
+    if action == 'approve':
+        s.status = 'Active'
+        db.session.add(SubscriptionHistory(user_id=s.user_id, action=f"Subscription {s.plan_name} approved"))
+    elif action == 'reject':
+        s.status = 'Cancelled'
+    elif action == 'suspend':
+        s.status = 'Cancelled'
+    elif action == 'extend':
+        s.expiry_date = (s.expiry_date or datetime.utcnow()) + timedelta(days=30)
+        s.status = 'Active'
+    elif action == 'reactivate':
+        s.status = 'Active'
 
+    db.session.commit()
+    log_audit(u.id, f"Sub {sid} -> {action}")
 
-@app.route("/admin/subscription/cancel/<int:sid>")
-def cancel_sub(sid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE subscriptions SET status = 'Cancelled' WHERE id = %s", (sid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin?msg=Subscription cancelled.")
+    return redirect('/admin?msg=Subscription ' + action)
 
+@app.route('/admin/payment/<int:pid>/<status>')
+def admin_payment(pid, status):
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
-@app.route("/admin/order/status/<int:oid>/<status>")
-def admin_order_status(oid, status):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE orders SET status = %s WHERE id = %s", (status, oid))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+    pay = SubscriptionPayment.query.get_or_404(pid)
+    pay.status = status
 
+    if status == 'Verified':
+        sub = SellerSubscription.query.get(pay.subscription_id)
+        if sub:
+            sub.status = 'Active'
 
-@app.route("/admin/block/<int:uid>")
-def block_user(uid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET is_blocked = TRUE WHERE id = %s", (uid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+    db.session.commit()
+    return redirect('/admin?msg=Payment ' + status)
 
+@app.route('/admin/shop-verify/<int:sid>')
+def admin_shop_verify(sid):
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
-@app.route("/admin/unblock/<int:uid>")
-def unblock_user(uid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET is_blocked = FALSE WHERE id = %s", (uid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+    s = Shop.query.get_or_404(sid)
+    s.is_verified = not s.is_verified
+    db.session.commit()
 
+    return redirect('/admin')
 
-@app.route("/admin/toggle-pro/<int:uid>")
-def toggle_pro(uid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("UPDATE users SET is_pro = NOT is_pro WHERE id = %s", (uid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+@app.route('/admin/user-block/<int:uid>')
+def admin_user_block(uid):
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
+    target = User.query.get_or_404(uid)
+    target.is_blocked = not target.is_blocked
+    db.session.commit()
+    log_audit(u.id, f"Blocked/Unblocked user {uid}")
 
-@app.route("/admin/delete-product/<int:pid>")
+    return redirect('/admin')
+
+@app.route('/admin/village', methods=['POST'])
+def admin_village():
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
+
+    db.session.add(Village(name=request.form.get('name')))
+    db.session.commit()
+
+    return redirect('/admin?msg=Village added!')
+
+@app.route('/admin/category', methods=['POST'])
+def admin_category():
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
+
+    db.session.add(Category(name=request.form.get('name'), icon=request.form.get('icon', '🛒')))
+    db.session.commit()
+
+    return redirect('/admin?msg=Category added!')
+
+@app.route('/admin/delete-product/<int:pid>')
 def admin_delete_product(pid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM products WHERE id = %s", (pid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+    u = current_user()
+    if not u or u.role != 'admin':
+        return redirect('/')
 
+    db.session.delete(Product.query.get_or_404(pid))
+    db.session.commit()
 
-@app.route("/admin/delete-user/<int:uid>")
-def admin_delete_user(uid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM products WHERE user_id = %s", (uid,))
-    cur.execute("DELETE FROM users WHERE id = %s", (uid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+    return redirect('/admin')
 
+# ---------- API - PRODUCT MAP SEARCH ----------
 
-@app.route("/admin/delete-review/<int:rid>")
-def admin_delete_review(rid):
-    if "user" not in session or not session["user"].get("is_admin"):
-        return redirect("/")
-    conn = get_db()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM reviews WHERE id = %s", (rid,))
-    conn.commit()
-    cur.close()
-    conn.close()
-    return redirect("/admin")
+@app.route('/api/map-search')
+def api_map_search():
+    q = request.args.get('q', '')
+    prods = Product.query.filter(Product.title.ilike(f"%{q}%"), Product.is_available == True).all()
 
+    out = []
+    for p in prods:
+        if p.shop and p.shop.lat:
+            out.append({
+                'title': p.title,
+                'price': p.price,
+                'image': p.image,
+                'shop': p.shop.shop_name,
+                'village': p.shop.village,
+                'lat': p.shop.lat,
+                'lng': p.shop.lng,
+                'stock': p.stock_qty,
+                'phone': p.shop.phone,
+                'pid': p.id
+            })
 
-if __name__ == "__main__":
-    if DATABASE_URL:
-        init_db()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+    return jsonify(out)
+
+# ---------- RUN ----------
+
+if __name__ == '__main__':
+    init_db()
+    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
