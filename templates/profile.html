@@ -1,109 +1,106 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{{owner.store_name or owner.name}} - LocalMarket</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<style>
-*{box-sizing:border-box;font-family:'Segoe UI',sans-serif}body{margin:0;background:#f6f8f6;padding-bottom:30px}a{color:#16a34a;text-decoration:none;font-weight:700}
-.top{background:#16a34a;color:white;padding:14px;border-radius:0 0 18px 18px;display:flex;justify-content:space-between;align-items:center}
-.top a{color:white}
-.card{background:white;margin:14px;padding:16px;border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
-.main{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #16a34a}
-input,textarea,select{width:100%;padding:11px;border:1px solid #ddd;border-radius:10px;margin-bottom:8px;font-size:14px}
-.btn{width:100%;background:#16a34a;color:white;border:none;padding:12px;border-radius:12px;font-weight:800;cursor:pointer}
-#map2{height:280px;border-radius:12px;z-index:1}
-.badge{background:#dcfce7;color:#166534;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700}
-.pencil{background:#16a34a;color:white;border:none;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.2)}
-.prod{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee;align-items:center}
-.prod img{width:60px;height:60px;border-radius:10px;object-fit:cover}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ store.store_name }} - {{ store.city }} | Local Market</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: #f8fafc; color: #0f172a; padding-bottom: 40px; }
+        .topbar {
+            background: #fff; padding: 14px 16px; border-bottom: 1px solid #e2e8f0;
+            position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between;
+        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 16px; }
+        .store-hero {
+            background: #fff; border-radius: 20px; padding: 20px; border: 1px solid #e2e8f0;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.04); margin-bottom: 20px;
+        }
+        .store-avatar {
+            width: 64px; height: 64px; border-radius: 18px;
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: #fff; font-size: 26px; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 12px;
+        }
+        .badge-city {
+            background: #dcfce7; color: #15803d; font-size: 12px; font-weight: 800;
+            padding: 4px 10px; border-radius: 8px; display: inline-block; margin-bottom: 6px;
+        }
+        .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 16px; }
+        .btn {
+            padding: 11px 10px; border-radius: 12px; text-align: center; text-decoration: none;
+            font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .btn-wa { background: #25D366; color: #fff; }
+        .btn-map { background: #0f172a; color: #fff; }
+        .btn-call { background: #f1f5f9; color: #0f172a; border: 1px solid #cbd5e1; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; } }
+        .card {
+            background: #fff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;
+            display: flex; flex-direction: column;
+        }
+        .card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #f1f5f9; }
+        .card-body { padding: 11px; flex: 1; display: flex; flex-direction: column; }
+        .chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+        .chip { background: #eff6ff; color: #1d4ed8; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 6px; }
+    </style>
 </head>
 <body>
-<div class="top"><a href="/">← Home</a><b>Profile</b><a href="/logout">Logout</a></div>
-<div class="card" style="text-align:center;position:relative">
-  {% if user and user.id==owner.id %}<button class="pencil" onclick="toggleEdit()" style="position:absolute;right:14px;top:14px">✏️</button>{% endif %}
-  <img class="main" src="{{owner.profile_pic or 'https://via.placeholder.com/90'}}" onerror="this.src='https://via.placeholder.com/90'">
-  <h2 style="margin:8px 0 2px">{{owner.store_name or owner.name}}</h2>
-  <p style="color:#666;margin:0">{{owner.name}} • {{owner.role}}</p>
-  <p>⭐ <b>{{avg}}</b> • 📍 {{owner.location}} • 🕒 {{owner.opening}}</p>
-  <p style="color:#444">{{owner.bio or 'Mohane madhil aapla dukan.'}}</p>
-  <p><span class="badge">Open Now</span> &nbsp; 📞 {{owner.phone}}</p>
-  <div style="display:flex;gap:8px;margin-top:12px">
-    <a href="tel:{{owner.phone}}" style="flex:1;background:#16a34a;color:white;padding:11px;border-radius:12px;text-align:center">📞 Call Kara</a>
-    <button onclick="document.getElementById('map2').scrollIntoView({behavior:'smooth'})" style="flex:1;background:#dcfce7;border:none;padding:11px;border-radius:12px;font-weight:700;cursor:pointer">📍 Map Bagha</button>
-  </div>
+
+<div class="topbar">
+    <a href="/" style="text-decoration:none; color:#0f172a; font-weight:800; font-size:14px;">← Back to Market</a>
+    <span style="font-size:12px; color:#16a34a; font-weight:700;">Verified Local Store</span>
 </div>
-{% if user and user.id==owner.id %}
-<div class="card" id="editBox" style="display:none">
-<h3>✏️ Profile Edit Kar <button onclick="toggleEdit()" style="float:right;border:none;background:#f3f4f6;width:30px;height:30px;border-radius:50%;cursor:pointer">✕</button></h3>
-<form method="POST" action="/update_profile" enctype="multipart/form-data">
-<input name="name" value="{{owner.name}}" placeholder="Nav" required>
-<input name="store_name" value="{{owner.store_name or ''}}" placeholder="Dukan Nav">
-<input name="phone" value="{{owner.phone or ''}}" placeholder="Phone">
-<textarea name="bio" placeholder="Dukanabaddal">{{owner.bio or ''}}</textarea>
-<input name="location" id="edit_loc" value="{{owner.location}}" placeholder="Location">
-<input name="opening" value="{{owner.opening}}" placeholder="Opening Time">
-<label style="font-size:13px">Navin Photo (nasel tar juna rahil)</label>
-<input type="file" name="profile_pic" accept="image/*">
-<input type="hidden" name="lat" id="edit_lat" value="{{owner.lat}}">
-<input type="hidden" name="lng" id="edit_lng" value="{{owner.lng}}">
-<button type="button" onclick="useMyLocation()" style="width:100%;background:#dcfce7;border:none;padding:11px;border-radius:10px;font-weight:700;margin-bottom:8px;cursor:pointer">📍 Majha Khara Location Ghe (GPS)</button>
-<button class="btn">Save Profile</button>
-</form>
-<p style="font-size:12px;color:#666">Khalcha Map var Pin halavun pan location badalta yete.</p>
-</div>
-{% endif %}
-<div class="card"><h3>📍 Dukan Kuthe Aahe - Real Map</h3><div id="map2"></div><p style="font-size:12px;color:#666">📍 {{owner.location}}</p><p style="font-size:11px;color:#999">Pin halavun exact location set kara, mag Save dab. Fakt hya dukanacha Pin disel.</p></div>
-<div class="card"><h3>🛍️ Yache Products ({{products|length}})</h3>
-{% for p in products %}
-<div class="prod"><img src="{{p.image}}" onerror="this.src='https://via.placeholder.com/60'"><div style="flex:1"><b>{{p.title}}</b><br>₹{{p.price}} • {{p.category}}</div>
-{% if user and (user.id==owner.id or user.is_admin) %}<a href="/delete/{{p.id}}" style="color:red" onclick="return confirm('Delete karu?')">Delete</a>{% endif %}</div>
-{% else %}<p>Aajun Product nahi.</p>{% endfor %}
-</div>
-<script>
-function toggleEdit(){
-  let b = document.getElementById('editBox'); if(!b) return;
-  b.style.display = (b.style.display==='none' ? 'block' : 'none');
-  if(b.style.display==='block') b.scrollIntoView({behavior:'smooth'});
-}
-let realLat = {{owner.lat if owner.lat else 'null'}};
-let realLng = {{owner.lng if owner.lng else 'null'}};
-let m2;
-if(realLat && realLng){ m2 = L.map('map2').setView([realLat, realLng], 17); }
-else { m2 = L.map('map2').setView([19.2144, 73.0978], 13); }
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(m2);
-let marker = null;
-if(realLat && realLng){
-  marker = L.marker([realLat, realLng], {draggable:true}).addTo(m2).bindPopup('<b>{{owner.store_name or owner.name}}</b><br>{{owner.location}}').openPopup();
-  marker.on('dragend', function(){
-    let p = marker.getLatLng();
-    let latInp = document.getElementById('edit_lat');
-    if(latInp){ latInp.value = p.lat; document.getElementById('edit_lng').value = p.lng; }
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${p.lat}&lon=${p.lng}`).then(r=>r.json()).then(d=>{ if(d.display_name) document.getElementById('edit_loc').value = d.display_name; });
-    alert('Pin halavla! Aata ✏️ Edit ughdun Save dab.');
-  });
-}
-m2.on('click', function(e){
-  if(!marker) marker = L.marker(e.latlng, {draggable:true}).addTo(m2);
-  else marker.setLatLng(e.latlng);
-  let latInp = document.getElementById('edit_lat');
-  if(latInp){ latInp.value = e.latlng.lat; document.getElementById('edit_lng').value = e.latlng.lng; }
-});
-function useMyLocation(){
-  if(!navigator.geolocation) return alert('GPS nahi');
-  navigator.geolocation.getCurrentPosition(p=>{
-    let lat = p.coords.latitude, lng = p.coords.longitude;
-    m2.setView([lat, lng], 17);
-    if(!marker) marker = L.marker([lat,lng], {draggable:true}).addTo(m2);
-    else marker.setLatLng([lat,lng]);
-    let latInp = document.getElementById('edit_lat');
-    if(latInp){ latInp.value = lat; document.getElementById('edit_lng').value = lng; }
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`).then(r=>r.json()).then(d=>{ if(d.display_name) document.getElementById('edit_loc').value = d.display_name; });
-    alert('Khara location ghetla! Aata Save dab.');
-  }, ()=>alert('GPS Allow kara - Location Permission On kara'), {enableHighAccuracy:true});
-}
-</script>
-</body>
-</html>
+
+<div class="container">
+    <!-- Store Profile Header -->
+    <div class="store-hero">
+        <div class="store-avatar">{{ store.store_name[0]|upper }}</div>
+        <span class="badge-city">📍 {{ store.city }}</span>
+        <h1 style="font-size: 22px; font-weight: 800;">{{ store.store_name }}</h1>
+        <p style="font-size: 13.5px; color: #64748b; margin-top: 4px;">👤 Malak: <strong>{{ store.name }}</strong></p>
+        <p style="font-size: 13.5px; color: #334155; margin-top: 4px;">🏠 Patta: {{ store.location }}, {{ store.city }}</p>
+        <p style="font-size: 13px; color: #16a34a; font-weight: 700; margin-top: 4px;">🕒 Vel: {{ store.shop_timing }}</p>
+        {% if store.store_bio %}
+        <p style="font-size: 13.5px; color: #475569; margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 10px;">
+            {{ store.store_bio }}
+        </p>
+        {% endif %}
+
+        <div class="action-row">
+            <a href="https://wa.me/91{{ store.phone }}?text=Namaste%20{{ store.store_name }}!%20Tumche%20dukan%20Local%20Market%20var%20pahile." target="_blank" class="btn btn-wa">💬 WhatsApp</a>
+            <a href="https://www.google.com/maps/search/?api=1&query={{ store.latitude }},{{ store.longitude }}" target="_blank" class="btn btn-map">🧭 Map Rasta</a>
+            <a href="tel:+91{{ store.phone }}" class="btn btn-call">📞 Call</a>
+        </div>
+    </div>
+
+    <h2 style="font-size: 17px; font-weight: 800; margin-bottom: 14px;">📦 Dukanatil Products ({{ products|length }})</h2>
+
+    <div class="product-grid">
+        {% for p in products %}
+        <div class="card">
+            <img src="{{ p.image }}" alt="{{ p.title }}">
+            <div class="card-body">
+                <span style="font-size:10px; font-weight:700; color:#64748b;">{{ p.category }}</span>
+                <div style="font-size:14px; font-weight:700; margin:3px 0;">{{ p.title }}</div>
+                {% if p.details %}
+                <div class="chips">
+                    {% for k, v in p.details.items() %}
+                    <span class="chip">{{ k }}: {{ v }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if p.description %}
+                <p style="font-size:12px; color:#64748b; margin-bottom:8px;">{{ p.description }}</p>
+                {% endif %}
+                <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:16px; font-weight:800; color:#16a34a;">₹{{ p.price }}</span>
+                    <a href="https://wa.me/91{{ store.phone }}?text=Namaste!%20Mala%20{{ p.title }}%20pahije.%20Kimmat%20₹{{ p.price }}" target="_blank" style="background:#25D366; color:#fff; padding:6px 10px; border-radius:8px; text-decoration:none; font-size:12px; font-weight:700;">Order</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p style="color:#64748b;">Ya dukanane ajun products taklele nahit
