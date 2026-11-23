@@ -12,123 +12,142 @@
 
 <style>
 :root {
-    --green: #176b45;
-    --dark: #123d2c;
-    --cream: #f7f8f2;
+    --green:#176b45;
+    --dark:#123d2c;
+    --cream:#f7f8f2;
 }
 body {
-    margin: 0;
-    background: var(--cream);
-    font-family: Arial, sans-serif;
-    color: #26352d;
+    margin:0;
+    background:var(--cream);
+    font-family:Arial,sans-serif;
+    color:#26352d;
 }
 .navbar {
-    background: white;
-    box-shadow: 0 2px 12px #0000000c;
+    background:white;
+    box-shadow:0 2px 12px #0000000c;
 }
 .brand {
-    color: var(--green);
-    font-size: 24px;
-    font-weight: 800;
+    color:var(--green);
+    font-size:24px;
+    font-weight:800;
 }
 .nav-link {
-    color: #39483f;
-    font-weight: 600;
+    color:#39483f;
+    font-weight:600;
 }
-.nav-link:hover { color: var(--green); }
+.nav-link:hover {color:var(--green);}
 .hero {
-    background: linear-gradient(120deg, #124b34, #238052);
-    color: white;
-    border-radius: 22px;
-    padding: 38px;
+    background:linear-gradient(120deg,#124b34,#238052);
+    color:white;
+    border-radius:22px;
+    padding:38px;
 }
-.hero h1 { font-weight: 800; }
+.hero h1 {font-weight:800;}
 .search-box {
-    background: white;
-    border-radius: 12px;
-    padding: 8px;
-    display: flex;
-    gap: 8px;
-    max-width: 650px;
+    background:white;
+    border-radius:12px;
+    padding:8px;
+    display:flex;
+    gap:8px;
+    max-width:650px;
 }
 .search-box input {
-    border: none;
-    outline: none;
-    flex: 1;
-    padding: 10px;
-    min-width: 0;
+    border:none;
+    outline:none;
+    flex:1;
+    padding:10px;
+    min-width:0;
 }
 .btn-green {
-    background: var(--green);
-    color: white;
-    border: none;
-    border-radius: 9px;
-    padding: 10px 20px;
+    background:var(--green);
+    color:white;
+    border:none;
+    border-radius:9px;
+    padding:10px 20px;
 }
 .btn-green:hover {
-    background: var(--dark);
-    color: white;
+    background:var(--dark);
+    color:white;
 }
 .section-title {
-    font-weight: 800;
-    color: var(--dark);
+    font-weight:800;
+    color:var(--dark);
 }
-.category-card, .feature-card {
-    background: white;
-    border-radius: 16px;
-    padding: 22px 12px;
-    text-align: center;
-    height: 100%;
-    border: 1px solid #edf0eb;
-    transition: .2s;
+.category-card,.feature-card {
+    background:white;
+    border-radius:16px;
+    padding:22px 12px;
+    text-align:center;
+    height:100%;
+    border:1px solid #edf0eb;
+    transition:.2s;
 }
-.category-card:hover, .feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 22px #0000000c;
+.category-card:hover,.feature-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 8px 22px #0000000c;
 }
 .category-icon {
-    font-size: 30px;
-    color: var(--green);
-    margin-bottom: 10px;
+    font-size:30px;
+    color:var(--green);
+    margin-bottom:10px;
 }
 .feature-card i {
-    font-size: 27px;
-    color: var(--green);
+    font-size:27px;
+    color:var(--green);
 }
 #shopMap {
-    height: 360px;
-    border-radius: 16px;
-    z-index: 1;
+    height:360px;
+    border-radius:16px;
+    z-index:1;
 }
 .info-panel {
-    background: #e8f3ec;
-    border-radius: 14px;
-    padding: 18px;
+    background:#e8f3ec;
+    border-radius:14px;
+    padding:18px;
+}
+.profile-card {
+    background:white;
+    border:1px solid #edf0eb;
+    border-radius:16px;
+    padding:24px;
+}
+.profile-row {
+    padding:12px 0;
+    border-bottom:1px solid #edf0eb;
+}
+.profile-row:last-child {border-bottom:none;}
+.profile-label {
+    color:#718078;
+    font-size:13px;
+}
+.profile-value {
+    font-weight:600;
+    overflow-wrap:anywhere;
 }
 footer {
-    background: var(--dark);
-    color: white;
-    padding: 25px;
-    margin-top: 50px;
+    background:var(--dark);
+    color:white;
+    padding:25px;
+    margin-top:50px;
 }
-@media(max-width: 576px) {
-    .hero { padding: 25px 18px; }
-    .hero h1 { font-size: 27px; }
-    #shopMap { height: 280px; }
+@media(max-width:576px) {
+    .hero {padding:25px 18px;}
+    .hero h1 {font-size:27px;}
+    #shopMap {height:280px;}
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg sticky-top">
 <div class="container">
     <a class="navbar-brand brand" href="{{ url_for('customer') }}">
         <i class="bi bi-shop"></i> LOCAL MARKET
     </a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+    <button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse" data-bs-target="#mainNav">
         <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -151,6 +170,17 @@ footer {
 
 <main class="container py-4">
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+{% endif %}
+{% endwith %}
+
 <!-- HERO -->
 <section class="hero mb-5" id="home">
     <h1>Find Local Shops Near You!</h1>
@@ -166,93 +196,94 @@ footer {
             <i class="bi bi-search"></i> Search
         </button>
     </form>
+
     <small class="d-block mt-3">
         <i class="bi bi-geo-alt-fill"></i>
         Discover shops in your village
     </small>
 </section>
 
-<!-- CATEGORIES -->
+<!-- CATEGORIES FROM SUPABASE -->
 <section id="categories" class="mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="section-title">Shop by Category</h3>
-    </div>
+    <h3 class="section-title mb-3">Shop by Category</h3>
 
     <div class="row g-3">
+        {% for category in categories %}
         <div class="col-6 col-md-4 col-lg-3">
             <div class="category-card">
-                <div class="category-icon"><i class="bi bi-basket"></i></div>
-                <strong>Grocery</strong>
+                <div class="category-icon">
+                    {% if category.name == 'Grocery' %}
+                        <i class="bi bi-basket"></i>
+                    {% elif category.name == 'Vegetables & Fruits' %}
+                        <i class="bi bi-apple"></i>
+                    {% elif category.name == 'Medical Store' %}
+                        <i class="bi bi-capsule"></i>
+                    {% elif category.name == 'Clothing' %}
+                        <i class="bi bi-handbag"></i>
+                    {% elif category.name == 'Electronics' %}
+                        <i class="bi bi-phone"></i>
+                    {% elif category.name == 'Hardware' %}
+                        <i class="bi bi-tools"></i>
+                    {% elif category.name == 'Stationery' %}
+                        <i class="bi bi-book"></i>
+                    {% elif category.name == 'Restaurant' %}
+                        <i class="bi bi-cup-hot"></i>
+                    {% else %}
+                        <i class="bi bi-three-dots"></i>
+                    {% endif %}
+                </div>
+
+                <strong>{{ category.name }}</strong>
+
+                {% if category.description %}
+                <p class="small text-muted mt-2 mb-0">
+                    {{ category.description }}
+                </p>
+                {% endif %}
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-apple"></i></div>
-                <strong>Vegetables & Fruits</strong>
+        {% else %}
+        <div class="col-12">
+            <div class="info-panel">
+                No active categories available currently.
             </div>
         </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-capsule"></i></div>
-                <strong>Medical Store</strong>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-handbag"></i></div>
-                <strong>Clothing</strong>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-phone"></i></div>
-                <strong>Electronics</strong>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-tools"></i></div>
-                <strong>Hardware</strong>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-book"></i></div>
-                <strong>Stationery</strong>
-            </div>
-        </div>
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon"><i class="bi bi-three-dots"></i></div>
-                <strong>Other</strong>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </section>
 
-<!-- QUICK FEATURES -->
+<!-- FEATURES -->
 <section class="mb-5">
     <h3 class="section-title mb-3">Explore LOCAL MARKET</h3>
+
     <div class="row g-3">
         <div class="col-6 col-md-4">
             <div class="feature-card">
                 <i class="bi bi-geo-alt"></i>
                 <h6 class="mt-3 fw-bold">Nearby Shops</h6>
-                <p class="text-muted small mb-0">Discover shops around your village.</p>
+                <p class="text-muted small mb-0">
+                    Discover shops around your village.
+                </p>
             </div>
         </div>
+
         <div class="col-6 col-md-4">
             <div class="feature-card">
                 <i class="bi bi-search"></i>
                 <h6 class="mt-3 fw-bold">Find Products</h6>
-                <p class="text-muted small mb-0">Search for products available locally.</p>
+                <p class="text-muted small mb-0">
+                    Search for products available locally.
+                </p>
             </div>
         </div>
+
         <div class="col-12 col-md-4">
             <div class="feature-card">
                 <i class="bi bi-chat-dots"></i>
                 <h6 class="mt-3 fw-bold">Seller Responses</h6>
-                <p class="text-muted small mb-0">Check availability and prices from sellers.</p>
+                <p class="text-muted small mb-0">
+                    Check availability and prices from sellers.
+                </p>
             </div>
         </div>
     </div>
@@ -271,7 +302,7 @@ footer {
     </div>
 </section>
 
-<!-- SEARCH RESULTS -->
+<!-- SEARCH -->
 <section class="mb-5" id="results">
     <h3 class="section-title mb-3">Product Search</h3>
     <div class="info-panel" id="searchMessage">
@@ -282,21 +313,88 @@ footer {
 <!-- REQUESTS -->
 <section id="requests" class="mb-5">
     <h3 class="section-title mb-3">My Product Requests</h3>
+
     <div class="info-panel">
         <i class="bi bi-inbox"></i>
-        Your product requests and seller responses will appear here after backend integration.
+        Your product requests and seller responses will appear here
+        after request integration.
     </div>
 </section>
 
-<!-- PROFILE -->
+<!-- REAL CUSTOMER PROFILE -->
 <section id="profile" class="mb-4">
     <h3 class="section-title mb-3">My Account</h3>
-    <div class="info-panel">
-        <i class="bi bi-person-circle"></i>
-        <strong> Customer Account</strong>
-        <p class="text-muted mb-0 mt-2">
-            Your account details will be loaded from your LOCAL MARKET profile.
-        </p>
+
+    <div class="profile-card">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center"
+                 style="width:60px;height:60px;background:#e8f3ec;color:#176b45;font-size:28px;">
+                <i class="bi bi-person"></i>
+            </div>
+
+            <div>
+                <h5 class="fw-bold mb-1">
+                    {{ profile.get('full_name') or 'Customer' }}
+                </h5>
+                <span class="badge text-bg-success">Customer Account</span>
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">Full Name</div>
+            <div class="profile-value">
+                {{ profile.get('full_name') or 'Not provided' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">Email Address</div>
+            <div class="profile-value">
+                {{ user_email or 'Not available' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">Mobile Number</div>
+            <div class="profile-value">
+                {{ profile.get('mobile') or 'Not provided' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">State</div>
+            <div class="profile-value">
+                {{ profile.get('state') or 'Not provided' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">District</div>
+            <div class="profile-value">
+                {{ profile.get('district') or 'Not provided' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">Taluka</div>
+            <div class="profile-value">
+                {{ profile.get('taluka') or 'Not provided' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">Village</div>
+            <div class="profile-value">
+                {{ profile.get('village') or 'Not provided' }}
+            </div>
+        </div>
+
+        <div class="profile-row">
+            <div class="profile-label">Address</div>
+            <div class="profile-value">
+                {{ profile.get('address') or 'Not provided' }}
+            </div>
+        </div>
     </div>
 </section>
 
@@ -312,14 +410,12 @@ footer {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-// Map display. Real shop pins will be loaded from the backend in the next step.
 const map = L.map('shopMap').setView([17.6599, 75.9064], 11);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// Search UI. Live product search API will be connected in the next step.
 document.getElementById('searchForm').addEventListener('submit', function(e) {
     e.preventDefault();
 
@@ -331,8 +427,7 @@ document.getElementById('searchForm').addEventListener('submit', function(e) {
         return;
     }
 
-    message.textContent = 'Search for "' + query +
-        '" is ready. Live product search will be connected to Supabase next.';
+    message.textContent = 'Product search integration is the next development step.';
 });
 </script>
 
