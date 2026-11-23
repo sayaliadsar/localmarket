@@ -1,57 +1,336 @@
+
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - LOCAL MARKET</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>LOCAL MARKET | Login</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-body{background:#F8FFF9;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;min-height:100vh}
-.navbar{background:#0B6B3A!important}
-.logo{font-weight:900;font-size:22px;color:#fff!important}
-.logo span{color:#FF6B00}
-.card-box{background:#fff;border-radius:22px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.1);max-width:420px;margin:90px auto 20px}
-.btn-green{background:#0B6B3A;color:#fff;font-weight:800;border-radius:12px;border:none;padding:12px}
-.demo{background:#FFF3E0;border:1px dashed #FF6B00;border-radius:12px;padding:12px}
+:root {
+    --green: #174d38;
+    --light: #f7f7ef;
+    --muted: #78847c;
+}
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--light);
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    min-height: 590px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: white;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 15px 55px #173c2815;
+}
+
+.left-panel {
+    background: var(--green);
+    color: white;
+    padding: 55px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: 800;
+}
+.brand span { color: #d9d9a5; }
+
+.left-panel h1 {
+    font-size: 37px;
+    font-weight: 800;
+    line-height: 1.25;
+}
+
+.left-panel p {
+    color: #d5e5d9;
+    line-height: 1.7;
+}
+
+.feature {
+    display: flex;
+    gap: 13px;
+    align-items: center;
+    margin-top: 18px;
+    color: #e5eee7;
+}
+
+.feature i {
+    font-size: 20px;
+    color: #d9d9a5;
+}
+
+.right-panel {
+    padding: 45px 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.right-panel h2 {
+    font-weight: 800;
+    color: #203b2b;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.role-option {
+    flex: 1;
+    border: 1.5px solid #e1e9e1;
+    border-radius: 12px;
+    padding: 13px;
+    text-align: center;
+    cursor: pointer;
+    color: #526158;
+    background: white;
+}
+
+.role-option.active {
+    border-color: var(--green);
+    background: #edf5ee;
+    color: var(--green);
+    font-weight: 700;
+}
+
+.role-option i {
+    display: block;
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.form-label {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.form-control {
+    padding: 12px;
+    border-radius: 9px;
+    border-color: #e0e7e0;
+}
+
+.form-control:focus {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px #174d3815;
+}
+
+.password-box { position: relative; }
+
+.password-box button {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    background: none;
+    border: none;
+    color: #718077;
+}
+
+.btn-login {
+    width: 100%;
+    padding: 13px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+.btn-login:hover {
+    background: #236849;
+    color: white;
+}
+
+a {
+    color: var(--green);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.small-text {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+@media(max-width: 768px) {
+    .login-wrapper {
+        grid-template-columns: 1fr;
+        max-width: 460px;
+    }
+    .left-panel { display: none; }
+    .right-panel { padding: 35px 25px; }
+}
 </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark fixed-top">
-<div class="container">
-<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span></a>
-<a href="/register" class="btn btn-light btn-sm fw-bold">Register</a>
+<div class="login-wrapper">
+
+    <!-- LEFT SIDE -->
+    <div class="left-panel">
+        <div class="brand">LOCAL <span>MARKET.</span></div>
+
+        <div>
+            <h1>Your Local Market, All in One Place.</h1>
+            <p>
+                Discover nearby stores, compare product prices
+                and connect with your local businesses.
+            </p>
+
+            <div class="feature">
+                <i class="bi bi-geo-alt"></i>
+                <span>Discover nearby local stores</span>
+            </div>
+            <div class="feature">
+                <i class="bi bi-tags"></i>
+                <span>Compare product prices</span>
+            </div>
+            <div class="feature">
+                <i class="bi bi-shop"></i>
+                <span>Support local businesses</span>
+            </div>
+        </div>
+
+        <p class="small-text mb-0">© 2026 LOCAL MARKET. All rights reserved.</p>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="right-panel">
+
+        <h2>Welcome Back!</h2>
+        <p class="subtitle">Login to continue to LOCAL MARKET.</p>
+
+        <form id="loginForm">
+
+            <label class="form-label mt-3">Login As</label>
+
+            <div class="d-flex gap-2 mb-4">
+                <div class="role-option active" data-role="customer" onclick="selectRole('customer',this)">
+                    <i class="bi bi-person"></i>
+                    Customer
+                </div>
+
+                <div class="role-option" data-role="seller" onclick="selectRole('seller',this)">
+                    <i class="bi bi-shop"></i>
+                    Seller
+                </div>
+            </div>
+
+            <input type="hidden" id="role" value="customer">
+
+            <label class="form-label">Email Address</label>
+            <input
+                type="email"
+                class="form-control mb-3"
+                id="email"
+                placeholder="Enter your email"
+                required
+            >
+
+            <label class="form-label">Password</label>
+
+            <div class="password-box mb-3">
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+                <button type="button" onclick="togglePassword()" aria-label="Show or hide password">
+                    <i class="bi bi-eye" id="eyeIcon"></i>
+                </button>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <label class="small-text">
+                    <input type="checkbox" id="remember">
+                    Remember me
+                </label>
+
+                <a href="/forgot-password" class="small-text">Forgot Password?</a>
+            </div>
+
+            <button class="btn-login" type="submit">
+                Login <i class="bi bi-arrow-right"></i>
+            </button>
+
+        </form>
+
+        <div class="text-center mt-4">
+            <p class="small-text">
+                Don't have an account?
+                <a href="/register">Create Account</a>
+            </p>
+        </div>
+
+        <div class="text-center mt-2">
+            <a href="/" class="small-text">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+        </div>
+
+        <p id="message" class="small-text text-center mt-3"></p>
+
+    </div>
 </div>
-</nav>
 
-<div class="container">
-<div class="card-box">
+<script>
+let selectedRole = 'customer';
 
-<h3 class="fw-bold text-center">🔐 Login</h3>
-<p class="text-center text-muted">Parat Welcome!</p>
+function selectRole(role, element) {
+    selectedRole = role;
+    document.getElementById('role').value = role;
 
-{% if error %}<div class="alert alert-danger fw-bold" style="border-radius:12px">{{ error }}</div>{% endif %}
-{% if msg %}<div class="alert alert-success fw-bold" style="border-radius:12px">{{ msg }}</div>{% endif %}
+    document.querySelectorAll('.role-option').forEach(option => {
+        option.classList.remove('active');
+    });
 
-<form method="POST" action="/login">
-<label class="small fw-bold">Mobile Number</label>
-<input name="phone" class="form-control mb-2" placeholder="9876543210" pattern="[0-9]{10}" required>
-<label class="small fw-bold">Password</label>
-<input name="password" type="password" class="form-control mb-3" placeholder="Password" required>
-<button class="btn btn-green w-100">Login Kara →</button>
-</form>
+    element.classList.add('active');
+}
 
-<div class="demo mt-3">
-<p class="small fw-bold mb-1">🧪 Demo Login (Testing Sathi):</p>
-<p class="small mb-1">Admin: <b>9999999999</b> / <b>admin123</b></p>
-<p class="small mb-0">Seller: <b>8888888888</b> / <b>seller123</b></p>
-</div>
+function togglePassword() {
+    const password = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
 
-<p class="text-center small mt-3 mb-0">Account Nahi? <a href="/register" class="fw-bold">Register Kara</a></p>
+    if (password.type === 'password') {
+        password.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        password.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
 
-</div>
-</div>
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    document.getElementById('message').textContent =
+        'Login form design is ready. Backend authentication is not connected yet.';
+});
+</script>
+
 </body>
 </html>
