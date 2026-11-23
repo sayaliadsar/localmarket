@@ -5,7 +5,7 @@ from functools import wraps
 
 from flask import (
     Flask, render_template, request,
-    redirect, url_for, flash, session
+    redirect, url_for, flash, session, jsonify
 )
 from supabase import create_client
 
@@ -343,6 +343,111 @@ def forgot_password():
     )
     return redirect(url_for("login"))
 
+
+# ---------------- CUSTOMER API ----------------
+
+def customer_api_client():
+    if not session.get("user_id"):
+        return None
+
+    if session.get("role") != "customer":
+        return None
+
+    return get_user_supabase()
+
+
+# 1. CUSTOMER CATEGORIES
+@app.route("/api/customer/categories")
+def customer_categories_api():
+
+    supabase = customer_api_client()
+
+    if not supabase:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        result = (
+            supabase.table("categories")
+            .select("id, name, description, image_url")
+            .eq("is_active", True)
+            .order("name")
+            .execute()
+        )
+
+        return jsonify({"success": True, "categories": result.data})
+
+    except Exception as error:
+        app.logger.exception("Categories API failed")
+        return jsonify({"error": "Unable to load categories"}), 500
+
+
+# 2. CUSTOMER PRODUCTS
+@app.route("/api/customer/products")
+def customer_products_api():
+
+    supabase = customer_api_client()
+
+    if not supabase:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        search = clean(request.args.get("search"))
+
+        query = (
+            supabase.table("products")
+            .select(
+                "id, store_id, category_id, name, description, "
+                "price, stock_quantity, unit, image_url, "
+                "is_available, stores!products_store_id_fkey("
+                "id, store_name, village, address, latitude, "
+                "longitude, mobile)"
+            )
+            .eq("is_active", True)
+            .eq("is_available", True)
+            .gt("stock_quantity", 0)
+        )
+
+        if search:
+            query = query.ilike("name", f"%{search}%")
+
+        result = query.order("name").limit(100).execute()
+
+        return jsonify({"success": True, "products": result.data})
+
+    except Exception as error:
+        app.logger.exception("Products API failed")
+        return jsonify({"error": "Unable to load products"}), 500
+
+
+# 3. CUSTOMER SHOPS
+@app.route("/api/customer/shops")
+def customer_shops_api():
+
+    supabase = customer_api_client()
+
+    if not supabase:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    try:
+        result = (
+            supabase.table("stores")
+            .select(
+                "id, store_name, description, mobile, address, "
+                "village, latitude, longitude, logo_url, "
+                "opening_time, closing_time, delivery_available"
+            )
+            .eq("status", "approved")
+            .eq("is_active", True)
+            .order("store_name")
+            .limit(100)
+            .execute()
+        )
+
+        return jsonify({"success": True, "shops": result.data})
+
+    except Exception as error:
+        app.logger.exception("Shops API failed")
+        return jsonify({"error": "Unable to load shops"}), 500
 
 # ---------------- CUSTOMER DASHBOARD ----------------
 
