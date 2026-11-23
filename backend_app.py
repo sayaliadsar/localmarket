@@ -229,6 +229,7 @@ def register():
 # ---------------- LOGIN ----------------
 
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -245,7 +246,6 @@ def login():
     try:
         supabase = get_supabase()
 
-        # Supabase Authentication
         result = supabase.auth.sign_in_with_password({
             "email": email,
             "password": password
@@ -255,16 +255,12 @@ def login():
             flash("Login failed. Please try again.", "danger")
             return redirect(url_for("login"))
 
+        # Save Supabase access token
         access_token = result.session.access_token
-        refresh_token = result.session.refresh_token
+        supabase.postgrest.auth(access_token)
 
-        # Create authenticated Supabase client for RLS
-        user_supabase = get_supabase()
-        user_supabase.postgrest.auth(access_token)
-
-        # Fetch logged-in user's profile
         profile_result = (
-            user_supabase.table("profiles")
+            supabase.table("profiles")
             .select("id, role, full_name, is_active")
             .eq("id", str(result.user.id))
             .maybe_single()
@@ -287,36 +283,49 @@ def login():
             flash("Invalid account role.", "danger")
             return redirect(url_for("login"))
 
-        # Create Flask session
         session.clear()
         session.permanent = True
 
         session["user_id"] = str(result.user.id)
         session["role"] = role
         session["full_name"] = profile.get("full_name") or ""
-
-        # Supabase tokens for authenticated database requests
+        session["email"] = result.user.email or ""
         session["access_token"] = access_token
-        session["refresh_token"] = refresh_token
 
         if role == "customer":
             return redirect(url_for("customer"))
 
-        if role == "seller":
+        elif role == "seller":
             return redirect(url_for("seller"))
 
-        return redirect(url_for("admin_dashboard"))
+        else:
+            return redirect(url_for("admin_dashboard"))
 
     except Exception as error:
+
+        app.logger.exception("Login error")
+
         message = str(error)
 
         if "email not confirmed" in message.lower():
             message = "Please verify your email before login."
+
         elif "invalid login credentials" in message.lower():
             message = "Incorrect email or password."
 
         flash(message, "danger")
         return redirect(url_for("login"))
+
+
+@app.route("/logout", methods=["GET", "POST"])
+def logout():
+
+    session.clear()
+
+    flash("You have been logged out.", "success")
+
+    return redirect(url_for("login"))
+
 
 
 # ---------------- FORGOT PASSWORD ----------------
