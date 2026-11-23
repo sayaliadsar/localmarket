@@ -231,63 +231,51 @@ def init_db():
 
 # ---------- CUSTOMER - HOME ----------
 
-@app.route('/')
-def home():
-    init_db()
-    search = request.args.get('search', '').strip()
-    cat = request.args.get('cat', 'All')
-    village = request.args.get('village', 'All')
-    sort = request.args.get('sort', 'new')
+@app.route("/customer")
+@role_required("customer")
+def customer():
+    try:
+        supabase = get_supabase()
 
-    q = Product.query.join(Shop, Product.shop_id == Shop.id).filter(Product.is_available == True)
+        access_token = session.get("access_token")
+        if not access_token:
+            session.clear()
+            flash("Please login again.", "warning")
+            return redirect(url_for("login"))
 
-    if cat != 'All':
-        q = q.filter(Product.category == cat)
+        # Use the logged-in customer's token for RLS
+        supabase.postgrest.auth(access_token)
 
-    if village != 'All':
-        q = q.filter(Shop.village == village)
+        profile_result = (
+            supabase.table("profiles")
+            .select("*")
+            .eq("id", session["user_id"])
+            .maybe_single()
+            .execute()
+        )
 
-    if search:
-        q = q.filter(Product.title.ilike(f"%{search}%"))
+        categories_result = (
+            supabase.table("categories")
+            .select("id, name, description, image_url")
+            .eq("is_active", True)
+            .order("name")
+            .execute()
+        )
 
-    if sort == 'low':
-        q = q.order_by(Product.price.asc())
-    elif sort == 'high':
-        q = q.order_by(Product.price.desc())
-    elif sort == 'rating':
-        q = q.order_by(Product.rating.desc())
-    else:
-        q = q.order_by(Product.id.desc())
+        profile = profile_result.data or {}
+        categories = categories_result.data or []
 
-    products = q.all()
-    shops = Shop.query.filter(Shop.lat.isnot(None)).all()
+        return render_template(
+            "customer.html",
+            profile=profile,
+            categories=categories,
+            user_email=session.get("email", "")
+        )
 
-    map_shops = []
-    for p in products:
-        if p.shop and p.shop.lat:
-            map_shops.append({
-                'pid': p.id,
-                'title': p.title,
-                'price': p.price,
-                'image': p.image,
-                'shop': p.shop.shop_name,
-                'village': p.shop.village,
-                'lat': p.shop.lat,
-                'lng': p.shop.lng,
-                'stock': p.stock_qty,
-                'phone': p.shop.phone
-            })
-
-    fav_ids = []
-    u = current_user()
-    if u:
-        fav_ids = [f.product_id for f in Favorite.query.filter_by(user_id=u.id).all()]
-
-    offers = Product.query.filter(Product.mrp > Product.price).order_by(Product.id.desc()).limit(4).all()
-    villages = Village.query.all()
-    cats = Category.query.all()
-
-    return render_template('index.html', products=products, shops=shops, map_shops=map_shops, fav_ids=fav_ids, user=u, search=search, cat=cat, village=village, sort=sort, offers=offers, villages=villages, cats=cats, msg=request.args.get('msg', ''))
+    except Exception as error:
+        app.logger.exception("Customer dashboard error")
+        flash("Unable to load your account details. Please try again.", "danger")
+        return redirect(url_for("login"))
 # ---------- AUTH ----------
 
 @app.route('/register', methods=['POST'])
@@ -336,23 +324,102 @@ def register():
 
     return redirect('/?msg=Account created. Please login.')
 
-@app.route('/login', methods=['POST'])
+
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    u = User.query.filter_by(email=request.form.get('email')).first()
 
-    if not u or not check_password_hash(u.password, request.form.get('password')):
-        return redirect('/?msg=Invalid email or password')
+    if request.method == "GET":
+        return render_template("login.html")
 
-    if u.is_blocked:
-        return redirect('/?msg=Your account is blocked')
+    email = clean(request.form.get("email")).lower()
+    password = request.form.get("password", "")
 
-    session['user_id'] = u.id
-    return redirect('/?msg=Welcome, ' + u.name)
+    if not valid_email(email) or not password:
+        flash("Enter valid email and password.", "danger")
+        return redirect(url_for("login"))
 
-@app.route('/logout')
+    try:
+        supabase = get_supabase()
+
+        result = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+
+        if not result.user or not result.session:
+            flash("Login failed. Please try again.", "danger")
+            return redirect(url_for("login"))
+
+        # Save Supabase access token
+        access_token = result.session.access_token
+        supabase.postgrest.auth(access_token)
+
+        profile_result = (
+            supabase.table("profiles")
+            .select("id, role, full_name, is_active")
+            .eq("id", str(result.user.id))
+            .maybe_single()
+            .execute()
+        )
+
+        profile = profile_result.data
+
+        if not profile:
+            flash("Profile not found. Please contact support.", "danger")
+            return redirect(url_for("login"))
+
+        if profile.get("is_active") is False:
+            flash("Your account is inactive.", "danger")
+            return redirect(url_for("login"))
+
+        role = profile.get("role")
+
+        if role not in ["customer", "seller", "admin"]:
+            flash("Invalid account role.", "danger")
+            return redirect(url_for("login"))
+
+        session.clear()
+        session.permanent = True
+
+        session["user_id"] = str(result.user.id)
+        session["role"] = role
+        session["full_name"] = profile.get("full_name") or ""
+        session["email"] = result.user.email or ""
+        session["access_token"] = access_token
+
+        if role == "customer":
+            return redirect(url_for("customer"))
+
+        elif role == "seller":
+            return redirect(url_for("seller"))
+
+        else:
+            return redirect(url_for("admin_dashboard"))
+
+    except Exception as error:
+
+        app.logger.exception("Login error")
+
+        message = str(error)
+
+        if "email not confirmed" in message.lower():
+            message = "Please verify your email before login."
+
+        elif "invalid login credentials" in message.lower():
+            message = "Incorrect email or password."
+
+        flash(message, "danger")
+        return redirect(url_for("login"))
+
+
+@app.route("/logout", methods=["GET", "POST"])
 def logout():
+
     session.clear()
-    return redirect('/')
+
+    flash("You have been logged out.", "success")
+
+    return redirect(url_for("login"))
 
 # ---------- SHOP & PRODUCT DETAIL ----------
 
