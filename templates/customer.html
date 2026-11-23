@@ -4,917 +4,336 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Customer Dashboard | LOCAL MARKET</title>
+<title>LOCAL MARKET | Customer Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 :root {
-  --green:#176b45;
-  --dark:#104c32;
-  --light:#eaf3ec;
-  --cream:#f8faf7;
-  --white:#fff;
-  --text:#192b22;
-  --muted:#7b8980;
-  --border:#e9eee9;
-  --shadow:0 8px 28px rgba(20,65,40,.07);
+    --green: #176b45;
+    --dark: #123d2c;
+    --cream: #f7f8f2;
 }
-
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text)}
-button,input,select{font:inherit}
-button{cursor:pointer}
-a{text-decoration:none;color:inherit}
-
-.layout{display:flex;min-height:100vh}
-
-/* SIDEBAR */
-
-.sidebar{
-  width:250px;
-  background:white;
-  border-right:1px solid var(--border);
-  padding:25px 17px;
-  position:fixed;
-  top:0;bottom:0;left:0;
-  display:flex;
-  flex-direction:column;
-  z-index:100;
+body {
+    margin: 0;
+    background: var(--cream);
+    font-family: Arial, sans-serif;
+    color: #26352d;
 }
-
-.logo{
-  display:flex;align-items:center;gap:10px;
-  font-family:Manrope,sans-serif;
-  font-size:19px;font-weight:800;
-  padding:0 10px;margin-bottom:43px;
+.navbar {
+    background: white;
+    box-shadow: 0 2px 12px #0000000c;
 }
-.logo-icon{
-  width:39px;height:39px;
-  background:var(--green);color:white;
-  display:grid;place-items:center;
-  border-radius:12px;font-size:20px;
+.brand {
+    color: var(--green);
+    font-size: 24px;
+    font-weight: 800;
 }
-.logo span{color:var(--green)}
-
-.nav-label{
-  color:#a0aaa3;font-size:10px;
-  font-weight:800;letter-spacing:1.2px;
-  padding:0 12px;margin-bottom:12px;
+.nav-link {
+    color: #39483f;
+    font-weight: 600;
 }
-
-.nav-menu{display:grid;gap:7px}
-.nav-item{
-  width:100%;border:0;background:transparent;
-  padding:13px 14px;border-radius:11px;
-  display:flex;align-items:center;gap:13px;
-  color:#68766e;font-weight:600;font-size:14px;
-  text-align:left;
+.nav-link:hover { color: var(--green); }
+.hero {
+    background: linear-gradient(120deg, #124b34, #238052);
+    color: white;
+    border-radius: 22px;
+    padding: 38px;
 }
-.nav-item i{font-size:18px}
-.nav-item:hover,.nav-item.active{
-  background:var(--light);color:var(--green);
+.hero h1 { font-weight: 800; }
+.search-box {
+    background: white;
+    border-radius: 12px;
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    max-width: 650px;
 }
-
-.sidebar-bottom{margin-top:auto}
-.help-card{
-  padding:17px;background:#f3f7f1;
-  border-radius:14px;margin-bottom:18px;
+.search-box input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 10px;
+    min-width: 0;
 }
-.help-card i{font-size:23px;color:var(--green)}
-.help-card h4{font-size:13px;margin:10px 0 5px}
-.help-card p{font-size:11px;color:var(--muted);line-height:1.6}
-.logout{
-  border:0;background:transparent;color:#bd625c;
-  padding:12px 14px;display:flex;gap:12px;
-  font-weight:700;width:100%;
+.btn-green {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 9px;
+    padding: 10px 20px;
 }
-
-/* MAIN */
-
-.main{margin-left:250px;width:calc(100% - 250px);min-width:0}
-.topbar{
-  height:76px;background:white;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 35px;position:sticky;top:0;z-index:50;
+.btn-green:hover {
+    background: var(--dark);
+    color: white;
 }
-.top-left{display:flex;align-items:center;gap:12px}
-.page-label{font-size:14px;color:var(--muted)}
-.top-right{display:flex;align-items:center;gap:20px}
-.icon-btn{
-  width:39px;height:39px;border:1px solid var(--border);
-  background:white;border-radius:11px;color:#53645a;
-  font-size:18px;position:relative;
+.section-title {
+    font-weight: 800;
+    color: var(--dark);
 }
-.dot{
-  width:8px;height:8px;background:#e66a58;
-  border-radius:50%;position:absolute;top:7px;right:7px;
+.category-card, .feature-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px 12px;
+    text-align: center;
+    height: 100%;
+    border: 1px solid #edf0eb;
+    transition: .2s;
 }
-.user-mini{display:flex;align-items:center;gap:10px}
-.avatar{
-  width:38px;height:38px;border-radius:50%;
-  background:var(--light);color:var(--green);
-  display:grid;place-items:center;font-weight:800;
+.category-card:hover, .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 22px #0000000c;
 }
-.user-mini strong{font-size:12px;display:block}
-.user-mini small{font-size:10px;color:var(--muted)}
-
-.content{padding:32px 35px 90px;max-width:1500px;margin:auto}
-.view{display:none}
-.view.active{display:block}
-
-.welcome{
-  display:flex;justify-content:space-between;
-  align-items:center;gap:20px;margin-bottom:27px;
+.category-icon {
+    font-size: 30px;
+    color: var(--green);
+    margin-bottom: 10px;
 }
-.welcome h1{
-  font-family:Manrope,sans-serif;
-  font-size:27px;letter-spacing:-1px;margin-bottom:7px;
+.feature-card i {
+    font-size: 27px;
+    color: var(--green);
 }
-.welcome p{font-size:13px;color:var(--muted)}
-.location-pill{
-  padding:11px 15px;background:white;border:1px solid var(--border);
-  border-radius:11px;display:flex;align-items:center;gap:9px;
-  color:var(--green);font-weight:700;font-size:12px;
+#shopMap {
+    height: 360px;
+    border-radius: 16px;
+    z-index: 1;
 }
-
-/* SEARCH */
-
-.search-panel{
-  background:var(--dark);padding:26px;
-  border-radius:18px;color:white;margin-bottom:26px;
+.info-panel {
+    background: #e8f3ec;
+    border-radius: 14px;
+    padding: 18px;
 }
-.search-panel h2{font-size:20px;margin-bottom:7px}
-.search-panel p{font-size:12px;color:#c9ddd0;margin-bottom:19px}
-.search-row{
-  display:grid;grid-template-columns:1fr 210px auto;gap:10px;
+footer {
+    background: var(--dark);
+    color: white;
+    padding: 25px;
+    margin-top: 50px;
 }
-.field{
-  background:white;border-radius:10px;
-  display:flex;align-items:center;gap:10px;
-  padding:0 13px;color:var(--green);min-height:48px;
-}
-.field input,.field select{
-  width:100%;border:0;outline:0;background:transparent;
-  color:var(--text);font-size:13px;min-width:0;
-}
-.btn{
-  border:0;border-radius:10px;padding:12px 19px;
-  background:var(--green);color:white;font-weight:700;
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-}
-.btn:hover{background:var(--dark)}
-.btn-white{background:white;color:var(--green)}
-.btn-light{background:var(--light);color:var(--green)}
-.btn-small{padding:9px 13px;font-size:11px}
-
-/* STATS */
-
-.stats{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:15px;margin-bottom:30px;
-}
-.stat{
-  background:white;border:1px solid var(--border);
-  border-radius:14px;padding:18px;
-  display:flex;align-items:center;gap:14px;
-}
-.stat-icon{
-  width:44px;height:44px;border-radius:12px;
-  display:grid;place-items:center;
-  background:var(--light);color:var(--green);font-size:20px;
-}
-.stat small{color:var(--muted);font-size:11px}
-.stat strong{display:block;font-size:21px;margin-top:4px}
-
-/* SECTION */
-
-.section-head{
-  display:flex;align-items:center;justify-content:space-between;
-  gap:15px;margin-bottom:17px;
-}
-.section-head h2{font-family:Manrope,sans-serif;font-size:18px}
-.section-head p{font-size:11px;color:var(--muted);margin-top:5px}
-.link{border:0;background:transparent;color:var(--green);font-weight:700;font-size:12px}
-
-/* PRODUCTS */
-
-.product-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
-}
-.product-card{
-  background:white;border:1px solid var(--border);
-  border-radius:15px;overflow:hidden;transition:.2s;
-}
-.product-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
-.product-image{
-  height:145px;background:#f1f4ef;
-  display:grid;place-items:center;font-size:55px;
-  position:relative;
-}
-.available{
-  position:absolute;top:11px;left:11px;
-  background:#e7f5e9;color:#237a40;
-  border-radius:20px;padding:6px 9px;
-  font-size:9px;font-weight:800;
-}
-.product-body{padding:15px}
-.product-body h3{font-size:14px;margin-bottom:6px}
-.product-meta{font-size:11px;color:var(--muted);margin-bottom:12px}
-.product-bottom{display:flex;justify-content:space-between;align-items:center}
-.product-bottom strong{font-size:17px;color:var(--green)}
-.product-bottom span{font-size:10px;color:var(--muted)}
-
-/* STORE */
-
-.store-list{display:grid;gap:12px}
-.store-card{
-  background:white;border:1px solid var(--border);
-  border-radius:14px;padding:15px;
-  display:flex;align-items:center;gap:15px;
-}
-.store-avatar{
-  width:55px;height:55px;border-radius:13px;
-  background:var(--light);display:grid;place-items:center;
-  color:var(--green);font-size:24px;flex-shrink:0;
-}
-.store-info{flex:1;min-width:0}
-.store-info h3{font-size:13px;margin-bottom:5px}
-.store-info p{font-size:11px;color:var(--muted)}
-.store-info small{font-size:10px;color:var(--green);display:block;margin-top:5px}
-.store-action{display:flex;gap:8px;align-items:center}
-
-/* MAP */
-
-.map-box{
-  min-height:400px;background:white;border:1px solid var(--border);
-  border-radius:16px;display:grid;place-items:center;
-  text-align:center;padding:30px;
-}
-.map-box i{font-size:55px;color:var(--green)}
-.map-box h3{margin:15px 0 8px}
-.map-box p{color:var(--muted);font-size:13px;max-width:400px;line-height:1.7}
-
-/* NOTIFICATIONS */
-
-.notification-list{display:grid;gap:12px}
-.notification{
-  display:flex;gap:14px;background:white;padding:18px;
-  border:1px solid var(--border);border-radius:13px;
-}
-.notification-icon{
-  width:42px;height:42px;flex-shrink:0;
-  background:var(--light);color:var(--green);
-  border-radius:12px;display:grid;place-items:center;font-size:19px;
-}
-.notification h3{font-size:13px;margin-bottom:5px}
-.notification p{font-size:11px;color:var(--muted);line-height:1.6}
-.notification small{display:block;color:#9aa59d;margin-top:7px;font-size:10px}
-
-/* PROFILE */
-
-.profile-card{
-  background:white;border:1px solid var(--border);
-  border-radius:17px;padding:25px;max-width:700px;
-}
-.profile-head{display:flex;align-items:center;gap:17px;margin-bottom:25px}
-.profile-photo{
-  width:75px;height:75px;border-radius:50%;
-  background:var(--light);color:var(--green);
-  display:grid;place-items:center;font-size:30px;
-  overflow:hidden;
-}
-.profile-photo img{width:100%;height:100%;object-fit:cover}
-.profile-head h2{font-size:19px}
-.profile-head p{color:var(--muted);font-size:12px;margin-top:5px}
-.profile-fields{
-  display:grid;grid-template-columns:1fr 1fr;gap:18px;
-}
-.profile-fields label{font-size:11px;color:var(--muted);display:block;margin-bottom:7px}
-.profile-fields input{
-  width:100%;padding:12px;border:1px solid var(--border);
-  border-radius:9px;outline:0;font-size:12px;
-}
-.profile-fields input:focus{border-color:var(--green)}
-.profile-actions{margin-top:22px;display:flex;gap:10px}
-
-/* EMPTY */
-
-.empty{
-  padding:30px;background:white;border:1px solid var(--border);
-  border-radius:14px;text-align:center;color:var(--muted);
-  font-size:13px;
-}
-
-/* MOBILE */
-
-.mobile-bottom{display:none}
-
-@media(max-width:950px){
-  .sidebar{width:215px}
-  .main{margin-left:215px;width:calc(100% - 215px)}
-  .content{padding:25px 20px 90px}
-  .topbar{padding:0 20px}
-  .product-grid{grid-template-columns:repeat(2,1fr)}
-}
-
-@media(max-width:650px){
-  .sidebar{display:none}
-  .main{margin:0;width:100%}
-  .topbar{height:65px;padding:0 15px}
-  .content{padding:23px 15px 100px}
-  .welcome{align-items:flex-start;flex-direction:column}
-  .welcome h1{font-size:23px}
-  .search-row{grid-template-columns:1fr}
-  .stats{grid-template-columns:1fr 1fr}
-  .stat:last-child{grid-column:1/-1}
-  .stat{padding:13px}
-  .product-grid{grid-template-columns:1fr 1fr;gap:10px}
-  .product-image{height:115px;font-size:42px}
-  .product-body{padding:11px}
-  .product-body h3{font-size:12px}
-  .product-bottom strong{font-size:14px}
-  .store-card{align-items:flex-start;flex-wrap:wrap}
-  .store-action{width:100%;padding-left:70px}
-  .profile-fields{grid-template-columns:1fr}
-  .mobile-bottom{
-    display:flex;position:fixed;bottom:0;left:0;right:0;
-    background:white;border-top:1px solid var(--border);
-    z-index:200;justify-content:space-around;
-    padding:9px 4px calc(9px + env(safe-area-inset-bottom));
-  }
-  .mobile-nav{
-    border:0;background:transparent;color:#89958d;
-    display:grid;justify-items:center;gap:4px;
-    font-size:10px;font-weight:600;min-width:55px;
-  }
-  .mobile-nav i{font-size:20px}
-  .mobile-nav.active{color:var(--green)}
-  .user-mini .user-details{display:none}
-}
-
-@media(max-width:360px){
-  .product-grid{grid-template-columns:1fr}
-  .stats{grid-template-columns:1fr}
-  .stat:last-child{grid-column:auto}
+@media(max-width: 576px) {
+    .hero { padding: 25px 18px; }
+    .hero h1 { font-size: 27px; }
+    #shopMap { height: 280px; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="layout">
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg sticky-top">
+<div class="container">
+    <a class="navbar-brand brand" href="{{ url_for('customer') }}">
+        <i class="bi bi-shop"></i> LOCAL MARKET
+    </a>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-
-  <a href="/" class="logo">
-    <div class="logo-icon"><i class="bi bi-shop"></i></div>
-    LOCAL <span>MARKET</span>
-  </a>
-
-  <div class="nav-label">CUSTOMER MENU</div>
-
-  <nav class="nav-menu">
-    <button class="nav-item active" data-view="home">
-      <i class="bi bi-grid"></i> Home
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
     </button>
 
-    <button class="nav-item" data-view="map">
-      <i class="bi bi-map"></i> Explore Map
-    </button>
-
-    <button class="nav-item" data-view="notifications">
-      <i class="bi bi-bell"></i> Notifications
-    </button>
-
-    <button class="nav-item" data-view="profile">
-      <i class="bi bi-person"></i> My Profile
-    </button>
-  </nav>
-
-  <div class="sidebar-bottom">
-    <div class="help-card">
-      <i class="bi bi-headset"></i>
-      <h4>Need Help?</h4>
-      <p>Have questions about LOCAL MARKET? Contact our support team.</p>
+    <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+            <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+            <li class="nav-item"><a class="nav-link" href="#categories">Categories</a></li>
+            <li class="nav-item"><a class="nav-link" href="#map">Explore Map</a></li>
+            <li class="nav-item"><a class="nav-link" href="#requests">My Requests</a></li>
+            <li class="nav-item"><a class="nav-link" href="#profile">Profile</a></li>
+            <li class="nav-item">
+                <a class="btn btn-green" href="{{ url_for('logout') }}">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </li>
+        </ul>
     </div>
-    <button class="logout" onclick="logout()">
-      <i class="bi bi-box-arrow-left"></i> Logout
-    </button>
-  </div>
-</aside>
-
-<!-- MAIN -->
-<main class="main">
-
-<header class="topbar">
-  <div class="top-left">
-    <span class="page-label" id="pageLabel">Customer Dashboard</span>
-  </div>
-
-  <div class="top-right">
-    <button class="icon-btn" onclick="showView('notifications')">
-      <i class="bi bi-bell"></i>
-      <span class="dot"></span>
-    </button>
-
-    <div class="user-mini">
-      <div class="avatar" id="topAvatar">C</div>
-      <div class="user-details">
-        <strong id="topName">Customer</strong>
-        <small>Customer Account</small>
-      </div>
-    </div>
-  </div>
-</header>
-
-<div class="content">
-
-<!-- HOME VIEW -->
-<div class="view active" id="home">
-
-  <div class="welcome">
-    <div>
-      <h1>Hello, <span id="welcomeName">Customer</span> 👋</h1>
-      <p>Find products and discover local shops around your village.</p>
-    </div>
-
-    <div class="location-pill">
-      <i class="bi bi-geo-alt-fill"></i>
-      <span id="currentVillage">Select Village</span>
-    </div>
-  </div>
-
-  <!-- PRODUCT SEARCH -->
-  <div class="search-panel">
-    <h2>What are you looking for today?</h2>
-    <p>Search products and connect with local sellers.</p>
-
-    <form class="search-row" id="productForm">
-      <div class="field">
-        <i class="bi bi-search"></i>
-        <input type="search" id="searchProduct"
-          placeholder="Search products... e.g. Ice Cake">
-      </div>
-
-      <div class="field">
-        <i class="bi bi-geo-alt"></i>
-        <select id="village">
-          <option value="">Select Village</option>
-          <option>Rede</option>
-          <option>Malshiras</option>
-          <option>Velapur</option>
-          <option>Solapur</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-white">
-        <i class="bi bi-search"></i> Search
-      </button>
-    </form>
-  </div>
-
-  <!-- STATS -->
-  <div class="stats">
-    <div class="stat">
-      <div class="stat-icon"><i class="bi bi-search"></i></div>
-      <div><small>Recent Searches</small><strong id="searchCount">0</strong></div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-icon"><i class="bi bi-bell"></i></div>
-      <div><small>Notifications</small><strong id="notificationCount">0</strong></div>
-    </div>
-
-    <div class="stat">
-      <div class="stat-icon"><i class="bi bi-shop"></i></div>
-      <div><small>My Requests</small><strong id="requestCount">0</strong></div>
-    </div>
-  </div>
-
-  <!-- PRODUCTS -->
-  <div class="section-head">
-    <div>
-      <h2>Explore Products</h2>
-      <p>Sample product previews – live products will be connected later.</p>
-    </div>
-    <button class="link" onclick="document.getElementById('searchProduct').focus()">Search Products →</button>
-  </div>
-
-  <div class="product-grid" id="productGrid">
-
-    <article class="product-card" data-name="ice cake">
-      <div class="product-image">🍰<span class="available">Popular</span></div>
-      <div class="product-body">
-        <h3>Ice Cake</h3>
-        <div class="product-meta">Food & Bakery</div>
-        <div class="product-bottom">
-          <span>Check local price</span>
-          <button class="btn btn-small" onclick="requestProduct('Ice Cake')">Find Stores</button>
-        </div>
-      </div>
-    </article>
-
-    <article class="product-card" data-name="vegetables">
-      <div class="product-image">🥦<span class="available">Daily Needs</span></div>
-      <div class="product-body">
-        <h3>Fresh Vegetables</h3>
-        <div class="product-meta">Vegetables</div>
-        <div class="product-bottom">
-          <span>Check local price</span>
-          <button class="btn btn-small" onclick="requestProduct('Fresh Vegetables')">Find Stores</button>
-        </div>
-      </div>
-    </article>
-
-    <article class="product-card" data-name="grocery">
-      <div class="product-image">🛒<span class="available">Essentials</span></div>
-      <div class="product-body">
-        <h3>Daily Grocery</h3>
-        <div class="product-meta">Grocery</div>
-        <div class="product-bottom">
-          <span>Check local price</span>
-          <button class="btn btn-small" onclick="requestProduct('Daily Grocery')">Find Stores</button>
-        </div>
-      </div>
-    </article>
-
-    <article class="product-card" data-name="clothing">
-      <div class="product-image">👕<span class="available">Explore</span></div>
-      <div class="product-body">
-        <h3>Clothing</h3>
-        <div class="product-meta">Fashion</div>
-        <div class="product-bottom">
-          <span>Check local price</span>
-          <button class="btn btn-small" onclick="requestProduct('Clothing')">Find Stores</button>
-        </div>
-      </div>
-    </article>
-
-    <article class="product-card" data-name="mobile accessories">
-      <div class="product-image">📱<span class="available">Explore</span></div>
-      <div class="product-body">
-        <h3>Mobile Accessories</h3>
-        <div class="product-meta">Electronics</div>
-        <div class="product-bottom">
-          <span>Check local price</span>
-          <button class="btn btn-small" onclick="requestProduct('Mobile Accessories')">Find Stores</button>
-        </div>
-      </div>
-    </article>
-
-    <article class="product-card" data-name="bakery">
-      <div class="product-image">🥐<span class="available">Explore</span></div>
-      <div class="product-body">
-        <h3>Bakery Products</h3>
-        <div class="product-meta">Food</div>
-        <div class="product-bottom">
-          <span>Check local price</span>
-          <button class="btn btn-small" onclick="requestProduct('Bakery Products')">Find Stores</button>
-        </div>
-      </div>
-    </article>
-
-  </div>
-
-  <!-- RECENT REQUESTS -->
-  <div style="margin-top:35px">
-    <div class="section-head">
-      <div>
-        <h2>My Recent Requests</h2>
-        <p>Keep track of your product enquiries.</p>
-      </div>
-      <button class="link" onclick="showView('notifications')">View Notifications →</button>
-    </div>
-
-    <div class="empty" id="recentRequests">
-      <i class="bi bi-inbox" style="font-size:25px;display:block;margin-bottom:10px"></i>
-      No product requests yet. Search for a product to get started.
-    </div>
-  </div>
-
 </div>
-
-<!-- MAP VIEW -->
-<div class="view" id="map">
-  <div class="welcome">
-    <div>
-      <h1>Explore Local Map</h1>
-      <p>Discover nearby shops and their locations.</p>
-    </div>
-  </div>
-
-  <div class="map-box">
-    <div>
-      <i class="bi bi-map"></i>
-      <h3>Your Local Market Map</h3>
-      <p>
-        The interactive map and verified shop locations will appear here
-        after the map and database are connected.
-      </p>
-      <button class="btn" style="margin-top:18px" onclick="getLocation()">
-        <i class="bi bi-crosshair"></i> Find My Location
-      </button>
-      <p id="locationMessage" style="margin-top:12px"></p>
-    </div>
-  </div>
-</div>
-
-<!-- NOTIFICATIONS VIEW -->
-<div class="view" id="notifications">
-  <div class="welcome">
-    <div>
-      <h1>Notifications</h1>
-      <p>Updates about your product requests and local shops.</p>
-    </div>
-  </div>
-
-  <div class="notification-list" id="notificationList">
-    <div class="empty">
-      <i class="bi bi-bell" style="font-size:27px;display:block;margin-bottom:10px"></i>
-      No notifications yet.
-    </div>
-  </div>
-</div>
-
-<!-- PROFILE VIEW -->
-<div class="view" id="profile">
-  <div class="welcome">
-    <div>
-      <h1>My Profile</h1>
-      <p>Manage your personal information.</p>
-    </div>
-  </div>
-
-  <div class="profile-card">
-    <div class="profile-head">
-      <div class="profile-photo" id="profilePhoto">C</div>
-      <div>
-        <h2 id="profileName">Customer</h2>
-        <p>Customer Account</p>
-      </div>
-    </div>
-
-    <div class="profile-fields">
-      <div>
-        <label>Full Name</label>
-        <input id="fullName" placeholder="Your full name">
-      </div>
-
-      <div>
-        <label>Email Address</label>
-        <input id="email" type="email" placeholder="Your email">
-      </div>
-
-      <div>
-        <label>Mobile Number</label>
-        <input id="mobile" type="tel" placeholder="Your mobile number">
-      </div>
-
-      <div>
-        <label>Village</label>
-        <input id="profileVillage" placeholder="Your village">
-      </div>
-
-      <div style="grid-column:1/-1">
-        <label>Address</label>
-        <input id="address" placeholder="Your full address">
-      </div>
-
-      <div style="grid-column:1/-1">
-        <label>Profile Photo</label>
-        <input id="photoInput" type="file" accept="image/*">
-      </div>
-    </div>
-
-    <div class="profile-actions">
-      <button class="btn" onclick="saveProfile()">
-        <i class="bi bi-check2"></i> Save Changes
-      </button>
-    </div>
-    <p id="profileMessage" style="font-size:12px;color:var(--green);margin-top:12px"></p>
-  </div>
-</div>
-
-</div>
-</main>
-</div>
-
-<!-- MOBILE NAVIGATION -->
-<nav class="mobile-bottom">
-  <button class="mobile-nav active" data-view="home">
-    <i class="bi bi-grid"></i>Home
-  </button>
-  <button class="mobile-nav" data-view="map">
-    <i class="bi bi-map"></i>Map
-  </button>
-  <button class="mobile-nav" data-view="notifications">
-    <i class="bi bi-bell"></i>Alerts
-  </button>
-  <button class="mobile-nav" data-view="profile">
-    <i class="bi bi-person"></i>Profile
-  </button>
 </nav>
 
+<main class="container py-4">
+
+<!-- HERO -->
+<section class="hero mb-5" id="home">
+    <h1>Find Local Shops Near You!</h1>
+    <p class="mt-2 mb-4">
+        Search products, compare local shops and visit your nearby store.
+    </p>
+
+    <form class="search-box" id="searchForm">
+        <input type="search" id="productSearch"
+               placeholder="Search products like Milk, Rice, Vegetables..."
+               aria-label="Search products">
+        <button class="btn-green" type="submit">
+            <i class="bi bi-search"></i> Search
+        </button>
+    </form>
+    <small class="d-block mt-3">
+        <i class="bi bi-geo-alt-fill"></i>
+        Discover shops in your village
+    </small>
+</section>
+
+<!-- CATEGORIES -->
+<section id="categories" class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="section-title">Shop by Category</h3>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-basket"></i></div>
+                <strong>Grocery</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-apple"></i></div>
+                <strong>Vegetables & Fruits</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-capsule"></i></div>
+                <strong>Medical Store</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-handbag"></i></div>
+                <strong>Clothing</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-phone"></i></div>
+                <strong>Electronics</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-tools"></i></div>
+                <strong>Hardware</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-book"></i></div>
+                <strong>Stationery</strong>
+            </div>
+        </div>
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="category-card">
+                <div class="category-icon"><i class="bi bi-three-dots"></i></div>
+                <strong>Other</strong>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- QUICK FEATURES -->
+<section class="mb-5">
+    <h3 class="section-title mb-3">Explore LOCAL MARKET</h3>
+    <div class="row g-3">
+        <div class="col-6 col-md-4">
+            <div class="feature-card">
+                <i class="bi bi-geo-alt"></i>
+                <h6 class="mt-3 fw-bold">Nearby Shops</h6>
+                <p class="text-muted small mb-0">Discover shops around your village.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-4">
+            <div class="feature-card">
+                <i class="bi bi-search"></i>
+                <h6 class="mt-3 fw-bold">Find Products</h6>
+                <p class="text-muted small mb-0">Search for products available locally.</p>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="feature-card">
+                <i class="bi bi-chat-dots"></i>
+                <h6 class="mt-3 fw-bold">Seller Responses</h6>
+                <p class="text-muted small mb-0">Check availability and prices from sellers.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MAP -->
+<section id="map" class="mb-5">
+    <h3 class="section-title mb-2">Explore Nearby Shops</h3>
+    <p class="text-muted">Find local shops on the map.</p>
+
+    <div id="shopMap"></div>
+
+    <div class="info-panel mt-3">
+        <i class="bi bi-info-circle"></i>
+        Shop locations will appear here after connecting the live shop database.
+    </div>
+</section>
+
+<!-- SEARCH RESULTS -->
+<section class="mb-5" id="results">
+    <h3 class="section-title mb-3">Product Search</h3>
+    <div class="info-panel" id="searchMessage">
+        Search for a product to discover matching local shops.
+    </div>
+</section>
+
+<!-- REQUESTS -->
+<section id="requests" class="mb-5">
+    <h3 class="section-title mb-3">My Product Requests</h3>
+    <div class="info-panel">
+        <i class="bi bi-inbox"></i>
+        Your product requests and seller responses will appear here after backend integration.
+    </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="mb-4">
+    <h3 class="section-title mb-3">My Account</h3>
+    <div class="info-panel">
+        <i class="bi bi-person-circle"></i>
+        <strong> Customer Account</strong>
+        <p class="text-muted mb-0 mt-2">
+            Your account details will be loaded from your LOCAL MARKET profile.
+        </p>
+    </div>
+</section>
+
+</main>
+
+<footer class="text-center">
+    <h5 class="fw-bold">LOCAL MARKET</h5>
+    <p class="mb-0">Support Local Shops. Discover Local Products.</p>
+    <small>© 2026 LOCAL MARKET</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-const views = document.querySelectorAll('.view');
-const navButtons = document.querySelectorAll('[data-view]');
-const pageLabel = document.getElementById('pageLabel');
+// Map display. Real shop pins will be loaded from the backend in the next step.
+const map = L.map('shopMap').setView([17.6599, 75.9064], 11);
 
-const titles = {
-  home:'Customer Dashboard',
-  map:'Explore Map',
-  notifications:'Notifications',
-  profile:'My Profile'
-};
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-function showView(viewName) {
-  views.forEach(view => view.classList.remove('active'));
+// Search UI. Live product search API will be connected in the next step.
+document.getElementById('searchForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-  const selected = document.getElementById(viewName);
-  if (!selected) return;
+    const query = document.getElementById('productSearch').value.trim();
+    const message = document.getElementById('searchMessage');
 
-  selected.classList.add('active');
-
-  navButtons.forEach(button => {
-    button.classList.toggle('active',button.dataset.view === viewName);
-  });
-
-  pageLabel.textContent = titles[viewName] || 'Customer Dashboard';
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-
-navButtons.forEach(button => {
-  button.addEventListener('click',() => showView(button.dataset.view));
-});
-
-// Demo data only. Will be replaced by real database data.
-let requests = [];
-let notifications = [];
-let recentSearches = 0;
-
-document.getElementById('productForm').addEventListener('submit',function(e){
-  e.preventDefault();
-
-  const product = document.getElementById('searchProduct').value.trim();
-  const village = document.getElementById('village').value;
-
-  if(!product){
-    alert('Please enter a product name.');
-    return;
-  }
-
-  if(!village){
-    alert('Please select your village.');
-    return;
-  }
-
-  recentSearches++;
-  document.getElementById('searchCount').textContent = recentSearches;
-  document.getElementById('currentVillage').textContent = village;
-
-  requestProduct(product,village);
-});
-
-function requestProduct(product,village='') {
-  const selectedVillage = village || document.getElementById('village').value;
-
-  if(!selectedVillage){
-    alert('Please select your village first.');
-    document.getElementById('village').focus();
-    return;
-  }
-
-  requests.unshift({
-    product,
-    village:selectedVillage,
-    date:new Date().toLocaleString()
-  });
-
-  notifications.unshift({
-    title:'Product search created',
-    message:`Your search for ${product} in ${selectedVillage} has been added to this demo.`,
-    date:'Just now'
-  });
-
-  updateDashboard();
-  alert('Demo request created! Real seller notifications will work after backend integration.');
-}
-
-function updateDashboard(){
-  document.getElementById('requestCount').textContent = requests.length;
-  document.getElementById('notificationCount').textContent = notifications.length;
-
-  const recent = document.getElementById('recentRequests');
-
-  if(requests.length){
-    recent.className = 'store-list';
-    recent.innerHTML = requests.slice(0,5).map(item => `
-      <div class="store-card">
-        <div class="store-avatar"><i class="bi bi-search"></i></div>
-        <div class="store-info">
-          <h3>${escapeHTML(item.product)}</h3>
-          <p>Village: ${escapeHTML(item.village)}</p>
-          <small>${escapeHTML(item.date)}</small>
-        </div>
-        <span style="font-size:10px;color:var(--muted)">Demo request</span>
-      </div>
-    `).join('');
-  }
-
-  const list = document.getElementById('notificationList');
-
-  if(notifications.length){
-    list.innerHTML = notifications.map(item => `
-      <div class="notification">
-        <div class="notification-icon"><i class="bi bi-bell"></i></div>
-        <div>
-          <h3>${escapeHTML(item.title)}</h3>
-          <p>${escapeHTML(item.message)}</p>
-          <small>${escapeHTML(item.date)}</small>
-        </div>
-      </div>
-    `).join('');
-  }
-}
-
-function escapeHTML(value){
-  return String(value).replace(/[&<>"']/g, char => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  })[char]);
-}
-
-// Profile preview
-function saveProfile(){
-  const name = document.getElementById('fullName').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const village = document.getElementById('profileVillage').value.trim();
-
-  if(!name || !email){
-    document.getElementById('profileMessage').textContent =
-      'Please enter your name and email.';
-    return;
-  }
-
-  document.getElementById('welcomeName').textContent = name;
-  document.getElementById('topName').textContent = name;
-  document.getElementById('profileName').textContent = name;
-  document.getElementById('topAvatar').textContent = name.charAt(0).toUpperCase();
-  document.getElementById('currentVillage').textContent = village || 'Village not set';
-
-  document.getElementById('profileMessage').textContent =
-    'Profile preview updated. Connect the backend to save permanently.';
-}
-
-document.getElementById('photoInput').addEventListener('change',function(){
-  const file = this.files[0];
-  if(!file) return;
-
-  if(!file.type.startsWith('image/')){
-    alert('Please select an image file.');
-    this.value='';
-    return;
-  }
-
-  const reader = new FileReader();
-
-  reader.onload = function(e){
-    document.getElementById('profilePhoto').innerHTML =
-      `<img src="${e.target.result}" alt="Profile photo">`;
-  };
-
-  reader.readAsDataURL(file);
-});
-
-// Browser location permission
-function getLocation(){
-  const message = document.getElementById('locationMessage');
-
-  if(!navigator.geolocation){
-    message.textContent = 'Location is not supported by this browser.';
-    return;
-  }
-
-  message.textContent = 'Requesting location permission...';
-
-  navigator.geolocation.getCurrentPosition(
-    position => {
-      message.textContent = 'Location permission received. Map integration is coming next.';
-      console.log('Location:',position.coords.latitude,position.coords.longitude);
-    },
-    () => {
-      message.textContent = 'Location permission was not granted.';
+    if (!query) {
+        message.textContent = 'Please enter a product name.';
+        return;
     }
-  );
-}
 
-function logout(){
-  if(confirm('Are you sure you want to logout?')){
-    window.location.href='/logout';
-  }
-}
+    message.textContent = 'Search for "' + query +
+        '" is ready. Live product search will be connected to Supabase next.';
+});
 </script>
 
 </body>
