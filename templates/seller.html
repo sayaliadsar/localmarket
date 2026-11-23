@@ -1,204 +1,678 @@
+
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seller Dashboard - LOCAL MARKET</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>LOCAL MARKET | Seller Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-body{background:#F8FFF9;font-family:'Segoe UI',sans-serif}
-.navbar{background:#0B6B3A!important}
-.logo{font-weight:900;font-size:22px;color:#fff!important}
-.logo span{color:#FF6B00}
-.btn-orange{background:#FF6B00;color:#fff;font-weight:700;border-radius:12px;border:none;padding:10px}
-.btn-green{background:#0B6B3A;color:#fff;font-weight:700;border-radius:12px;border:none;padding:10px}
-.stat{background:#fff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-.stat h3{font-weight:900;color:#0B6B3A;margin:0}
-.p-card{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.07);height:100%}
-.p-card img{width:100%;height:150px;object-fit:cover}
-input,select,textarea{border-radius:12px!important}
+:root {
+    --green: #174d38;
+    --green2: #236849;
+    --cream: #f7f7ef;
+    --white: #ffffff;
+    --muted: #78847c;
+}
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: var(--cream);
+    font-family: Arial, sans-serif;
+    color: #24372c;
+}
+
+.sidebar {
+    width: 245px;
+    height: 100vh;
+    position: fixed;
+    background: var(--green);
+    color: white;
+    padding: 25px 17px;
+    top: 0;
+    left: 0;
+}
+
+.brand {
+    font-size: 23px;
+    font-weight: 800;
+    margin: 5px 10px 35px;
+}
+
+.brand span { color: #d9d9a5; }
+
+.nav-link {
+    color: #dce9df;
+    padding: 13px 15px;
+    border-radius: 10px;
+    margin-bottom: 7px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+.nav-link:hover, .nav-link.active {
+    background: #ffffff20;
+    color: white;
+}
+
+.nav-link i { margin-right: 12px; }
+
+.main {
+    margin-left: 245px;
+    padding: 28px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    gap: 15px;
+}
+
+.topbar h3 { font-weight: 750; }
+
+.card-box {
+    background: white;
+    border-radius: 17px;
+    padding: 22px;
+    border: 1px solid #e9eee8;
+    height: 100%;
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+    background: #e8f2e9;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 13px;
+    font-size: 21px;
+}
+
+.stat-number {
+    font-size: 27px;
+    font-weight: 800;
+    margin-top: 14px;
+}
+
+.muted { color: var(--muted); font-size: 13px; }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.btn-green {
+    background: var(--green);
+    color: white;
+    border: 0;
+    border-radius: 9px;
+    padding: 10px 17px;
+}
+
+.btn-green:hover {
+    background: var(--green2);
+    color: white;
+}
+
+.form-control, .form-select {
+    border-radius: 9px;
+    padding: 11px;
+}
+
+.table { vertical-align: middle; }
+
+.product-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #edf1e9;
+}
+
+.badge-soft {
+    background: #e5f4e8;
+    color: #21633e;
+    padding: 7px 10px;
+    border-radius: 20px;
+}
+
+.request-card {
+    border: 1px solid #e8eee7;
+    padding: 17px;
+    border-radius: 13px;
+    margin-bottom: 13px;
+    background: white;
+}
+
+.profile-photo {
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #e8eee7;
+}
+
+.mobile-nav { display: none; }
+
+@media(max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 17px; padding-bottom: 90px; }
+    .topbar { align-items: flex-start; }
+    .topbar h3 { font-size: 21px; }
+    .mobile-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: white;
+        justify-content: space-around;
+        padding: 10px 3px;
+        box-shadow: 0 -3px 15px #00000010;
+        z-index: 100;
+    }
+    .mobile-nav button {
+        border: 0;
+        background: none;
+        color: #64736a;
+        font-size: 11px;
+    }
+    .mobile-nav i { display: block; font-size: 20px; }
+    .mobile-nav button.active { color: var(--green); }
+}
 </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark">
-<div class="container">
-<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span></a>
-<div class="d-flex gap-2">
-<a href="/shop/{{ user.id }}" class="btn btn-light btn-sm fw-bold">🏪 My Shop Paha</a>
-<a href="/" class="btn btn-light btn-sm fw-bold">Home</a>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="brand">LOCAL <span>MARKET.</span></div>
+
+    <a class="nav-link active" onclick="showSection('dashboard',this)">
+        <i class="bi bi-grid"></i> Dashboard
+    </a>
+    <a class="nav-link" onclick="showSection('products',this)">
+        <i class="bi bi-box-seam"></i> My Products
+    </a>
+    <a class="nav-link" onclick="showSection('requests',this)">
+        <i class="bi bi-bell"></i> Customer Requests
+    </a>
+    <a class="nav-link" onclick="showSection('profile',this)">
+        <i class="bi bi-shop"></i> Store Profile
+    </a>
+    <a class="nav-link" onclick="showSection('subscription',this)">
+        <i class="bi bi-gem"></i> Subscription
+    </a>
+
+    <div style="position:absolute;bottom:25px;left:20px;right:20px">
+        <a href="/logout" class="nav-link">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+<div class="topbar">
+    <div>
+        <h3 id="pageTitle">Seller Dashboard</h3>
+        <div class="muted">Manage your local business in one place.</div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge-soft">
+            <i class="bi bi-circle-fill" style="font-size:8px"></i> Demo Account
+        </span>
+        <i class="bi bi-person-circle fs-3"></i>
+    </div>
 </div>
-</div>
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section active">
+
+    <div class="card-box mb-4" style="background:#174d38;color:white">
+        <h4>Welcome to LOCAL MARKET 👋</h4>
+        <p class="mb-0" style="color:#dce9df">
+            Manage your products, respond to customer requests and grow your local business.
+        </p>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card-box">
+                <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="muted">Total Products</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card-box">
+                <div class="stat-icon"><i class="bi bi-bell"></i></div>
+                <div class="stat-number">2</div>
+                <div class="muted">New Requests (Demo)</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card-box">
+                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+                <div class="stat-number">5</div>
+                <div class="muted">Available Products (Demo)</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card-box">
+                <div class="stat-icon"><i class="bi bi-eye"></i></div>
+                <div class="stat-number">24</div>
+                <div class="muted">Store Views (Demo)</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div class="card-box">
+                <h5 class="fw-bold mb-3">Recent Customer Requests</h5>
+                <div class="request-card">
+                    <b>Wheat Flour</b>
+                    <p class="muted mb-2">Customer from Malshiras · Demo request</p>
+                    <button class="btn-green btn-sm" onclick="showSection('requests')">View Request</button>
+                </div>
+                <div class="request-card">
+                    <b>Cooking Oil</b>
+                    <p class="muted mb-2">Customer from nearby village · Demo request</p>
+                    <button class="btn-green btn-sm" onclick="showSection('requests')">View Request</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card-box">
+                <h5 class="fw-bold">Store Status</h5>
+                <p class="muted">Your store visibility status</p>
+                <span class="badge-soft">Demo status: Online</span>
+                <hr>
+                <h6>Subscription Plan</h6>
+                <p class="muted mb-1">Current plan</p>
+                <b>Plan details will appear here</b>
+                <p class="muted mt-2 mb-0">Managed by LOCAL MARKET Admin</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products" class="section">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold">My Products</h4>
+            <p class="muted">Add and manage your store products.</p>
+        </div>
+        <button class="btn-green" data-bs-toggle="modal" data-bs-target="#productModal">
+            <i class="bi bi-plus-lg"></i> Add Product
+        </button>
+    </div>
+
+    <div class="card-box">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="productList">
+                    <tr>
+                        <td colspan="5" class="text-center muted">No products added yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="muted mb-0">Demo: Products added here are temporarily displayed in this browser page.</p>
+    </div>
+</section>
+
+<!-- REQUESTS -->
+<section id="requests" class="section">
+    <h4 class="fw-bold">Customer Requests</h4>
+    <p class="muted">Respond to customers who are searching for products.</p>
+
+    <div class="request-card">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+            <div>
+                <h5>Wheat Flour</h5>
+                <p class="muted mb-1">Customer: Demo Customer</p>
+                <p class="muted">Village: Malshiras · Quantity: 5 kg</p>
+            </div>
+            <span class="badge-soft">New Request (Demo)</span>
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-4">
+                <input class="form-control" id="price1" type="number" placeholder="Your price (₹)">
+            </div>
+            <div class="col-md-4">
+                <input class="form-control" id="stock1" placeholder="Available quantity">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button class="btn-green btn-sm" onclick="respond(1,'Available')">Available</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="respond(1,'Not Available')">Not Available</button>
+            </div>
+        </div>
+        <div id="response1" class="muted mt-2"></div>
+    </div>
+
+    <div class="request-card">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+            <div>
+                <h5>Cooking Oil</h5>
+                <p class="muted mb-1">Customer: Demo Customer</p>
+                <p class="muted">Village: Malshiras · Quantity: 2 litres</p>
+            </div>
+            <span class="badge-soft">New Request (Demo)</span>
+        </div>
+        <div class="row g-2 mt-2">
+            <div class="col-md-4">
+                <input class="form-control" id="price2" type="number" placeholder="Your price (₹)">
+            </div>
+            <div class="col-md-4">
+                <input class="form-control" id="stock2" placeholder="Available quantity">
+            </div>
+            <div class="col-md-4 d-flex gap-2">
+                <button class="btn-green btn-sm" onclick="respond(2,'Available')">Available</button>
+                <button class="btn btn-outline-danger btn-sm" onclick="respond(2,'Not Available')">Not Available</button>
+            </div>
+        </div>
+        <div id="response2" class="muted mt-2"></div>
+    </div>
+
+    <div class="card-box mt-3">
+        <h6><i class="bi bi-info-circle"></i> How requests work</h6>
+        <p class="muted mb-0">
+            When a customer searches for a product in a village, matching sellers will receive the request.
+            You can reply with availability, price and quantity. Customers can compare seller responses and visit the shop.
+        </p>
+    </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="section">
+    <h4 class="fw-bold">Store Profile</h4>
+    <p class="muted">Manage your shop information.</p>
+
+    <div class="card-box">
+        <div class="text-center mb-4">
+            <img id="storePreview" class="profile-photo" src="https://placehold.co/100x100/e8eee7/174d38?text=Store" alt="Store logo">
+            <div class="mt-2">
+                <label class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-camera"></i> Change Store Photo
+                    <input type="file" hidden accept="image/*" onchange="previewStore(event)">
+                </label>
+            </div>
+        </div>
+
+        <form onsubmit="saveProfile(event)">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Owner Name</label>
+                    <input class="form-control" id="ownerName" placeholder="Enter owner name">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Store Name</label>
+                    <input class="form-control" id="storeName" placeholder="Enter store name">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Mobile Number</label>
+                    <input class="form-control" placeholder="Enter mobile number">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="email" placeholder="Enter email">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Shop Category</label>
+                    <select class="form-select">
+                        <option>Grocery</option>
+                        <option>Vegetables & Fruits</option>
+                        <option>Medical</option>
+                        <option>Clothing</option>
+                        <option>Electronics</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Village</label>
+                    <input class="form-control" placeholder="Enter village">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Shop Address</label>
+                    <textarea class="form-control" rows="2" placeholder="Enter complete address"></textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">About Your Store</label>
+                    <textarea class="form-control" rows="3" placeholder="Write about your shop"></textarea>
+                </div>
+                <div class="col-12">
+                    <button class="btn-green" type="submit">Save Profile</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<!-- SUBSCRIPTION -->
+<section id="subscription" class="section">
+    <h4 class="fw-bold">Subscription Plan</h4>
+    <p class="muted">Your store subscription information.</p>
+
+    <div class="card-box">
+        <div class="stat-icon"><i class="bi bi-gem"></i></div>
+        <h4 class="mt-3">Your Current Plan</h4>
+        <h2 class="fw-bold">Not Assigned</h2>
+        <p class="muted">
+            Your subscription plan, validity and payment status will be displayed here after admin approval.
+        </p>
+        <hr>
+        <div class="d-flex justify-content-between">
+            <span>Plan Status</span>
+            <b>Pending</b>
+        </div>
+        <div class="d-flex justify-content-between mt-3">
+            <span>Expiry Date</span>
+            <b>Not Assigned</b>
+        </div>
+        <p class="muted mt-4 mb-0">
+            Subscription plans and payments will be managed through the LOCAL MARKET Admin Panel.
+        </p>
+    </div>
+</section>
+
+</main>
+
+<!-- Mobile Navigation -->
+<nav class="mobile-nav">
+    <button class="active" onclick="mobileShow('dashboard',this)">
+        <i class="bi bi-grid"></i>Home
+    </button>
+    <button onclick="mobileShow('products',this)">
+        <i class="bi bi-box-seam"></i>Products
+    </button>
+    <button onclick="mobileShow('requests',this)">
+        <i class="bi bi-bell"></i>Requests
+    </button>
+    <button onclick="mobileShow('profile',this)">
+        <i class="bi bi-shop"></i>Profile
+    </button>
 </nav>
 
-<div class="container py-3">
+<!-- Add Product Modal -->
+<div class="modal fade" id="productModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Add New Product</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm">
+                    <label class="form-label">Product Name</label>
+                    <input class="form-control mb-3" id="productName" required placeholder="Product name">
 
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-<div>
-<h3 class="fw-bold mb-0">Namaste, {{ user.name }} 🙏</h3>
-<p class="text-muted mb-0">Shop: <b>{{ user.shop_name }}</b> • {{ user.village }} • Plan: <span class="badge bg-success">{{ user.plan or 'free' }}</span></p>
-</div>
-<button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addProductModal">+ Product Add Kara</button>
-</div>
+                    <label class="form-label">Category</label>
+                    <select class="form-select mb-3" id="productCategory">
+                        <option>Grocery</option>
+                        <option>Vegetables & Fruits</option>
+                        <option>Clothing</option>
+                        <option>Electronics</option>
+                        <option>Other</option>
+                    </select>
 
-{% if msg %}<div class="alert alert-success mt-3 fw-bold" style="border-radius:14px">{{ msg }}</div>{% endif %}
+                    <label class="form-label">Price (₹)</label>
+                    <input class="form-control mb-3" id="productPrice" type="number" min="0" required>
 
-<!-- STATS -->
-<div class="row g-3 mt-1">
-<div class="col-4"><div class="stat"><h3>{{ my_products|length }}</h3><div class="small text-muted">Products</div></div></div>
-<div class="col-4"><div class="stat"><h3>{{ orders|length }}</h3><div class="small text-muted">Orders / Reserve</div></div></div>
-<div class="col-4"><div class="stat"><h3>⭐ {{ user.rating or 0 }}</h3><div class="small text-muted">Shop Rating</div></div></div>
-</div>
+                    <label class="form-label">Available Stock</label>
+                    <input class="form-control mb-3" id="productStock" required placeholder="e.g. 10 kg">
 
-<!-- ADD PRODUCT MODAL -->
-<div class="modal fade" id="addProductModal" tabindex="-1">
-<div class="modal-dialog modal-lg">
-<div class="modal-content p-3">
-<h4 class="fw-bold">+ Navin Product Add Kara</h4>
-<form method="POST" action="/seller/add-product" enctype="multipart/form-data">
-<div class="row g-2">
-<div class="col-md-6"><input name="title" class="form-control" placeholder="Product Name - उदा. Basmati Tandul 5kg" required></div>
+                    <label class="form-label">Product Photo</label>
+                    <input class="form-control mb-3" id="productImage" type="file" accept="image/*">
 
-<div class="col-md-6">
-<div class="input-group">
-<select name="category" class="form-select" required>
-<option value="">Category Nivda</option>
-{% for c in cats %}<option value="{{ c.name }}">{{ c.icon }} {{ c.name }}</option>{% endfor %}
-</select>
-<button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addCatModal">+ New</button>
-</div>
-</div>
-
-<div class="col-md-4"><input name="price" type="number" class="form-control" placeholder="Selling Price ₹" required></div>
-<div class="col-md-4"><input name="mrp" type="number" class="form-control" placeholder="MRP ₹" required></div>
-<div class="col-md-4"><input name="stock_qty" type="number" class="form-control" placeholder="Stock Qty" value="10" required></div>
-<div class="col-12"><textarea name="description" class="form-control" placeholder="Description - Quality, Weight, Brand..."></textarea></div>
-
-<!-- GALLERY PHOTO -->
-<div class="col-12">
-<label class="fw-bold small">📸 Product Photo - Gallery Madhun Nivda</label>
-<input type="file" name="product_pic" id="prodPicInput" class="form-control" accept="image/*" onchange="document.getElementById('prodPreview').src=window.URL.createObjectURL(this.files[0]); document.getElementById('prodPreview').style.display='block'">
-<img id="prodPreview" style="display:none; width:100%; height:180px; object-fit:cover; border-radius:12px; margin-top:8px;">
-<p class="small text-muted mt-1">Photo nahi nivadla tar default photo lagel.</p>
+                    <button class="btn-green w-100" type="submit">Add Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 
-</div>
-<button class="btn btn-green w-100 mt-3">✅ Product Publish Kara</button>
-</form>
-</div>
-</div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- ADD CATEGORY SMALL MODAL -->
-<div class="modal fade" id="addCatModal" tabindex="-1">
-<div class="modal-dialog modal-sm">
-<div class="modal-content p-3">
-<h5 class="fw-bold">+ Navin Category</h5>
-<form method="POST" action="/seller/add-category">
-<input name="name" class="form-control" placeholder="उदा. Dairy, Stationery, Pooja..." required>
-<button class="btn btn-success w-100 mt-2">Add Kara</button>
-</form>
-</div>
-</div>
-</div>
-<!-- MY PRODUCTS -->
-<h4 class="fw-bold mt-4 mb-3">🛒 Majhe Products ({{ my_products|length }})</h4>
+<script>
+function showSection(id, element) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
 
-{% if my_products %}
-<div class="row g-3">
-{% for p in my_products %}
-<div class="col-6 col-md-4 col-lg-3">
-<div class="p-card">
-<img src="{{ p.image }}">
-<div class="p-2">
-<span class="badge bg-light text-dark border">{{ p.category }}</span>
-<h6 class="fw-bold mt-1 mb-0">{{ p.title }}</h6>
-<div><b style="color:#0B6B3A">₹{{ p.price }}</b> <span class="text-muted small"><s>₹{{ p.mrp }}</s></span></div>
-<div class="small">Stock: {{ p.stock_qty }} • 👁️ {{ p.views }} • ⭐ {{ p.rating }}</div>
-<div class="d-flex gap-1 mt-2">
-<a href="/product/{{ p.id }}" class="btn btn-sm btn-outline-dark flex-fill">View</a>
-<a href="/seller/delete-product/{{ p.id }}" class="btn btn-sm btn-outline-danger flex-fill" onclick="return confirm('Delete karaycha?')">🗑️</a>
-</div>
-<!-- EDIT - STOCK UPDATE -->
-<form method="POST" action="/seller/update-stock/{{ p.id }}" class="d-flex gap-1 mt-1">
-<input name="stock_qty" type="number" value="{{ p.stock_qty }}" class="form-control form-control-sm">
-<input name="price" type="number" value="{{ p.price }}" class="form-control form-control-sm">
-<button class="btn btn-sm btn-success">Update</button>
-</form>
-</div>
-</div>
-</div>
-{% endfor %}
-</div>
-{% else %}
-<div class="text-center bg-white p-4 rounded-4">
-<div style="font-size:50px">📦</div>
-<p class="text-muted">Ajun product nahi. Var + Product Add Kara button daba.</p>
-</div>
-{% endif %}
+    document.querySelectorAll('.sidebar .nav-link').forEach(a => a.classList.remove('active'));
+    if (element) element.classList.add('active');
 
-<!-- ORDERS / RESERVATIONS -->
-<h4 class="fw-bold mt-5 mb-3">📦 Reservations / Orders ({{ orders|length }})</h4>
+    const titles = {
+        dashboard: 'Seller Dashboard',
+        products: 'My Products',
+        requests: 'Customer Requests',
+        profile: 'Store Profile',
+        subscription: 'Subscription'
+    };
+    document.getElementById('pageTitle').innerText = titles[id];
+}
 
-{% if orders %}
-{% for o in orders %}
-<div class="bg-white p-3 rounded-4 shadow-sm mb-2">
-<div class="d-flex justify-content-between flex-wrap gap-2">
-<div>
-<b>{{ o.product_title }}</b> - Qty: {{ o.qty }} • Total: <b style="color:#0B6B3A">₹{{ o.total }}</b><br>
-<span class="small text-muted">Customer: {{ o.customer_name }} • 📞 {{ o.customer_phone }} • {{ o.customer_village }}</span><br>
-<span class="small">Note: {{ o.note or '-' }}</span>
-</div>
-<div class="text-end">
-<span class="badge {% if o.status=='pending' %}bg-warning text-dark{% elif o.status=='ready' %}bg-info{% elif o.status=='completed' %}bg-success{% else %}bg-danger{% endif %}">{{ o.status }}</span>
-<div class="small text-muted">{{ o.created_at }}</div>
-</div>
-</div>
-<div class="d-flex gap-1 mt-2 flex-wrap">
-<a href="/seller/order-status/{{ o.id }}/ready" class="btn btn-sm btn-info">📦 Ready Aahe</a>
-<a href="/seller/order-status/{{ o.id }}/completed" class="btn btn-sm btn-success">✅ Completed</a>
-<a href="/seller/order-status/{{ o.id }}/cancelled" class="btn btn-sm btn-danger">❌ Cancel</a>
-<a href="tel:{{ o.customer_phone }}" class="btn btn-sm btn-outline-success">📞 Call Customer</a>
-</div>
-</div>
-{% endfor %}
-{% else %}
-<div class="text-center bg-white p-4 rounded-4">
-<p class="text-muted">Ajun koni Reserve kela nahi. Product add kara, customer yetil.</p>
-</div>
-{% endif %}
-<!-- SHOP SETTINGS -->
-<h4 class="fw-bold mt-5 mb-3">⚙️ Shop Settings</h4>
-<div class="bg-white p-3 rounded-4 shadow-sm">
-<form method="POST" action="/seller/update-shop">
-<div class="row g-2">
-<div class="col-md-6"><label class="small fw-bold">Shop Name</label><input name="shop_name" value="{{ user.shop_name }}" class="form-control"></div>
-<div class="col-md-6"><label class="small fw-bold">Phone</label><input name="phone" value="{{ user.phone }}" class="form-control"></div>
-<div class="col-md-6"><label class="small fw-bold">Village</label><input name="village" value="{{ user.village }}" class="form-control"></div>
-<div class="col-md-6"><label class="small fw-bold">Timings</label><input name="timings" value="{{ user.timings or '9 AM - 9 PM' }}" class="form-control" placeholder="9 AM - 9 PM"></div>
-<div class="col-md-12"><label class="small fw-bold">Address</label><input name="address" value="{{ user.address or '' }}" class="form-control" placeholder="Malshiras Main Road, Near Bus Stand"></div>
-<div class="col-md-6"><label class="small fw-bold">Shop Photo URL</label><input name="shop_pic" value="{{ user.shop_pic }}" class="form-control" placeholder="https://..."></div>
-<div class="col-md-6"><label class="small fw-bold">Google Map Location</label>
-<div class="d-flex gap-1">
-<input name="lat" value="{{ user.lat or '' }}" class="form-control" placeholder="Lat - 17.85">
-<input name="lng" value="{{ user.lng or '' }}" class="form-control" placeholder="Lng - 75.05">
-</div>
-<p class="small text-muted mb-0">Google Maps var shop shodha > Right click > Coordinates copy kara</p>
-</div>
-</div>
-<button class="btn btn-green w-100 mt-3">💾 Shop Update Kara</button>
-</form>
-</div>
+function mobileShow(id, element) {
+    showSection(id);
+    document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
+    element.classList.add('active');
+}
 
-<!-- UPGRADE -->
-<div class="bg-dark text-white p-4 rounded-4 mt-4 text-center">
-<h5 class="fw-bold">🚀 Premium Plan - ₹199 / Month</h5>
-<p class="small opacity-75">Unlimited Products • Top Ranking • WhatsApp Support • Verified Badge</p>
-<a href="/upgrade" class="btn btn-orange">Upgrade Kara</a>
-</div>
+let productCount = 0;
 
-</div>
+document.getElementById('addProductForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    const name = document.getElementById('productName').value.trim();
+    const category = document.getElementById('productCategory').value;
+    const price = document.getElementById('productPrice').value;
+    const stock = document.getElementById('productStock').value.trim();
+    const file = document.getElementById('productImage').files[0];
+
+    if (!name || !price || !stock) return;
+
+    const row = document.createElement('tr');
+
+    const imageCell = document.createElement('td');
+    const img = document.createElement('img');
+    img.className = 'product-img';
+    img.alt = name;
+    if (file) img.src = URL.createObjectURL(file);
+    else img.src = 'https://placehold.co/50x50/e8eee7/174d38?text=Item';
+    imageCell.appendChild(img);
+    imageCell.append(' ' + name + ' ');
+    const small = document.createElement('small');
+    small.className = 'muted';
+    small.textContent = category;
+    imageCell.appendChild(small);
+
+    const priceCell = document.createElement('td');
+    priceCell.textContent = '₹' + price;
+
+    const stockCell = document.createElement('td');
+    stockCell.textContent = stock;
+
+    const statusCell = document.createElement('td');
+    const badge = document.createElement('span');
+    badge.className = 'badge-soft';
+    badge.textContent = 'Listed (Demo)';
+    statusCell.appendChild(badge);
+
+    const actionCell = document.createElement('td');
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-sm btn-outline-danger';
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.onclick = function() {
+        row.remove();
+        productCount--;
+        document.getElementById('totalProducts').textContent = productCount;
+        if (productCount === 0) {
+            document.getElementById('productList').innerHTML =
+                '<tr><td colspan="5" class="text-center muted">No products added yet.</td></tr>';
+        }
+    };
+    actionCell.appendChild(deleteBtn);
+
+    row.append(imageCell, priceCell, stockCell, statusCell, actionCell);
+
+    const list = document.getElementById('productList');
+    if (productCount === 0) list.innerHTML = '';
+    list.appendChild(row);
+
+    productCount++;
+    document.getElementById('totalProducts').textContent = productCount;
+
+    this.reset();
+    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+});
+
+function respond(id, status) {
+    const output = document.getElementById('response' + id);
+
+    if (status === 'Available') {
+        const price = document.getElementById('price' + id).value;
+        const stock = document.getElementById('stock' + id).value;
+
+        if (!price || !stock) {
+            output.textContent = 'Please enter your price and available quantity.';
+            return;
+        }
+        output.textContent = 'Demo response: Available | Price ₹' + price + ' | Stock: ' + stock;
+    } else {
+        output.textContent = 'Demo response: Not Available';
+    }
+}
+
+function previewStore(event) {
+    const file = event.target.files[0];
+    if (file) document.getElementById('storePreview').src = URL.createObjectURL(file);
+}
+
+function saveProfile(event) {
+    event.preventDefault();
+    alert('Demo: Profile preview saved only on this page. Database connection will be added later.');
+}
+</script>
+
 </body>
 </html>
