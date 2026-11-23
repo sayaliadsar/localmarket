@@ -27,7 +27,16 @@ app.config.update(
 
 # ---------------- SUPABASE CONNECTION ----------------
 
+def get_supabase():
+    url = os.environ.get("SUPABASE_URL")
+    key = os.environ.get("SUPABASE_KEY")
 
+    if not url or not key:
+        raise RuntimeError(
+            "SUPABASE_URL or SUPABASE_KEY is missing."
+        )
+
+    return create_client(url, key)
 def get_user_supabase():
     access_token = session.get("access_token")
 
