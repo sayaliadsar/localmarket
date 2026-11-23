@@ -217,6 +217,7 @@ def register():
 
 # ---------------- LOGIN ----------------
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
@@ -233,17 +234,26 @@ def login():
     try:
         supabase = get_supabase()
 
+        # Supabase Authentication
         result = supabase.auth.sign_in_with_password({
             "email": email,
             "password": password
         })
 
-        if not result.user:
-            flash("Login failed.", "danger")
+        if not result.user or not result.session:
+            flash("Login failed. Please try again.", "danger")
             return redirect(url_for("login"))
 
+        access_token = result.session.access_token
+        refresh_token = result.session.refresh_token
+
+        # Create authenticated Supabase client for RLS
+        user_supabase = get_supabase()
+        user_supabase.postgrest.auth(access_token)
+
+        # Fetch logged-in user's profile
         profile_result = (
-            supabase.table("profiles")
+            user_supabase.table("profiles")
             .select("id, role, full_name, is_active")
             .eq("id", str(result.user.id))
             .maybe_single()
@@ -266,11 +276,17 @@ def login():
             flash("Invalid account role.", "danger")
             return redirect(url_for("login"))
 
+        # Create Flask session
         session.clear()
         session.permanent = True
+
         session["user_id"] = str(result.user.id)
         session["role"] = role
         session["full_name"] = profile.get("full_name") or ""
+
+        # Supabase tokens for authenticated database requests
+        session["access_token"] = access_token
+        session["refresh_token"] = refresh_token
 
         if role == "customer":
             return redirect(url_for("customer"))
