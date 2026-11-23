@@ -1,7 +1,7 @@
-
 Flask
 supabase
 python-dotenv
 gunicorn
 Flask-Limiter
 email-validator
+Flask-WTF
