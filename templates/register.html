@@ -1,94 +1,429 @@
+
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Register - LOCAL MARKET</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>LOCAL MARKET | Create Account</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-body{background:#F8FFF9;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;min-height:100vh}
-.navbar{background:#0B6B3A!important}
-.logo{font-weight:900;font-size:22px;color:#fff!important}
-.logo span{color:#FF6B00}
-.card-box{background:#fff;border-radius:22px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.1);max-width:480px;margin:90px auto 20px}
-.btn-green{background:#0B6B3A;color:#fff;font-weight:800;border-radius:12px;border:none;padding:12px}
-.role-btn{border:2px solid #ddd;border-radius:14px;padding:12px;text-align:center;cursor:pointer;background:#fff}
-.role-btn.active{border-color:#0B6B3A;background:#E8F5EE}
-.role-btn input{display:none}
+:root {
+    --green:#174d38;
+    --cream:#f7f7ef;
+    --muted:#78847c;
+}
+body {
+    margin:0;
+    background:var(--cream);
+    font-family:Arial,sans-serif;
+    padding:30px 15px;
+}
+.wrapper {
+    max-width:850px;
+    margin:auto;
+    background:white;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 12px 40px #173c2812;
+}
+.brand {
+    color:var(--green);
+    font-size:24px;
+    font-weight:800;
+}
+.brand span {color:#9a9b62;}
+h2 {font-weight:800;color:#203b2b;}
+.subtitle {color:var(--muted);font-size:14px;}
+.role-option {
+    flex:1;
+    padding:17px;
+    text-align:center;
+    border:1.5px solid #e1e9e1;
+    border-radius:12px;
+    cursor:pointer;
+    color:#536258;
+}
+.role-option.active {
+    border-color:var(--green);
+    background:#edf5ee;
+    color:var(--green);
+    font-weight:bold;
+}
+.role-option i {
+    display:block;
+    font-size:25px;
+    margin-bottom:5px;
+}
+.form-label {font-size:13px;font-weight:700;}
+.form-control,.form-select {
+    padding:11px;
+    border-radius:9px;
+    border-color:#e0e7e0;
+}
+.form-control:focus,.form-select:focus {
+    border-color:var(--green);
+    box-shadow:0 0 0 3px #174d3815;
+}
+.section-title {
+    color:var(--green);
+    font-size:16px;
+    font-weight:800;
+    margin:25px 0 15px;
+    border-bottom:1px solid #e8eee8;
+    padding-bottom:10px;
+}
+.btn-green {
+    background:var(--green);
+    color:white;
+    padding:12px;
+    border:0;
+    border-radius:9px;
+    font-weight:bold;
+}
+.btn-green:hover {background:#236849;color:white;}
+.password-box {position:relative;}
+.password-box input {padding-right:45px;}
+.password-box button {
+    position:absolute;
+    right:12px;
+    top:10px;
+    border:0;
+    background:none;
+    color:#718077;
+}
+.form-section {display:none;}
+.form-section.active {display:block;}
+.preview {
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:15px;
+    background:#edf2eb;
+    border:1px solid #e1e9e1;
+}
+@media(max-width:576px) {
+    .wrapper {padding:22px 17px;}
+}
 </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark fixed-top">
-<div class="container">
-<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span></a>
-<a href="/login" class="btn btn-light btn-sm fw-bold">Login</a>
-</div>
-</nav>
+<div class="wrapper">
 
-<div class="container">
-<div class="card-box">
+    <div class="text-center mb-4">
+        <div class="brand">LOCAL <span>MARKET.</span></div>
+        <h2 class="mt-3">Create Your Account</h2>
+        <p class="subtitle">Join your local marketplace today.</p>
+    </div>
 
-<h3 class="fw-bold text-center">👋 Namaskar!</h3>
-<p class="text-center text-muted">Local Market madhe Welcome</p>
+    <label class="form-label">Choose Account Type</label>
 
-{% if error %}<div class="alert alert-danger fw-bold" style="border-radius:12px">{{ error }}</div>{% endif %}
+    <div class="d-flex gap-3 mb-4">
+        <div class="role-option active" onclick="selectRole('customer',this)">
+            <i class="bi bi-person"></i>
+            Customer
+            <small class="d-block mt-1">Find nearby stores</small>
+        </div>
 
-<form method="POST" action="/register">
-<label class="small fw-bold">Tumhi Kon Aahat?</label>
-<div class="row g-2 mb-3">
-<div class="col-6"><label class="role-btn w-100 active" onclick="selectRole(this,'customer')"><input type="radio" name="role" value="customer" checked>🛒<br><b>Customer</b><br><small class="text-muted">Shopping Karaychi</small></label></div>
-<div class="col-6"><label class="role-btn w-100" onclick="selectRole(this,'seller')"><input type="radio" name="role" value="seller">🏪<br><b>Dukandar</b><br><small class="text-muted">Product Vikayche</small></label></div>
-</div>
+        <div class="role-option" onclick="selectRole('seller',this)">
+            <i class="bi bi-shop"></i>
+            Seller
+            <small class="d-block mt-1">Register your shop</small>
+        </div>
+    </div>
 
-<label class="small fw-bold">Purn Nav</label>
-<input name="name" class="form-control mb-2" placeholder="Ex: Sayali Patil" required>
+    <form id="registerForm">
 
-<label class="small fw-bold">Mobile Number</label>
-<input name="phone" class="form-control mb-2" placeholder="10 Anki Mobile - 9876543210" pattern="[0-9]{10}" required>
+        <input type="hidden" id="accountType" value="customer">
 
-<label class="small fw-bold">Password</label>
-<input name="password" type="password" class="form-control mb-2" placeholder="Password Tayar Kara" required>
+        <!-- CUSTOMER FORM -->
+        <div id="customerForm" class="form-section active">
 
-<label class="small fw-bold">Gav / Area</label>
-<select name="village" class="form-select mb-2">
-<option value="">Gav Nivda</option>
-{% for v in villages %}<option value="{{ v.name }}">{{ v.name }} - {{ v.taluka }}</option>{% endfor %}
-<option value="Solapur">Solapur</option>
-<option value="Pandharpur">Pandharpur</option>
-<option value="Barshi">Barshi</option>
-</select>
+            <div class="section-title">Personal Information</div>
 
-<div id="shop-fields" style="display:none">
-<label class="small fw-bold">Dukanache Nav</label>
-<input name="shop_name" class="form-control mb-2" placeholder="Ex: Patil Kirana Store">
-<label class="small fw-bold">Dukanacha Prakar</label>
-<select name="shop_type" class="form-select mb-2">
-<option value="Kirana">Kirana</option>
-<option value="Kapad">Kapad</option>
-<option value="Mobile">Mobile</option>
-<option value="Medical">Medical</option>
-<option value="Bakery">Bakery</option>
-<option value="General Store">General Store</option>
-<option value="Other">Other</option>
-</select>
-</div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name *</label>
+                    <input class="form-control" name="full_name" required placeholder="Enter full name">
+                </div>
 
-<button class="btn btn-green w-100">✅ Account Banva</button>
-</form>
+                <div class="col-md-6">
+                    <label class="form-label">Mobile Number *</label>
+                    <input class="form-control" name="mobile" type="tel"
+                    pattern="[0-9]{10}" maxlength="10" required placeholder="10 digit mobile number">
+                </div>
 
-<p class="text-center small mt-3 mb-0">Aadhi Account Aahe? <a href="/login" class="fw-bold">Login Kara</a></p>
+                <div class="col-md-6">
+                    <label class="form-label">Email Address *</label>
+                    <input class="form-control" name="email" type="email" required placeholder="Enter email">
+                </div>
 
-</div>
+                <div class="col-md-6">
+                    <label class="form-label">Profile Photo</label>
+                    <input class="form-control" type="file" accept="image/*" onchange="previewImage(event,'customerPreview')">
+                </div>
+
+                <div class="col-12">
+                    <img id="customerPreview" class="preview" src="https://placehold.co/90x90/e8eee7/174d38?text=Photo" alt="Customer photo preview">
+                </div>
+            </div>
+
+            <div class="section-title">Your Location</div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">State *</label>
+                    <select class="form-select" name="customer_state" required>
+                        <option value="">Select State</option>
+                        <option>Maharashtra</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">District *</label>
+                    <input class="form-control" name="customer_district" required placeholder="Enter district">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Taluka *</label>
+                    <input class="form-control" name="customer_taluka" required placeholder="Enter taluka">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Village *</label>
+                    <input class="form-control" name="customer_village" required placeholder="Enter village">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Complete Address *</label>
+                    <textarea class="form-control" name="customer_address" rows="2" required placeholder="House number, street, area..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SELLER FORM -->
+        <div id="sellerForm" class="form-section">
+
+            <div class="section-title">Owner Information</div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Owner Name *</label>
+                    <input class="form-control" name="owner_name" placeholder="Enter owner name">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Mobile Number *</label>
+                    <input class="form-control" name="seller_mobile" type="tel"
+                    pattern="[0-9]{10}" maxlength="10" placeholder="10 digit mobile number">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email Address *</label>
+                    <input class="form-control" name="seller_email" type="email" placeholder="Enter email">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Shop Name *</label>
+                    <input class="form-control" name="shop_name" placeholder="Enter shop name">
+                </div>
+            </div>
+
+            <div class="section-title">Shop Information</div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Shop Category *</label>
+                    <select class="form-select" name="shop_category">
+                        <option value="">Select Category</option>
+                        <option>Grocery</option>
+                        <option>Vegetables & Fruits</option>
+                        <option>Medical Store</option>
+                        <option>Clothing</option>
+                        <option>Electronics</option>
+                        <option>Hardware</option>
+                        <option>Stationery</option>
+                        <option>Restaurant</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Shop Photo / Logo</label>
+                    <input class="form-control" type="file" accept="image/*" onchange="previewImage(event,'sellerPreview')">
+                </div>
+
+                <div class="col-12">
+                    <img id="sellerPreview" class="preview" src="https://placehold.co/90x90/e8eee7/174d38?text=Shop" alt="Shop logo preview">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">State *</label>
+                    <select class="form-select" name="seller_state">
+                        <option value="">Select State</option>
+                        <option>Maharashtra</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">District *</label>
+                    <input class="form-control" name="seller_district" placeholder="Enter district">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Taluka *</label>
+                    <input class="form-control" name="seller_taluka" placeholder="Enter taluka">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Village *</label>
+                    <input class="form-control" name="seller_village" placeholder="Enter village">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">Complete Shop Address *</label>
+                    <textarea class="form-control" name="seller_address" rows="2" placeholder="Enter shop address"></textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label">About Your Shop</label>
+                    <textarea class="form-control" name="shop_description" rows="3" placeholder="Describe your shop and products"></textarea>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Opening Time</label>
+                    <input class="form-control" type="time" name="opening_time">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Closing Time</label>
+                    <input class="form-control" type="time" name="closing_time">
+                </div>
+            </div>
+        </div>
+
+        <!-- COMMON PASSWORD -->
+        <div class="section-title">Create Password</div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Password *</label>
+                <div class="password-box">
+                    <input class="form-control" type="password" id="password" minlength="8" required placeholder="Minimum 8 characters">
+                    <button type="button" onclick="togglePassword('password','eye1')">
+                        <i class="bi bi-eye" id="eye1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Confirm Password *</label>
+                <div class="password-box">
+                    <input class="form-control" type="password" id="confirmPassword" minlength="8" required placeholder="Re-enter password">
+                    <button type="button" onclick="togglePassword('confirmPassword','eye2')">
+                        <i class="bi bi-eye" id="eye2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" id="terms" required>
+            <label class="form-check-label small" for="terms">
+                I agree to the Terms & Conditions and Privacy Policy.
+            </label>
+        </div>
+
+        <button class="btn-green w-100 mt-4" type="submit">
+            Create Account <i class="bi bi-arrow-right"></i>
+        </button>
+
+        <p id="message" class="text-center small mt-3"></p>
+
+    </form>
+
+    <div class="text-center mt-3">
+        <span class="small text-secondary">Already have an account?</span>
+        <a href="/login" style="color:#174d38;font-weight:bold">Login</a>
+    </div>
+
 </div>
 
 <script>
-function selectRole(el,role){
-document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
-el.classList.add('active');
-document.getElementById('shop-fields').style.display = role=='seller' ? 'block' : 'none';
+let selectedRole = 'customer';
+
+function selectRole(role, element) {
+    selectedRole = role;
+
+    document.getElementById('accountType').value = role;
+
+    document.querySelectorAll('.role-option').forEach(el => {
+        el.classList.remove('active');
+    });
+
+    element.classList.add('active');
+
+    document.getElementById('customerForm').classList.toggle('active',role === 'customer');
+    document.getElementById('sellerForm').classList.toggle('active',role === 'seller');
+
+    document.querySelectorAll('#customerForm input, #customerForm select, #customerForm textarea')
+    .forEach(el => el.required = role === 'customer' && el.dataset.optional !== 'true');
+
+    document.querySelectorAll('#sellerForm input, #sellerForm select, #sellerForm textarea')
+    .forEach(el => {
+        const isRequired = el.name && [
+            'owner_name','seller_mobile','seller_email','shop_name',
+            'shop_category','seller_state','seller_district',
+            'seller_taluka','seller_village','seller_address'
+        ].includes(el.name);
+        el.required = role === 'seller' && isRequired;
+    });
+
+    document.getElementById('message').textContent = '';
 }
+
+function togglePassword(id,iconId) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById(iconId);
+
+    if(input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+    } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+    }
+}
+
+function previewImage(event,id) {
+    const file = event.target.files[0];
+    if(file) {
+        document.getElementById(id).src = URL.createObjectURL(file);
+    }
+}
+
+document.getElementById('registerForm').addEventListener('submit',function(e) {
+    e.preventDefault();
+
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirmPassword').value;
+    const message = document.getElementById('message');
+
+    if(password !== confirm) {
+        message.textContent = 'Passwords do not match.';
+        message.style.color = 'red';
+        return;
+    }
+
+    message.textContent =
+        'Registration form design is ready. Backend registration is not connected yet.';
+    message.style.color = '#174d38';
+});
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
