@@ -460,10 +460,51 @@ def customer_shops_api():
 
 # ---------------- CUSTOMER DASHBOARD ----------------
 
+
 @app.route("/customer")
 @role_required("customer")
 def customer():
-    return render_template("customer.html")
+    try:
+        access_token = session.get("access_token")
+
+        if not access_token:
+            session.clear()
+            flash("Please login again.", "warning")
+            return redirect(url_for("login"))
+
+        supabase = get_supabase()
+        supabase.postgrest.auth(access_token)
+
+        profile_result = (
+            supabase.table("profiles")
+            .select("*")
+            .eq("id", session["user_id"])
+            .maybe_single()
+            .execute()
+        )
+
+        categories_result = (
+            supabase.table("categories")
+            .select("id, name, description, image_url")
+            .eq("is_active", True)
+            .order("name")
+            .execute()
+        )
+
+        profile = profile_result.data or {}
+        categories = categories_result.data or []
+
+        return render_template(
+            "customer.html",
+            profile=profile,
+            categories=categories,
+            user_email=session.get("email", "")
+        )
+
+    except Exception:
+        app.logger.exception("Customer dashboard error")
+        flash("Unable to load customer dashboard.", "danger")
+        return redirect(url_for("login"))
 
 
 # ---------------- SELLER DASHBOARD ----------------
