@@ -11,254 +11,111 @@
 
 <style>
 :root {
-    --green: #174d38;
-    --light: #f7f7ef;
-    --muted: #78847c;
+    --green:#174d38;
+    --light:#f7f7ef;
+    --muted:#78847c;
 }
-* { box-sizing: border-box; }
-
-body {
-    margin: 0;
-    min-height: 100vh;
-    background: var(--light);
-    font-family: Arial, sans-serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+*{box-sizing:border-box}
+body{
+    margin:0;min-height:100vh;background:var(--light);
+    font-family:Arial,sans-serif;display:flex;
+    align-items:center;justify-content:center;padding:20px;
 }
-
-.login-wrapper {
-    width: 100%;
-    max-width: 1000px;
-    min-height: 590px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: white;
-    border-radius: 22px;
-    overflow: hidden;
-    box-shadow: 0 15px 55px #173c2815;
+.login-wrapper{
+    width:100%;max-width:1000px;min-height:590px;
+    display:grid;grid-template-columns:1fr 1fr;
+    background:white;border-radius:22px;overflow:hidden;
+    box-shadow:0 15px 55px #173c2815;
 }
-
-.left-panel {
-    background: var(--green);
-    color: white;
-    padding: 55px 40px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+.left-panel{
+    background:var(--green);color:white;padding:55px 40px;
+    display:flex;flex-direction:column;justify-content:space-between;
 }
-
-.brand {
-    font-size: 25px;
-    font-weight: 800;
+.brand{font-size:25px;font-weight:800}
+.brand span{color:#d9d9a5}
+.left-panel h1{font-size:37px;font-weight:800;line-height:1.25}
+.left-panel p{color:#d5e5d9;line-height:1.7}
+.feature{display:flex;gap:13px;align-items:center;margin-top:18px;color:#e5eee7}
+.feature i{font-size:20px;color:#d9d9a5}
+.right-panel{
+    padding:45px 48px;display:flex;flex-direction:column;justify-content:center;
 }
-.brand span { color: #d9d9a5; }
-
-.left-panel h1 {
-    font-size: 37px;
-    font-weight: 800;
-    line-height: 1.25;
+.right-panel h2{font-weight:800;color:#203b2b}
+.subtitle{color:var(--muted);font-size:14px}
+.role-option{
+    flex:1;border:1.5px solid #e1e9e1;border-radius:12px;
+    padding:13px;text-align:center;cursor:pointer;color:#526158;background:white;
 }
-
-.left-panel p {
-    color: #d5e5d9;
-    line-height: 1.7;
+.role-option.active{
+    border-color:var(--green);background:#edf5ee;color:var(--green);font-weight:700;
 }
-
-.feature {
-    display: flex;
-    gap: 13px;
-    align-items: center;
-    margin-top: 18px;
-    color: #e5eee7;
+.role-option i{display:block;font-size:24px;margin-bottom:5px}
+.form-label{font-size:13px;font-weight:700}
+.form-control{padding:12px;border-radius:9px;border-color:#e0e7e0}
+.form-control:focus{border-color:var(--green);box-shadow:0 0 0 3px #174d3815}
+.password-box{position:relative}
+.password-box button{
+    position:absolute;right:12px;top:10px;background:none;border:none;color:#718077;
 }
-
-.feature i {
-    font-size: 20px;
-    color: #d9d9a5;
+.btn-login{
+    width:100%;padding:13px;background:var(--green);color:white;
+    border:none;border-radius:9px;font-weight:700;
 }
-
-.right-panel {
-    padding: 45px 48px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.right-panel h2 {
-    font-weight: 800;
-    color: #203b2b;
-}
-
-.subtitle {
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.role-option {
-    flex: 1;
-    border: 1.5px solid #e1e9e1;
-    border-radius: 12px;
-    padding: 13px;
-    text-align: center;
-    cursor: pointer;
-    color: #526158;
-    background: white;
-}
-
-.role-option.active {
-    border-color: var(--green);
-    background: #edf5ee;
-    color: var(--green);
-    font-weight: 700;
-}
-
-.role-option i {
-    display: block;
-    font-size: 24px;
-    margin-bottom: 5px;
-}
-
-.form-label {
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.form-control {
-    padding: 12px;
-    border-radius: 9px;
-    border-color: #e0e7e0;
-}
-
-.form-control:focus {
-    border-color: var(--green);
-    box-shadow: 0 0 0 3px #174d3815;
-}
-
-.password-box { position: relative; }
-
-.password-box button {
-    position: absolute;
-    right: 12px;
-    top: 10px;
-    background: none;
-    border: none;
-    color: #718077;
-}
-
-.btn-login {
-    width: 100%;
-    padding: 13px;
-    background: var(--green);
-    color: white;
-    border: none;
-    border-radius: 9px;
-    font-weight: 700;
-}
-
-.btn-login:hover {
-    background: #236849;
-    color: white;
-}
-
-a {
-    color: var(--green);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.small-text {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-@media(max-width: 768px) {
-    .login-wrapper {
-        grid-template-columns: 1fr;
-        max-width: 460px;
-    }
-    .left-panel { display: none; }
-    .right-panel { padding: 35px 25px; }
+.btn-login:hover{background:#236849;color:white}
+a{color:var(--green);text-decoration:none;font-weight:600}
+.small-text{color:var(--muted);font-size:13px}
+@media(max-width:768px){
+    .login-wrapper{grid-template-columns:1fr;max-width:460px}
+    .left-panel{display:none}
+    .right-panel{padding:35px 25px}
 }
 </style>
 </head>
 
 <body>
-
 <div class="login-wrapper">
 
-    <!-- LEFT SIDE -->
     <div class="left-panel">
         <div class="brand">LOCAL <span>MARKET.</span></div>
-
         <div>
             <h1>Your Local Market, All in One Place.</h1>
-            <p>
-                Discover nearby stores, compare product prices
-                and connect with your local businesses.
-            </p>
-
-            <div class="feature">
-                <i class="bi bi-geo-alt"></i>
-                <span>Discover nearby local stores</span>
-            </div>
-            <div class="feature">
-                <i class="bi bi-tags"></i>
-                <span>Compare product prices</span>
-            </div>
-            <div class="feature">
-                <i class="bi bi-shop"></i>
-                <span>Support local businesses</span>
-            </div>
+            <p>Discover nearby stores, compare product prices and connect with your local businesses.</p>
+            <div class="feature"><i class="bi bi-geo-alt"></i><span>Discover nearby local stores</span></div>
+            <div class="feature"><i class="bi bi-tags"></i><span>Compare product prices</span></div>
+            <div class="feature"><i class="bi bi-shop"></i><span>Support local businesses</span></div>
         </div>
-
         <p class="small-text mb-0">© 2026 LOCAL MARKET. All rights reserved.</p>
     </div>
 
-    <!-- RIGHT SIDE -->
     <div class="right-panel">
-
         <h2>Welcome Back!</h2>
         <p class="subtitle">Login to continue to LOCAL MARKET.</p>
 
-        <form id="loginForm">
+        <form id="loginForm" method="POST" action="{{ url_for('login') }}">
 
             <label class="form-label mt-3">Login As</label>
 
             <div class="d-flex gap-2 mb-4">
                 <div class="role-option active" data-role="customer" onclick="selectRole('customer',this)">
-                    <i class="bi bi-person"></i>
-                    Customer
+                    <i class="bi bi-person"></i>Customer
                 </div>
-
                 <div class="role-option" data-role="seller" onclick="selectRole('seller',this)">
-                    <i class="bi bi-shop"></i>
-                    Seller
+                    <i class="bi bi-shop"></i>Seller
                 </div>
             </div>
 
-            <input type="hidden" id="role" value="customer">
+            <input type="hidden" name="accountType" id="role" value="customer">
 
             <label class="form-label">Email Address</label>
-            <input
-                type="email"
-                class="form-control mb-3"
-                id="email"
-                placeholder="Enter your email"
-                required
-            >
+            <input type="email" class="form-control mb-3"
+                   name="email" id="email"
+                   placeholder="Enter your email" required>
 
             <label class="form-label">Password</label>
-
             <div class="password-box mb-3">
-                <input
-                    type="password"
-                    class="form-control"
-                    id="password"
-                    placeholder="Enter your password"
-                    required
-                >
+                <input type="password" class="form-control"
+                       name="password" id="password"
+                       placeholder="Enter your password" required>
                 <button type="button" onclick="togglePassword()" aria-label="Show or hide password">
                     <i class="bi bi-eye" id="eyeIcon"></i>
                 </button>
@@ -266,42 +123,44 @@ a {
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <label class="small-text">
-                    <input type="checkbox" id="remember">
+                    <input type="checkbox" name="remember" id="remember">
                     Remember me
                 </label>
-
-                <a href="/forgot-password" class="small-text">Forgot Password?</a>
+                <a href="{{ url_for('forgot_password') }}" class="small-text">Forgot Password?</a>
             </div>
 
-            <button class="btn-login" type="submit">
+            <button class="btn-login" type="submit" id="loginButton">
                 Login <i class="bi bi-arrow-right"></i>
             </button>
-
         </form>
 
         <div class="text-center mt-4">
             <p class="small-text">
                 Don't have an account?
-                <a href="/register">Create Account</a>
+                <a href="{{ url_for('register') }}">Create Account</a>
             </p>
         </div>
 
         <div class="text-center mt-2">
-            <a href="/" class="small-text">
+            <a href="{{ url_for('home') }}" class="small-text">
                 <i class="bi bi-arrow-left"></i> Back to Home
             </a>
         </div>
 
-        <p id="message" class="small-text text-center mt-3"></p>
-
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} mt-3 py-2" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
     </div>
 </div>
 
 <script>
-let selectedRole = 'customer';
-
 function selectRole(role, element) {
-    selectedRole = role;
     document.getElementById('role').value = role;
 
     document.querySelectorAll('.role-option').forEach(option => {
@@ -324,13 +183,11 @@ function togglePassword() {
     }
 }
 
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    document.getElementById('message').textContent =
-        'Login form design is ready. Backend authentication is not connected yet.';
+document.getElementById('loginForm').addEventListener('submit', function() {
+    const button = document.getElementById('loginButton');
+    button.disabled = true;
+    button.innerHTML = 'Please wait...';
 });
 </script>
-
 </body>
 </html>
