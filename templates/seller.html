@@ -11,161 +11,510 @@
 
 <style>
 :root {
-    --green: #174d38;
-    --green2: #236849;
-    --cream: #f7f7ef;
-    --white: #ffffff;
-    --muted: #78847c;
+    --green: #198754;
+    --dark-green: #12643e;
+    --light-green: #eaf6ef;
+    --bg: #f6f8f6;
+    --text: #26352c;
+    --muted: #7c8b81;
+    --border: #e7ede8;
 }
+
 * { box-sizing: border-box; }
 
 body {
     margin: 0;
-    background: var(--cream);
-    font-family: Arial, sans-serif;
-    color: #24372c;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", sans-serif;
 }
 
+/* SIDEBAR */
 .sidebar {
-    width: 245px;
+    width: 255px;
     height: 100vh;
     position: fixed;
-    background: var(--green);
-    color: white;
-    padding: 25px 17px;
     top: 0;
     left: 0;
+    background: #fff;
+    border-right: 1px solid var(--border);
+    padding: 25px 18px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
 }
 
 .brand {
-    font-size: 23px;
-    font-weight: 800;
-    margin: 5px 10px 35px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+    margin-bottom: 38px;
 }
 
-.brand span { color: #d9d9a5; }
-
-.nav-link {
-    color: #dce9df;
-    padding: 13px 15px;
-    border-radius: 10px;
-    margin-bottom: 7px;
-    cursor: pointer;
-    text-decoration: none;
-    display: block;
-}
-
-.nav-link:hover, .nav-link.active {
-    background: #ffffff20;
+.brand-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--green);
     color: white;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    font-size: 22px;
 }
 
-.nav-link i { margin-right: 12px; }
+.brand h4 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
 
+.brand small {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.nav-label {
+    color: #a0aaa3;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    padding: 0 12px;
+    margin: 15px 0 10px;
+}
+
+.nav-link-custom {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 12px 14px;
+    color: #65736a;
+    text-decoration: none;
+    border-radius: 11px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.nav-link-custom i {
+    font-size: 18px;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active {
+    background: var(--light-green);
+    color: var(--dark-green);
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+
+.help-card {
+    background: var(--light-green);
+    padding: 16px;
+    border-radius: 14px;
+    margin: 10px 2px 20px;
+}
+
+.help-card h6 {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.help-card p {
+    font-size: 11px;
+    color: #718078;
+    margin-bottom: 10px;
+}
+
+/* MAIN */
 .main {
-    margin-left: 245px;
-    padding: 28px;
+    margin-left: 255px;
+    padding: 25px 32px 45px;
+    min-height: 100vh;
 }
 
 .topbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 28px;
+    margin-bottom: 30px;
     gap: 15px;
 }
 
-.topbar h3 { font-weight: 750; }
+.page-heading h3 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+}
 
-.card-box {
+.page-heading p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 5px 0 0;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
     background: white;
-    border-radius: 17px;
-    padding: 22px;
-    border: 1px solid #e9eee8;
-    height: 100%;
+    border-radius: 12px;
+    color: #65736a;
+    display: grid;
+    place-items: center;
+}
+
+.profile-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 6px 12px 6px 7px;
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    background: var(--light-green);
+    color: var(--green);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+}
+
+.profile-mini strong {
+    font-size: 12px;
+    display: block;
+}
+
+.profile-mini small {
+    font-size: 10px;
+    color: var(--muted);
+}
+
+/* SECTIONS */
+.content-section { display: none; }
+.content-section.active { display: block; }
+
+/* WELCOME */
+.welcome-card {
+    background: linear-gradient(115deg, #12643e, #23965b);
+    border-radius: 20px;
+    padding: 30px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.welcome-card::after {
+    content: "";
+    position: absolute;
+    width: 230px;
+    height: 230px;
+    border: 35px solid rgba(255,255,255,.08);
+    border-radius: 50%;
+    right: -50px;
+    top: -90px;
+}
+
+.welcome-card h2 {
+    font-size: 25px;
+    font-weight: 800;
+}
+
+.welcome-card p {
+    color: #d9f1e2;
+    font-size: 13px;
+    max-width: 500px;
+}
+
+.welcome-card .btn {
+    background: white;
+    color: var(--dark-green);
+    font-weight: 700;
+    border: 0;
+    font-size: 12px;
+    padding: 10px 17px;
+}
+
+/* STATS */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 17px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 19px;
+}
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .stat-icon {
-    width: 45px;
-    height: 45px;
-    background: #e8f2e9;
-    color: var(--green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 13px;
-    font-size: 21px;
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 19px;
 }
 
-.stat-number {
-    font-size: 27px;
+.stat-card h3 {
+    font-size: 25px;
     font-weight: 800;
-    margin-top: 14px;
+    margin: 18px 0 3px;
 }
 
-.muted { color: var(--muted); font-size: 13px; }
+.stat-card p {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+}
 
-.section { display: none; }
-.section.active { display: block; }
+.stat-note {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 10px;
+}
+
+/* GENERAL CARDS */
+.panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 21px;
+    margin-bottom: 20px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.panel-header h5 {
+    font-size: 15px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.panel-header p {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 4px 0 0;
+}
 
 .btn-green {
     background: var(--green);
     color: white;
     border: 0;
-    border-radius: 9px;
-    padding: 10px 17px;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .btn-green:hover {
-    background: var(--green2);
+    background: var(--dark-green);
     color: white;
 }
 
-.form-control, .form-select {
+.btn-light-green {
+    background: var(--light-green);
+    color: var(--dark-green);
+    border: 0;
     border-radius: 9px;
-    padding: 11px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 700;
 }
 
-.table { vertical-align: middle; }
+/* EMPTY STATE */
+.empty-state {
+    text-align: center;
+    padding: 38px 15px;
+    color: var(--muted);
+}
 
-.product-img {
-    width: 45px;
-    height: 45px;
+.empty-state i {
+    font-size: 36px;
+    color: #a7cbb3;
+}
+
+.empty-state h6 {
+    color: var(--text);
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.empty-state p {
+    font-size: 12px;
+    margin: 5px 0 15px;
+}
+
+/* PRODUCTS */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-table th {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 700;
+    padding: 12px 10px;
+    background: #f8faf8;
+}
+
+.product-table td {
+    font-size: 12px;
+    padding: 13px 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.product-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+}
+
+.product-thumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--light-green);
+    color: var(--green);
+    display: grid;
+    place-items: center;
+    font-size: 17px;
+}
+
+.status-pill {
+    background: #eaf6ef;
+    color: #198754;
+    border-radius: 30px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.delete-btn {
+    background: #fff0f0;
+    color: #dc3545;
+    border: 0;
+    border-radius: 8px;
+    padding: 7px 9px;
+}
+
+/* FORMS */
+.form-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #536158;
+}
+
+.form-control, .form-select {
+    border: 1px solid #e2eae3;
     border-radius: 10px;
-    object-fit: cover;
-    background: #edf1e9;
+    padding: 11px 13px;
+    font-size: 13px;
 }
 
-.badge-soft {
-    background: #e5f4e8;
-    color: #21633e;
-    padding: 7px 10px;
-    border-radius: 20px;
+.form-control:focus, .form-select:focus {
+    border-color: #78b990;
+    box-shadow: 0 0 0 3px rgba(25,135,84,.08);
 }
 
-.request-card {
-    border: 1px solid #e8eee7;
-    padding: 17px;
-    border-radius: 13px;
-    margin-bottom: 13px;
+/* SUBSCRIPTION */
+.plan-card {
     background: white;
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 24px;
+    height: 100%;
 }
 
-.profile-photo {
-    width: 85px;
-    height: 85px;
-    border-radius: 50%;
-    object-fit: cover;
-    background: #e8eee7;
+.plan-card.featured {
+    border: 2px solid var(--green);
 }
 
-.mobile-nav { display: none; }
+.plan-card h5 {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.plan-price {
+    font-size: 27px;
+    font-weight: 800;
+    margin: 15px 0;
+}
+
+.plan-card li {
+    font-size: 12px;
+    margin: 12px 0;
+    color: #65736a;
+    list-style: none;
+}
+
+.plan-card li i {
+    color: var(--green);
+    margin-right: 8px;
+}
+
+/* MOBILE NAV */
+.mobile-nav {
+    display: none;
+}
+
+/* RESPONSIVE */
+@media(max-width: 1000px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .main { padding: 22px; }
+}
 
 @media(max-width: 768px) {
     .sidebar { display: none; }
-    .main { margin-left: 0; padding: 17px; padding-bottom: 90px; }
-    .topbar { align-items: flex-start; }
-    .topbar h3 { font-size: 21px; }
+    .main {
+        margin-left: 0;
+        padding: 18px 14px 95px;
+    }
+    .topbar { margin-bottom: 22px; }
+    .page-heading h3 { font-size: 20px; }
+    .profile-mini { padding: 5px; }
+    .profile-mini .user-info { display: none; }
+    .welcome-card { padding: 23px 20px; }
+    .welcome-card h2 { font-size: 21px; }
+    .stats-grid { gap: 10px; }
+    .stat-card { padding: 14px; }
+    .stat-card h3 { font-size: 21px; }
+    .panel { padding: 16px; }
+    .table-responsive { overflow-x: auto; }
     .mobile-nav {
         display: flex;
         position: fixed;
@@ -173,505 +522,745 @@ body {
         left: 0;
         width: 100%;
         background: white;
+        border-top: 1px solid var(--border);
         justify-content: space-around;
-        padding: 10px 3px;
-        box-shadow: 0 -3px 15px #00000010;
-        z-index: 100;
+        padding: 9px 3px 7px;
+        z-index: 1100;
     }
-    .mobile-nav button {
-        border: 0;
-        background: none;
-        color: #64736a;
-        font-size: 11px;
+    .mobile-nav a {
+        text-decoration: none;
+        color: #87938a;
+        text-align: center;
+        font-size: 9px;
+        font-weight: 600;
+        flex: 1;
+        cursor: pointer;
     }
-    .mobile-nav i { display: block; font-size: 20px; }
-    .mobile-nav button.active { color: var(--green); }
+    .mobile-nav i {
+        display: block;
+        font-size: 19px;
+        margin-bottom: 3px;
+    }
+    .mobile-nav a.active { color: var(--green); }
+}
+
+@media(max-width: 380px) {
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .top-actions { gap: 6px; }
 }
 </style>
 </head>
 
 <body>
 
-<!-- Sidebar -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
-    <div class="brand">LOCAL <span>MARKET.</span></div>
+    <div class="brand">
+        <div class="brand-icon"><i class="bi bi-shop"></i></div>
+        <div>
+            <h4>LOCAL MARKET</h4>
+            <small>Seller Panel</small>
+        </div>
+    </div>
 
-    <a class="nav-link active" onclick="showSection('dashboard',this)">
+    <div class="nav-label">MAIN MENU</div>
+
+    <a class="nav-link-custom active" onclick="showSection('dashboard',this)">
         <i class="bi bi-grid"></i> Dashboard
     </a>
-    <a class="nav-link" onclick="showSection('products',this)">
+
+    <a class="nav-link-custom" onclick="showSection('products',this)">
         <i class="bi bi-box-seam"></i> My Products
     </a>
-    <a class="nav-link" onclick="showSection('requests',this)">
-        <i class="bi bi-bell"></i> Customer Requests
+
+    <a class="nav-link-custom" onclick="showSection('requests',this)">
+        <i class="bi bi-chat-left-text"></i> Customer Requests
     </a>
-    <a class="nav-link" onclick="showSection('profile',this)">
-        <i class="bi bi-shop"></i> Store Profile
+
+    <div class="nav-label">STORE MANAGEMENT</div>
+
+    <a class="nav-link-custom" onclick="showSection('profile',this)">
+        <i class="bi bi-shop-window"></i> Store Profile
     </a>
-    <a class="nav-link" onclick="showSection('subscription',this)">
+
+    <a class="nav-link-custom" onclick="showSection('subscription',this)">
         <i class="bi bi-gem"></i> Subscription
     </a>
 
-    <div style="position:absolute;bottom:25px;left:20px;right:20px">
-        <a href="/logout" class="nav-link">
+    <div class="sidebar-bottom">
+        <div class="help-card">
+            <h6><i class="bi bi-headset me-2"></i>Need Help?</h6>
+            <p>Manage your shop with LOCAL MARKET.</p>
+            <button class="btn-light-green w-100" onclick="alert('Support feature will be available soon.')">
+                Contact Support
+            </button>
+        </div>
+
+        <a class="nav-link-custom" href="/">
+            <i class="bi bi-house"></i> Back to Home
+        </a>
+
+        <a class="nav-link-custom" href="/logout">
             <i class="bi bi-box-arrow-left"></i> Logout
         </a>
     </div>
 </aside>
 
-<!-- Main -->
+
+<!-- MAIN CONTENT -->
 <main class="main">
 
-<div class="topbar">
-    <div>
-        <h3 id="pageTitle">Seller Dashboard</h3>
-        <div class="muted">Manage your local business in one place.</div>
-    </div>
-    <div class="d-flex align-items-center gap-2">
-        <span class="badge-soft">
-            <i class="bi bi-circle-fill" style="font-size:8px"></i> Demo Account
-        </span>
-        <i class="bi bi-person-circle fs-3"></i>
-    </div>
-</div>
-
-<!-- DASHBOARD -->
-<section id="dashboard" class="section active">
-
-    <div class="card-box mb-4" style="background:#174d38;color:white">
-        <h4>Welcome to LOCAL MARKET 👋</h4>
-        <p class="mb-0" style="color:#dce9df">
-            Manage your products, respond to customer requests and grow your local business.
-        </p>
-    </div>
-
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-lg-3">
-            <div class="card-box">
-                <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
-                <div class="stat-number" id="totalProducts">0</div>
-                <div class="muted">Total Products</div>
-            </div>
+    <header class="topbar">
+        <div class="page-heading">
+            <h3 id="pageTitle">Dashboard</h3>
+            <p>Manage your local business in one place.</p>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card-box">
-                <div class="stat-icon"><i class="bi bi-bell"></i></div>
-                <div class="stat-number">2</div>
-                <div class="muted">New Requests (Demo)</div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card-box">
-                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
-                <div class="stat-number">5</div>
-                <div class="muted">Available Products (Demo)</div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="card-box">
-                <div class="stat-icon"><i class="bi bi-eye"></i></div>
-                <div class="stat-number">24</div>
-                <div class="muted">Store Views (Demo)</div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row g-3">
-        <div class="col-lg-7">
-            <div class="card-box">
-                <h5 class="fw-bold mb-3">Recent Customer Requests</h5>
-                <div class="request-card">
-                    <b>Wheat Flour</b>
-                    <p class="muted mb-2">Customer from Malshiras · Demo request</p>
-                    <button class="btn-green btn-sm" onclick="showSection('requests')">View Request</button>
-                </div>
-                <div class="request-card">
-                    <b>Cooking Oil</b>
-                    <p class="muted mb-2">Customer from nearby village · Demo request</p>
-                    <button class="btn-green btn-sm" onclick="showSection('requests')">View Request</button>
+        <div class="top-actions">
+            <button class="icon-btn" onclick="alert('Notifications will be connected soon.')">
+                <i class="bi bi-bell"></i>
+            </button>
+
+            <div class="profile-mini">
+                <div class="avatar"><i class="bi bi-person"></i></div>
+                <div class="user-info">
+                    <strong id="topOwnerName">Seller Account</strong>
+                    <small>Seller</small>
                 </div>
             </div>
         </div>
-        <div class="col-lg-5">
-            <div class="card-box">
-                <h5 class="fw-bold">Store Status</h5>
-                <p class="muted">Your store visibility status</p>
-                <span class="badge-soft">Demo status: Online</span>
-                <hr>
-                <h6>Subscription Plan</h6>
-                <p class="muted mb-1">Current plan</p>
-                <b>Plan details will appear here</b>
-                <p class="muted mt-2 mb-0">Managed by LOCAL MARKET Admin</p>
+    </header>
+
+
+    <!-- DASHBOARD -->
+    <section id="dashboard" class="content-section active">
+
+        <div class="welcome-card">
+            <h2>Welcome to your Store! 👋</h2>
+            <p>
+                Manage your products, connect with customers and grow
+                your local business with LOCAL MARKET.
+            </p>
+            <button class="btn" onclick="showSection('products')">
+                <i class="bi bi-plus-circle me-2"></i>Add Your First Product
+            </button>
+        </div>
+
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="text-muted small">Total Products</span>
+                    <div class="stat-icon" style="background:#eaf6ef;color:#198754">
+                        <i class="bi bi-box-seam"></i>
+                    </div>
+                </div>
+                <h3 id="totalProducts">0</h3>
+                <p>Products listed by your store</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="text-muted small">New Requests</span>
+                    <div class="stat-icon" style="background:#fff4e5;color:#e39a27">
+                        <i class="bi bi-chat-dots"></i>
+                    </div>
+                </div>
+                <h3>—</h3>
+                <p>Customer enquiries</p>
+                <div class="stat-note">Connect requests to view data</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="text-muted small">Store Views</span>
+                    <div class="stat-icon" style="background:#edf1ff;color:#6179d8">
+                        <i class="bi bi-eye"></i>
+                    </div>
+                </div>
+                <h3>—</h3>
+                <p>Customer visits</p>
+                <div class="stat-note">Analytics coming soon</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="text-muted small">Store Status</span>
+                    <div class="stat-icon" style="background:#f1edff;color:#8664c7">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                </div>
+                <h3 style="font-size:18px">Pending</h3>
+                <p>Admin verification</p>
+                <div class="stat-note">Status will be loaded from your account</div>
+            </div>
+
+        </div>
+
+        <div class="row g-3">
+
+            <div class="col-lg-7">
+                <div class="panel h-100">
+                    <div class="panel-header">
+                        <div>
+                            <h5>Recent Products</h5>
+                            <p>Your recently added products</p>
+                        </div>
+                        <button class="btn-light-green" onclick="showSection('products')">
+                            View All
+                        </button>
+                    </div>
+
+                    <div class="empty-state" id="dashboardEmpty">
+                        <i class="bi bi-box"></i>
+                        <h6>No products added yet</h6>
+                        <p>Start by adding products available in your shop.</p>
+                        <button class="btn-green" onclick="showSection('products')">
+                            Add Product
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="panel h-100">
+                    <div class="panel-header">
+                        <div>
+                            <h5>Quick Actions</h5>
+                            <p>Manage your store easily</p>
+                        </div>
+                    </div>
+
+                    <button class="btn-light-green w-100 text-start mb-3 p-3"
+                        onclick="showSection('products')">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        Add New Product
+                        <i class="bi bi-arrow-right float-end"></i>
+                    </button>
+
+                    <button class="btn-light-green w-100 text-start mb-3 p-3"
+                        onclick="showSection('requests')">
+                        <i class="bi bi-chat-left-text me-2"></i>
+                        Check Customer Requests
+                        <i class="bi bi-arrow-right float-end"></i>
+                    </button>
+
+                    <button class="btn-light-green w-100 text-start p-3"
+                        onclick="showSection('profile')">
+                        <i class="bi bi-pencil-square me-2"></i>
+                        Update Store Profile
+                        <i class="bi bi-arrow-right float-end"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- PRODUCTS -->
+    <section id="products" class="content-section">
+
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h5>My Products</h5>
+                    <p>Manage the products available in your store.</p>
+                </div>
+                <button class="btn-green" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="bi bi-plus-lg me-1"></i> Add Product
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>PRODUCT</th>
+                            <th>CATEGORY</th>
+                            <th>PRICE</th>
+                            <th>QUANTITY</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productList">
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" id="productEmpty">
+                <i class="bi bi-basket"></i>
+                <h6>Your product list is empty</h6>
+                <p>Add products to show customers what is available in your shop.</p>
+                <button class="btn-green" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                    <i class="bi bi-plus-lg me-1"></i>Add First Product
+                </button>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- PRODUCTS -->
-<section id="products" class="section">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
-            <h4 class="fw-bold">My Products</h4>
-            <p class="muted">Add and manage your store products.</p>
-        </div>
-        <button class="btn-green" data-bs-toggle="modal" data-bs-target="#productModal">
-            <i class="bi bi-plus-lg"></i> Add Product
-        </button>
-    </div>
 
-    <div class="card-box">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="productList">
-                    <tr>
-                        <td colspan="5" class="text-center muted">No products added yet.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <p class="muted mb-0">Demo: Products added here are temporarily displayed in this browser page.</p>
-    </div>
-</section>
+    <!-- CUSTOMER REQUESTS -->
+    <section id="requests" class="content-section">
 
-<!-- REQUESTS -->
-<section id="requests" class="section">
-    <h4 class="fw-bold">Customer Requests</h4>
-    <p class="muted">Respond to customers who are searching for products.</p>
-
-    <div class="request-card">
-        <div class="d-flex justify-content-between flex-wrap gap-2">
-            <div>
-                <h5>Wheat Flour</h5>
-                <p class="muted mb-1">Customer: Demo Customer</p>
-                <p class="muted">Village: Malshiras · Quantity: 5 kg</p>
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h5>Customer Requests</h5>
+                    <p>Respond to product availability and price enquiries.</p>
+                </div>
+                <span class="status-pill">Request Management</span>
             </div>
-            <span class="badge-soft">New Request (Demo)</span>
+
+            <div class="empty-state">
+                <i class="bi bi-chat-square-dots"></i>
+                <h6>No customer requests available</h6>
+                <p>Customer requests will appear here when the request system is connected.</p>
+            </div>
         </div>
-        <div class="row g-2 mt-2">
+
+    </section>
+
+
+    <!-- STORE PROFILE -->
+    <section id="profile" class="content-section">
+
+        <div class="panel">
+            <div class="panel-header">
+                <div>
+                    <h5>Store Profile</h5>
+                    <p>Manage your shop information and contact details.</p>
+                </div>
+                <span class="status-pill">Store Information</span>
+            </div>
+
+            <form id="storeProfileForm">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Owner Name</label>
+                        <input type="text" class="form-control" id="ownerName"
+                            placeholder="Enter owner name">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Store Name</label>
+                        <input type="text" class="form-control" id="storeName"
+                            placeholder="Enter store name">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Mobile Number</label>
+                        <input type="tel" class="form-control" id="storeMobile"
+                            placeholder="Enter mobile number">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" id="storeEmail"
+                            placeholder="Enter email address">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="storeCategory">
+                            <option value="">Select category</option>
+                            <option>Grocery</option>
+                            <option>Vegetables & Fruits</option>
+                            <option>Medical Store</option>
+                            <option>Clothing</option>
+                            <option>Electronics</option>
+                            <option>Hardware</option>
+                            <option>Stationery</option>
+                            <option>Restaurant</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Village / City</label>
+                        <input type="text" class="form-control" id="storeVillage"
+                            placeholder="Enter village or city">
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Complete Address</label>
+                        <textarea class="form-control" id="storeAddress" rows="3"
+                            placeholder="Enter complete shop address"></textarea>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label class="form-label">Store Description</label>
+                        <textarea class="form-control" id="storeDescription" rows="3"
+                            placeholder="Tell customers about your shop"></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Opening Time</label>
+                        <input type="time" class="form-control" id="openingTime">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Closing Time</label>
+                        <input type="time" class="form-control" id="closingTime">
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="deliveryAvailable">
+                            <label class="form-check-label small" for="deliveryAvailable">
+                                Home delivery available
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn-green">
+                            <i class="bi bi-check-circle me-1"></i> Save Profile
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+
+    </section>
+
+
+    <!-- SUBSCRIPTION -->
+    <section id="subscription" class="content-section">
+
+        <div class="panel">
+            <h5 class="fw-bold">Choose Your Plan</h5>
+            <p class="text-muted small">Subscription activation and payment integration will be connected later.</p>
+        </div>
+
+        <div class="row g-3">
+
             <div class="col-md-4">
-                <input class="form-control" id="price1" type="number" placeholder="Your price (₹)">
+                <div class="plan-card">
+                    <h5>Free Plan</h5>
+                    <p class="text-muted small">Start your online shop presence.</p>
+                    <div class="plan-price">₹0 <small class="text-muted fs-6">/ month</small></div>
+                    <ul class="p-0">
+                        <li><i class="bi bi-check-circle"></i> Basic store profile</li>
+                        <li><i class="bi bi-check-circle"></i> Product listing</li>
+                        <li><i class="bi bi-check-circle"></i> Customer enquiries</li>
+                    </ul>
+                    <button class="btn-light-green w-100" disabled>Free Plan</button>
+                </div>
             </div>
+
             <div class="col-md-4">
-                <input class="form-control" id="stock1" placeholder="Available quantity">
+                <div class="plan-card featured">
+                    <span class="badge text-bg-success mb-3">POPULAR</span>
+                    <h5>Basic Plan</h5>
+                    <p class="text-muted small">For growing local businesses.</p>
+                    <div class="plan-price">Coming Soon</div>
+                    <ul class="p-0">
+                        <li><i class="bi bi-check-circle"></i> More store features</li>
+                        <li><i class="bi bi-check-circle"></i> Business insights</li>
+                        <li><i class="bi bi-check-circle"></i> Better visibility</li>
+                    </ul>
+                    <button class="btn-green w-100" disabled>Coming Soon</button>
+                </div>
             </div>
-            <div class="col-md-4 d-flex gap-2">
-                <button class="btn-green btn-sm" onclick="respond(1,'Available')">Available</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="respond(1,'Not Available')">Not Available</button>
-            </div>
-        </div>
-        <div id="response1" class="muted mt-2"></div>
-    </div>
 
-    <div class="request-card">
-        <div class="d-flex justify-content-between flex-wrap gap-2">
-            <div>
-                <h5>Cooking Oil</h5>
-                <p class="muted mb-1">Customer: Demo Customer</p>
-                <p class="muted">Village: Malshiras · Quantity: 2 litres</p>
-            </div>
-            <span class="badge-soft">New Request (Demo)</span>
-        </div>
-        <div class="row g-2 mt-2">
             <div class="col-md-4">
-                <input class="form-control" id="price2" type="number" placeholder="Your price (₹)">
+                <div class="plan-card">
+                    <h5>Premium Plan</h5>
+                    <p class="text-muted small">For established businesses.</p>
+                    <div class="plan-price">Coming Soon</div>
+                    <ul class="p-0">
+                        <li><i class="bi bi-check-circle"></i> Advanced analytics</li>
+                        <li><i class="bi bi-check-circle"></i> Business promotion</li>
+                        <li><i class="bi bi-check-circle"></i> Priority support</li>
+                    </ul>
+                    <button class="btn-light-green w-100" disabled>Coming Soon</button>
+                </div>
             </div>
-            <div class="col-md-4">
-                <input class="form-control" id="stock2" placeholder="Available quantity">
-            </div>
-            <div class="col-md-4 d-flex gap-2">
-                <button class="btn-green btn-sm" onclick="respond(2,'Available')">Available</button>
-                <button class="btn btn-outline-danger btn-sm" onclick="respond(2,'Not Available')">Not Available</button>
-            </div>
+
         </div>
-        <div id="response2" class="muted mt-2"></div>
-    </div>
-
-    <div class="card-box mt-3">
-        <h6><i class="bi bi-info-circle"></i> How requests work</h6>
-        <p class="muted mb-0">
-            When a customer searches for a product in a village, matching sellers will receive the request.
-            You can reply with availability, price and quantity. Customers can compare seller responses and visit the shop.
-        </p>
-    </div>
-</section>
-
-<!-- PROFILE -->
-<section id="profile" class="section">
-    <h4 class="fw-bold">Store Profile</h4>
-    <p class="muted">Manage your shop information.</p>
-
-    <div class="card-box">
-        <div class="text-center mb-4">
-            <img id="storePreview" class="profile-photo" src="https://placehold.co/100x100/e8eee7/174d38?text=Store" alt="Store logo">
-            <div class="mt-2">
-                <label class="btn btn-outline-success btn-sm">
-                    <i class="bi bi-camera"></i> Change Store Photo
-                    <input type="file" hidden accept="image/*" onchange="previewStore(event)">
-                </label>
-            </div>
-        </div>
-
-        <form onsubmit="saveProfile(event)">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Owner Name</label>
-                    <input class="form-control" id="ownerName" placeholder="Enter owner name">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Store Name</label>
-                    <input class="form-control" id="storeName" placeholder="Enter store name">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Mobile Number</label>
-                    <input class="form-control" placeholder="Enter mobile number">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Email</label>
-                    <input class="form-control" type="email" placeholder="Enter email">
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Shop Category</label>
-                    <select class="form-select">
-                        <option>Grocery</option>
-                        <option>Vegetables & Fruits</option>
-                        <option>Medical</option>
-                        <option>Clothing</option>
-                        <option>Electronics</option>
-                        <option>Other</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label">Village</label>
-                    <input class="form-control" placeholder="Enter village">
-                </div>
-                <div class="col-12">
-                    <label class="form-label">Shop Address</label>
-                    <textarea class="form-control" rows="2" placeholder="Enter complete address"></textarea>
-                </div>
-                <div class="col-12">
-                    <label class="form-label">About Your Store</label>
-                    <textarea class="form-control" rows="3" placeholder="Write about your shop"></textarea>
-                </div>
-                <div class="col-12">
-                    <button class="btn-green" type="submit">Save Profile</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</section>
-
-<!-- SUBSCRIPTION -->
-<section id="subscription" class="section">
-    <h4 class="fw-bold">Subscription Plan</h4>
-    <p class="muted">Your store subscription information.</p>
-
-    <div class="card-box">
-        <div class="stat-icon"><i class="bi bi-gem"></i></div>
-        <h4 class="mt-3">Your Current Plan</h4>
-        <h2 class="fw-bold">Not Assigned</h2>
-        <p class="muted">
-            Your subscription plan, validity and payment status will be displayed here after admin approval.
-        </p>
-        <hr>
-        <div class="d-flex justify-content-between">
-            <span>Plan Status</span>
-            <b>Pending</b>
-        </div>
-        <div class="d-flex justify-content-between mt-3">
-            <span>Expiry Date</span>
-            <b>Not Assigned</b>
-        </div>
-        <p class="muted mt-4 mb-0">
-            Subscription plans and payments will be managed through the LOCAL MARKET Admin Panel.
-        </p>
-    </div>
-</section>
+    </section>
 
 </main>
 
-<!-- Mobile Navigation -->
+
+<!-- MOBILE BOTTOM NAV -->
 <nav class="mobile-nav">
-    <button class="active" onclick="mobileShow('dashboard',this)">
+    <a class="active" onclick="mobileShow('dashboard',this)">
         <i class="bi bi-grid"></i>Home
-    </button>
-    <button onclick="mobileShow('products',this)">
+    </a>
+    <a onclick="mobileShow('products',this)">
         <i class="bi bi-box-seam"></i>Products
-    </button>
-    <button onclick="mobileShow('requests',this)">
-        <i class="bi bi-bell"></i>Requests
-    </button>
-    <button onclick="mobileShow('profile',this)">
-        <i class="bi bi-shop"></i>Profile
-    </button>
+    </a>
+    <a onclick="mobileShow('requests',this)">
+        <i class="bi bi-chat-dots"></i>Requests
+    </a>
+    <a onclick="mobileShow('profile',this)">
+        <i class="bi bi-shop"></i>Store
+    </a>
+    <a onclick="mobileShow('subscription',this)">
+        <i class="bi bi-gem"></i>Plans
+    </a>
 </nav>
 
-<!-- Add Product Modal -->
-<div class="modal fade" id="productModal" tabindex="-1">
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal fade" id="addProductModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius:16px">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Add New Product</h5>
-                <button class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 rounded-4">
+
+            <div class="modal-header border-0 px-4 pt-4">
+                <div>
+                    <h5 class="modal-title fw-bold">Add New Product</h5>
+                    <p class="text-muted small mb-0">Enter your product information.</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <form id="addProductForm">
-                    <label class="form-label">Product Name</label>
-                    <input class="form-control mb-3" id="productName" required placeholder="Product name">
 
-                    <label class="form-label">Category</label>
-                    <select class="form-select mb-3" id="productCategory">
-                        <option>Grocery</option>
-                        <option>Vegetables & Fruits</option>
-                        <option>Clothing</option>
-                        <option>Electronics</option>
-                        <option>Other</option>
-                    </select>
+            <form id="addProductForm">
+                <div class="modal-body px-4">
 
-                    <label class="form-label">Price (₹)</label>
-                    <input class="form-control mb-3" id="productPrice" type="number" min="0" required>
+                    <div class="mb-3">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="productName"
+                            placeholder="e.g. Rice, Sugar, Notebook" required>
+                    </div>
 
-                    <label class="form-label">Available Stock</label>
-                    <input class="form-control mb-3" id="productStock" required placeholder="e.g. 10 kg">
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" id="productCategory" required>
+                            <option value="">Select category</option>
+                            <option>Grocery</option>
+                            <option>Vegetables & Fruits</option>
+                            <option>Medical Store</option>
+                            <option>Clothing</option>
+                            <option>Electronics</option>
+                            <option>Hardware</option>
+                            <option>Stationery</option>
+                            <option>Restaurant</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
 
-                    <label class="form-label">Product Photo</label>
-                    <input class="form-control mb-3" id="productImage" type="file" accept="image/*">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">Price (₹)</label>
+                            <input type="number" class="form-control" id="productPrice"
+                                min="0.01" step="0.01" placeholder="Price" required>
+                        </div>
 
-                    <button class="btn-green w-100" type="submit">Add Product</button>
-                </form>
-            </div>
+                        <div class="col-6">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" class="form-control" id="productStock"
+                                min="0" step="1" placeholder="Stock" required>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Unit</label>
+                        <select class="form-select" id="productUnit">
+                            <option value="piece">Piece</option>
+                            <option value="kg">Kg</option>
+                            <option value="gram">Gram</option>
+                            <option value="litre">Litre</option>
+                            <option value="packet">Packet</option>
+                            <option value="box">Box</option>
+                            <option value="dozen">Dozen</option>
+                        </select>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="form-label">Product Image (Optional)</label>
+                        <input type="file" class="form-control" id="productImage"
+                            accept="image/*">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-0 px-4 pb-4">
+                    <button type="button" class="btn btn-light rounded-3"
+                        data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn-green">
+                        <i class="bi bi-plus-lg me-1"></i> Add Product
+                    </button>
+                </div>
+            </form>
+
         </div>
     </div>
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-function showSection(id, element) {
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+const sectionTitles = {
+    dashboard: "Dashboard",
+    products: "My Products",
+    requests: "Customer Requests",
+    profile: "Store Profile",
+    subscription: "Subscription"
+};
 
-    document.querySelectorAll('.sidebar .nav-link').forEach(a => a.classList.remove('active'));
-    if (element) element.classList.add('active');
+function showSection(sectionId, clickedElement) {
+    document.querySelectorAll(".content-section").forEach(section => {
+        section.classList.remove("active");
+    });
 
-    const titles = {
-        dashboard: 'Seller Dashboard',
-        products: 'My Products',
-        requests: 'Customer Requests',
-        profile: 'Store Profile',
-        subscription: 'Subscription'
-    };
-    document.getElementById('pageTitle').innerText = titles[id];
+    const selected = document.getElementById(sectionId);
+    if (selected) selected.classList.add("active");
+
+    document.getElementById("pageTitle").textContent =
+        sectionTitles[sectionId] || "Dashboard";
+
+    document.querySelectorAll(".nav-link-custom").forEach(link => {
+        link.classList.remove("active");
+    });
+
+    document.querySelectorAll(".mobile-nav a").forEach(link => {
+        link.classList.remove("active");
+    });
+
+    if (clickedElement) clickedElement.classList.add("active");
+
+    window.scrollTo({top: 0, behavior: "smooth"});
 }
 
-function mobileShow(id, element) {
-    showSection(id);
-    document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
-    element.classList.add('active');
+function mobileShow(sectionId, element) {
+    showSection(sectionId, element);
+
+    document.querySelectorAll(".nav-link-custom").forEach(link => {
+        const action = link.getAttribute("onclick") || "";
+        if (action.includes("'" + sectionId + "'")) {
+            link.classList.add("active");
+        }
+    });
 }
 
+
+// FRONTEND PRODUCT PREVIEW ONLY
 let productCount = 0;
 
-document.getElementById('addProductForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+const productForm = document.getElementById("addProductForm");
 
-    const name = document.getElementById('productName').value.trim();
-    const category = document.getElementById('productCategory').value;
-    const price = document.getElementById('productPrice').value;
-    const stock = document.getElementById('productStock').value.trim();
-    const file = document.getElementById('productImage').files[0];
+productForm.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-    if (!name || !price || !stock) return;
+    const name = document.getElementById("productName").value.trim();
+    const category = document.getElementById("productCategory").value;
+    const price = Number(document.getElementById("productPrice").value);
+    const stock = Number(document.getElementById("productStock").value);
+    const unit = document.getElementById("productUnit").value;
 
-    const row = document.createElement('tr');
-
-    const imageCell = document.createElement('td');
-    const img = document.createElement('img');
-    img.className = 'product-img';
-    img.alt = name;
-    if (file) img.src = URL.createObjectURL(file);
-    else img.src = 'https://placehold.co/50x50/e8eee7/174d38?text=Item';
-    imageCell.appendChild(img);
-    imageCell.append(' ' + name + ' ');
-    const small = document.createElement('small');
-    small.className = 'muted';
-    small.textContent = category;
-    imageCell.appendChild(small);
-
-    const priceCell = document.createElement('td');
-    priceCell.textContent = '₹' + price;
-
-    const stockCell = document.createElement('td');
-    stockCell.textContent = stock;
-
-    const statusCell = document.createElement('td');
-    const badge = document.createElement('span');
-    badge.className = 'badge-soft';
-    badge.textContent = 'Listed (Demo)';
-    statusCell.appendChild(badge);
-
-    const actionCell = document.createElement('td');
-    const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'btn btn-sm btn-outline-danger';
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.onclick = function() {
-        row.remove();
-        productCount--;
-        document.getElementById('totalProducts').textContent = productCount;
-        if (productCount === 0) {
-            document.getElementById('productList').innerHTML =
-                '<tr><td colspan="5" class="text-center muted">No products added yet.</td></tr>';
-        }
-    };
-    actionCell.appendChild(deleteBtn);
-
-    row.append(imageCell, priceCell, stockCell, statusCell, actionCell);
-
-    const list = document.getElementById('productList');
-    if (productCount === 0) list.innerHTML = '';
-    list.appendChild(row);
+    if (!name || !category || !Number.isFinite(price) ||
+        !Number.isInteger(stock) || price <= 0 || stock < 0) {
+        alert("Please enter valid product details.");
+        return;
+    }
 
     productCount++;
-    document.getElementById('totalProducts').textContent = productCount;
 
-    this.reset();
-    bootstrap.Modal.getInstance(document.getElementById('productModal')).hide();
+    const row = document.createElement("tr");
+
+    const productCell = document.createElement("td");
+    const productName = document.createElement("div");
+    productName.className = "product-name";
+
+    const thumb = document.createElement("div");
+    thumb.className = "product-thumb";
+    thumb.innerHTML = '<i class="bi bi-box"></i>';
+
+    const nameText = document.createElement("span");
+    nameText.textContent = name;
+
+    productName.append(thumb, nameText);
+    productCell.appendChild(productName);
+
+    const categoryCell = document.createElement("td");
+    categoryCell.textContent = category;
+
+    const priceCell = document.createElement("td");
+    priceCell.textContent = "₹" + price.toFixed(2);
+
+    const stockCell = document.createElement("td");
+    stockCell.textContent = stock + " " + unit;
+
+    const statusCell = document.createElement("td");
+    const status = document.createElement("span");
+    status.className = "status-pill";
+    status.textContent = stock > 0 ? "Available" : "Out of Stock";
+    statusCell.appendChild(status);
+
+    const actionCell = document.createElement("td");
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "delete-btn";
+    deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+    deleteButton.type = "button";
+    deleteButton.title = "Remove preview product";
+
+    deleteButton.addEventListener("click", function() {
+        if (confirm("Remove this product from the preview?")) {
+            row.remove();
+            productCount--;
+            updateProductCount();
+        }
+    });
+
+    actionCell.appendChild(deleteButton);
+
+    row.append(
+        productCell,
+        categoryCell,
+        priceCell,
+        stockCell,
+        statusCell,
+        actionCell
+    );
+
+    document.getElementById("productList").appendChild(row);
+
+    updateProductCount();
+
+    productForm.reset();
+
+    const modalElement = document.getElementById("addProductModal");
+    bootstrap.Modal.getOrCreateInstance(modalElement).hide();
+
+    showSection("products");
+
+    alert("Product added to the temporary preview. It is not saved to the database yet.");
 });
 
-function respond(id, status) {
-    const output = document.getElementById('response' + id);
 
-    if (status === 'Available') {
-        const price = document.getElementById('price' + id).value;
-        const stock = document.getElementById('stock' + id).value;
+function updateProductCount() {
+    const rows = document.querySelectorAll("#productList tr");
 
-        if (!price || !stock) {
-            output.textContent = 'Please enter your price and available quantity.';
-            return;
-        }
-        output.textContent = 'Demo response: Available | Price ₹' + price + ' | Stock: ' + stock;
-    } else {
-        output.textContent = 'Demo response: Not Available';
-    }
+    document.getElementById("totalProducts").textContent = rows.length;
+
+    document.getElementById("productEmpty").style.display =
+        rows.length === 0 ? "block" : "none";
+
+    document.getElementById("dashboardEmpty").style.display =
+        rows.length === 0 ? "block" : "none";
 }
 
-function previewStore(event) {
-    const file = event.target.files[0];
-    if (file) document.getElementById('storePreview').src = URL.createObjectURL(file);
-}
 
-function saveProfile(event) {
+// PROFILE PREVIEW ONLY
+document.getElementById("storeProfileForm").addEventListener("submit", function(event) {
     event.preventDefault();
-    alert('Demo: Profile preview saved only on this page. Database connection will be added later.');
-}
+
+    const owner = document.getElementById("ownerName").value.trim();
+
+    if (owner) {
+        document.getElementById("topOwnerName").textContent = owner;
+    }
+
+    alert("Profile preview updated. Database saving will be connected next.");
+});
 </script>
 
 </body>
