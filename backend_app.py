@@ -317,14 +317,7 @@ def login():
         return redirect(url_for("login"))
 
 
-@app.route("/logout", methods=["GET", "POST"])
-def logout():
 
-    session.clear()
-
-    flash("You have been logged out.", "success")
-
-    return redirect(url_for("login"))
 
 
 
