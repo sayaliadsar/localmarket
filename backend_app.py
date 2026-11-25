@@ -37,6 +37,7 @@ def get_supabase():
         )
 
     return create_client(url, key)
+# Create a Supabase client using the logged-in user's access token.
 def get_user_supabase():
     access_token = session.get("access_token")
 
@@ -52,6 +53,7 @@ def get_user_supabase():
 
 # ---------------- COMMON FUNCTIONS ----------------
 
+# Trim whitespace from form fields to avoid accidental empty-space values.
 def clean(value):
     return (value or "").strip()
 
@@ -72,6 +74,7 @@ def login_required(view):
     return wrapped
 
 
+# Protect routes so only the required account role can open them.
 def role_required(required_role):
     def decorator(view):
         @wraps(view)
@@ -95,6 +98,7 @@ def home():
 # ---------------- REGISTER ----------------
 
 @app.route("/register", methods=["GET", "POST"])
+# Registration handler: processes Customer, Seller or Farmer signup form.
 def register():
 
     if request.method == "GET":
@@ -105,8 +109,9 @@ def register():
     password = request.form.get("password", "")
     confirm_password = request.form.get("confirmPassword", "")
 
-    if role not in ["customer", "seller"]:
-        flash("Select Customer or Seller account.", "danger")
+    # CUSTOMER, SELLER आणि FARMER या तीन account roles परवानगी आहेत.
+    if role not in ["customer", "seller", "farmer"]:
+        flash("Select Customer, Seller or Farmer account.", "danger")
         return redirect(url_for("register"))
 
     if len(password) < 8:
@@ -148,9 +153,7 @@ def register():
             "address": address
         }
 
-    # SELLER DETAILS
-    else:
-
+    # SELLER DETAILS\n    elif role == "seller":\n
         full_name = clean(request.form.get("owner_name"))
         mobile = clean(request.form.get("seller_mobile"))
         email = clean(request.form.get("seller_email")).lower()
@@ -189,6 +192,36 @@ def register():
             "shop_description": shop_description,
             "opening_time": opening_time,
             "closing_time": closing_time
+        }
+
+
+
+    # FARMER DETAILS
+    else:
+        full_name = clean(request.form.get("farmer_name"))
+        mobile = clean(request.form.get("farmer_mobile"))
+        email = clean(request.form.get("farmer_email")).lower()
+
+        state = clean(request.form.get("farmer_state"))
+        district = clean(request.form.get("farmer_district"))
+        taluka = clean(request.form.get("farmer_taluka"))
+        village = clean(request.form.get("farmer_village"))
+        address = clean(request.form.get("farmer_address"))
+
+        if not all([full_name, mobile, email, state, district, taluka, village]):
+            flash("Please fill all required farmer details.", "danger")
+            return redirect(url_for("register"))
+
+        # Farmer profile metadata: handle_new_user() must allow the farmer role.
+        metadata = {
+            "role": "farmer",
+            "full_name": full_name,
+            "mobile": mobile,
+            "state": state,
+            "district": district,
+            "taluka": taluka,
+            "village": village,
+            "address": address
         }
 
     if not valid_email(email):
@@ -231,6 +264,7 @@ def register():
 
 
 @app.route("/login", methods=["GET", "POST"])
+# Login handler: fetch profile role and redirect to the correct dashboard.
 def login():
 
     if request.method == "GET":
@@ -279,7 +313,7 @@ def login():
 
         role = profile.get("role")
 
-        if role not in ["customer", "seller", "admin"]:
+        if role not in ["customer", "seller", "farmer", "admin"]:
             flash("Invalid account role.", "danger")
             return redirect(url_for("login"))
 
@@ -297,6 +331,9 @@ def login():
 
         elif role == "seller":
             return redirect(url_for("seller"))
+
+        elif role == "farmer":
+            return redirect(url_for("farmer_dashboard"))
 
         else:
             return redirect(url_for("admin_dashboard"))
@@ -357,6 +394,7 @@ def forgot_password():
 
 # ---------------- CUSTOMER API ----------------
 
+# Customer-only API helper: ensures the session belongs to a Customer.
 def customer_api_client():
     if not session.get("user_id"):
         return None
@@ -465,6 +503,7 @@ def customer_shops_api():
 
 @app.route("/customer")
 @role_required("customer")
+# Customer dashboard: loads profile and active categories.
 def customer():
     try:
         access_token = session.get("access_token")
@@ -513,14 +552,142 @@ def customer():
 
 @app.route("/seller")
 @role_required("seller")
+# Seller dashboard route (seller template integration can be expanded separately).
 def seller():
     return render_template("seller.html")
+
+
+
+
+# ---------------- FARMER DASHBOARD & PRODUCT MANAGEMENT ----------------
+
+@app.route("/farmer")
+@role_required("farmer")
+def farmer_dashboard():
+    # Farmer Dashboard: logged-in farmer sees only their own posts.
+    supabase = get_user_supabase()
+    if not supabase:
+        return redirect(url_for("login"))
+
+    try:
+        result = (
+            supabase.table("farmer_products")
+            .select("*")
+            .eq("farmer_id", session["user_id"])
+            .order("created_at", desc=True)
+            .execute()
+        )
+        products = result.data or []
+        return render_template(
+            "farmer.html",
+            products=products,
+            name=session.get("full_name", "शेतकरी")
+        )
+    except Exception:
+        app.logger.exception("Farmer dashboard load failed")
+        flash("शेतमाल माहिती लोड करता आली नाही.", "danger")
+        return render_template(
+            "farmer.html",
+            products=[],
+            name=session.get("full_name", "शेतकरी")
+        )
+
+
+@app.route("/farmer/add", methods=["POST"])
+@role_required("farmer")
+def farmer_add_product():
+    # Insert a farmer product using the logged-in user's access token.
+    supabase = get_user_supabase()
+    if not supabase:
+        return redirect(url_for("login"))
+
+    try:
+        data = {
+            "farmer_id": session["user_id"],
+            "product_name": clean(request.form.get("product_name")),
+            "category": clean(request.form.get("category")),
+            "description": clean(request.form.get("description")),
+            "price": request.form.get("price"),
+            "quantity": request.form.get("quantity"),
+            "unit": clean(request.form.get("unit")),
+            "image_url": clean(request.form.get("image_url")),
+            "mobile": clean(request.form.get("mobile")),
+            "village": clean(request.form.get("village")),
+            "taluka": clean(request.form.get("taluka")),
+            "district": clean(request.form.get("district")),
+            "state": clean(request.form.get("state")) or "Maharashtra",
+            "latitude": request.form.get("latitude") or None,
+            "longitude": request.form.get("longitude") or None,
+            "is_available": True
+        }
+
+        # Basic validation before sending data to Supabase.
+        if not all([data["product_name"], data["category"], data["price"], data["quantity"], data["mobile"], data["village"]]):
+            flash("कृपया आवश्यक माहिती भरा.", "danger")
+            return redirect(url_for("farmer_dashboard"))
+
+        supabase.table("farmer_products").insert(data).execute()
+        flash("माल पोस्ट केला!", "success")
+    except Exception:
+        app.logger.exception("Farmer product insert failed")
+        flash("माल पोस्ट करता आला नाही. Database तपासा.", "danger")
+
+    return redirect(url_for("farmer_dashboard"))
+
+
+@app.route("/farmer/delete/<int:product_id>", methods=["POST"])
+@role_required("farmer")
+def farmer_delete_product(product_id):
+    # RLS and owner filter restrict deletion to the owner's post.
+    supabase = get_user_supabase()
+    if not supabase:
+        return redirect(url_for("login"))
+
+    try:
+        supabase.table("farmer_products") \
+            .delete() \
+            .eq("id", product_id) \
+            .eq("farmer_id", session["user_id"]) \
+            .execute()
+        flash("पोस्ट हटवली.", "success")
+    except Exception:
+        app.logger.exception("Farmer product delete failed")
+        flash("पोस्ट हटवता आली नाही.", "danger")
+
+    return redirect(url_for("farmer_dashboard"))
+
+
+# ---------------- PUBLIC FARMER PRODUCTS API ----------------
+
+@app.route("/api/farmer-products")
+def public_farmer_products_api():
+    # This endpoint returns only currently available posts for the customer marketplace.
+    try:
+        supabase = get_supabase()
+        category = clean(request.args.get("category"))
+
+        query = (
+            supabase.table("farmer_products")
+            .select("*")
+            .eq("is_available", True)
+        )
+
+        if category:
+            query = query.eq("category", category)
+
+        result = query.order("created_at", desc=True).limit(100).execute()
+        return jsonify(result.data or [])
+    except Exception:
+        app.logger.exception("Public farmer products API failed")
+        return jsonify({"error": "Unable to load farmer products"}), 500
+
 
 
 # ---------------- ADMIN DASHBOARD ----------------
 
 @app.route("/admin")
 @role_required("admin")
+# Admin dashboard: loads data for the existing admin template.
 def admin_dashboard():
     supabase = get_user_supabase()
 
