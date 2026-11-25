@@ -95,6 +95,12 @@ body {
     font-size:27px;
     color:var(--green);
 }
+.category-button{border:1px solid #e3ebe4;background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:#26352d;font-weight:600;transition:.18s}
+.category-button:hover,.category-button.active{border-color:var(--green);background:#eaf5ee;color:var(--green);}
+.category-button i{font-size:22px;color:var(--green);}
+.product-card{height:100%;background:#fff;border:1px solid #e7eee8;border-radius:16px;overflow:hidden;box-shadow:0 4px 14px #00000008}
+.product-card img{height:190px;width:100%;object-fit:cover;background:#f1f4f1}
+.product-body{padding:15px}
 #shopMap {
     height:360px;
     border-radius:16px;
@@ -163,7 +169,7 @@ footer {
             <li class="nav-item"><a class="nav-link" href="#farmer-market">शेतकरी बाजारपेठ</a></li>
             <li class="nav-item"><a class="nav-link" href="#map">Explore Map</a></li>
             <li class="nav-item"><a class="nav-link" href="#requests">My Requests</a></li>
-            <li class="nav-item"><a class="nav-link" href="#profile">Profile</a></li>
+            <li class="nav-item"><a class="nav-link" href="#profile" title="My profile"><i class="bi bi-person-circle fs-5"></i> Profile</a></li>
             <li class="nav-item">
                 <a class="btn btn-green" href="{{ url_for('logout') }}">
                     <i class="bi bi-box-arrow-right"></i> Logout
@@ -209,52 +215,26 @@ footer {
     </small>
 </section>
 
-<!-- CATEGORIES FROM SUPABASE -->
+<!-- CATEGORY BUTTONS -->
 <section id="categories" class="mb-5">
     <h3 class="section-title mb-3">Shop by Category</h3>
-
-    <div class="row g-3">
+    <div class="row g-2">
         {% for category in categories %}
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="category-card">
-                <div class="category-icon">
-                    {% if category.name == 'Grocery' %}
-                        <i class="bi bi-basket"></i>
-                    {% elif category.name == 'Vegetables & Fruits' %}
-                        <i class="bi bi-apple"></i>
-                    {% elif category.name == 'Medical Store' %}
-                        <i class="bi bi-capsule"></i>
-                    {% elif category.name == 'Clothing' %}
-                        <i class="bi bi-handbag"></i>
-                    {% elif category.name == 'Electronics' %}
-                        <i class="bi bi-phone"></i>
-                    {% elif category.name == 'Hardware' %}
-                        <i class="bi bi-tools"></i>
-                    {% elif category.name == 'Stationery' %}
-                        <i class="bi bi-book"></i>
-                    {% elif category.name == 'Restaurant' %}
-                        <i class="bi bi-cup-hot"></i>
-                    {% else %}
-                        <i class="bi bi-three-dots"></i>
-                    {% endif %}
-                </div>
-
-                <strong>{{ category.name }}</strong>
-
-                {% if category.description %}
-                <p class="small text-muted mt-2 mb-0">
-                    {{ category.description }}
-                </p>
-                {% endif %}
-            </div>
+            <button class="category-button" type="button" data-category-id="{{ category.id }}" data-category-name="{{ category.name|e }}">
+                {% if category.name == 'Grocery' %}<i class="bi bi-basket"></i>
+                {% elif category.name == 'Vegetables & Fruits' %}<i class="bi bi-apple"></i>
+                {% elif category.name == 'Medical Store' %}<i class="bi bi-capsule"></i>
+                {% elif category.name == 'Clothing' %}<i class="bi bi-handbag"></i>
+                {% elif category.name == 'Electronics' %}<i class="bi bi-phone"></i>
+                {% elif category.name == 'Hardware' %}<i class="bi bi-tools"></i>
+                {% elif category.name == 'Stationery' %}<i class="bi bi-book"></i>
+                {% elif category.name == 'Restaurant' %}<i class="bi bi-cup-hot"></i>
+                {% else %}<i class="bi bi-grid"></i>{% endif %}
+                <span>{{ category.name }}</span>
+            </button>
         </div>
-        {% else %}
-        <div class="col-12">
-            <div class="info-panel">
-                No active categories available currently.
-            </div>
-        </div>
-        {% endfor %}
+        {% else %}<div class="col-12"><div class="info-panel">No active categories available.</div></div>{% endfor %}
     </div>
 </section>
 
@@ -316,25 +296,23 @@ footer {
     </div>
 </section>
 
-<!-- MAP -->
+<!-- SHOP MAP -->
 <section id="map" class="mb-5">
     <h3 class="section-title mb-2">Explore Nearby Shops</h3>
-    <p class="text-muted">Find local shops on the map.</p>
-
+    <p class="text-muted">Search a location or view approved shops with available map coordinates.</p>
+    <form id="locationSearchForm" class="search-box mb-3">
+        <input type="search" id="locationSearch" placeholder="Search village, city or area..." aria-label="Search location">
+        <button class="btn-green" type="submit"><i class="bi bi-geo-alt"></i> Find</button>
+    </form>
     <div id="shopMap"></div>
-
-    <div class="info-panel mt-3">
-        <i class="bi bi-info-circle"></i>
-        नकाशावरील दुकानांची माहिती database integration नंतर उपलब्ध होईल.
-    </div>
+    <div class="info-panel mt-3" id="mapStatus">Loading shop locations...</div>
 </section>
 
-<!-- SEARCH -->
+<!-- LIVE PRODUCT SEARCH RESULTS -->
 <section class="mb-5" id="results">
-    <h3 class="section-title mb-3">Product Search</h3>
-    <div class="info-panel" id="searchMessage">
-        Search for a product to discover matching local shops.
-    </div>
+    <h3 class="section-title mb-3">Available Products</h3>
+    <div class="info-panel mb-3" id="searchMessage">Search for a product or select a category to see available products.</div>
+    <div id="productResults" class="row g-3"></div>
 </section>
 
 <!-- REQUESTS -->
@@ -348,80 +326,37 @@ footer {
     </div>
 </section>
 
-<!-- REAL CUSTOMER PROFILE -->
+<!-- CUSTOMER PROFILE WITH EDITING -->
 <section id="profile" class="mb-4">
-    <h3 class="section-title mb-3">My Account</h3>
-
+    <div class="d-flex align-items-center justify-content-between mb-3">
+      <h3 class="section-title mb-0">My Account</h3>
+      <button class="btn btn-outline-success" type="button" data-bs-toggle="collapse" data-bs-target="#profileEdit" aria-expanded="false"><i class="bi bi-pencil-square"></i> Edit Profile</button>
+    </div>
     <div class="profile-card">
-        <div class="d-flex align-items-center gap-3 mb-3">
-            <div class="rounded-circle d-flex align-items-center justify-content-center"
-                 style="width:60px;height:60px;background:#e8f3ec;color:#176b45;font-size:28px;">
-                <i class="bi bi-person"></i>
-            </div>
-
-            <div>
-                <h5 class="fw-bold mb-1">
-                    {{ profile.get('full_name') or 'Customer' }}
-                </h5>
-                <span class="badge text-bg-success">Customer Account</span>
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">Full Name</div>
-            <div class="profile-value">
-                {{ profile.get('full_name') or 'Not provided' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">Email Address</div>
-            <div class="profile-value">
-                {{ user_email or 'Not available' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">Mobile Number</div>
-            <div class="profile-value">
-                {{ profile.get('mobile') or 'Not provided' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">State</div>
-            <div class="profile-value">
-                {{ profile.get('state') or 'Not provided' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">District</div>
-            <div class="profile-value">
-                {{ profile.get('district') or 'Not provided' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">Taluka</div>
-            <div class="profile-value">
-                {{ profile.get('taluka') or 'Not provided' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">Village</div>
-            <div class="profile-value">
-                {{ profile.get('village') or 'Not provided' }}
-            </div>
-        </div>
-
-        <div class="profile-row">
-            <div class="profile-label">Address</div>
-            <div class="profile-value">
-                {{ profile.get('address') or 'Not provided' }}
-            </div>
-        </div>
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width:60px;height:60px;background:#e8f3ec;color:#176b45;font-size:28px"><i class="bi bi-person"></i></div>
+        <div><h5 class="fw-bold mb-1">{{ profile.get('full_name') or 'Customer' }}</h5><span class="badge text-bg-success">Customer Account</span></div>
+      </div>
+      {% for label, key, val in [('Full Name','full_name',profile.get('full_name')),('Email','email',user_email),('Mobile','mobile',profile.get('mobile')),('State','state',profile.get('state')),('District','district',profile.get('district')),('Taluka','taluka',profile.get('taluka')),('Village','village',profile.get('village')),('Address','address',profile.get('address'))] %}
+      <div class="profile-row"><div class="profile-label">{{ label }}</div><div class="profile-value">{{ val or 'Not provided' }}</div></div>
+      {% endfor %}
+    </div>
+    <div class="collapse mt-3" id="profileEdit">
+      <div class="profile-card">
+        <h5 class="fw-bold mb-3">Update Profile Details</h5>
+        <form method="POST" action="{{ url_for('update_profile') }}">
+          <div class="row g-3">
+            <div class="col-md-6"><label class="form-label">Full name *</label><input class="form-control" name="full_name" value="{{ profile.get('full_name','')|e }}" required></div>
+            <div class="col-md-6"><label class="form-label">Mobile (10 digits) *</label><input class="form-control" name="mobile" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" value="{{ profile.get('mobile','')|e }}" required></div>
+            <div class="col-md-6"><label class="form-label">State *</label><input class="form-control" name="state" value="{{ profile.get('state','')|e }}" required></div>
+            <div class="col-md-6"><label class="form-label">District *</label><input class="form-control" name="district" value="{{ profile.get('district','')|e }}" required></div>
+            <div class="col-md-6"><label class="form-label">Taluka *</label><input class="form-control" name="taluka" value="{{ profile.get('taluka','')|e }}" required></div>
+            <div class="col-md-6"><label class="form-label">Village *</label><input class="form-control" name="village" value="{{ profile.get('village','')|e }}" required></div>
+            <div class="col-12"><label class="form-label">Address</label><textarea class="form-control" name="address" rows="2">{{ profile.get('address','')|e }}</textarea></div>
+          </div>
+          <div class="d-flex gap-2 mt-3"><button class="btn btn-green" type="submit">Save Profile</button><button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#profileEdit">Cancel</button></div>
+        </form>
+      </div>
     </div>
 </section>
 
@@ -498,25 +433,53 @@ farmerSearchInput.addEventListener('input', renderFarmerProducts);
 farmerCategoryInput.addEventListener('change', renderFarmerProducts);
 loadFarmerProducts();
 
+// Interactive map and store markers
 const map = L.map('shopMap').setView([17.6599, 75.9064], 11);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-document.getElementById('searchForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const query = document.getElementById('productSearch').value.trim();
-    const message = document.getElementById('searchMessage');
-
-    if (!query) {
-        message.textContent = 'Please enter a product name.';
-        return;
-    }
-
-    message.textContent = 'Product search integration is the next development step.';
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '&copy; OpenStreetMap contributors'}).addTo(map);
+const shopMarkers = L.layerGroup().addTo(map);
+const mapStatus = document.getElementById('mapStatus');
+async function loadShopsOnMap(){
+  try{
+    const response=await fetch('/api/customer/shops');
+    if(!response.ok) throw new Error('shops API failed');
+    const data=await response.json(); const shops=data.shops||[]; let located=0; const bounds=[];
+    shops.forEach(shop=>{
+      const lat=Number(shop.latitude), lon=Number(shop.longitude);
+      if(!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180) return;
+      const marker=L.marker([lat,lon]).addTo(shopMarkers);
+      const safe=(v)=>escapeHTML(v||'');
+      marker.bindPopup(`<strong>${safe(shop.store_name)}</strong><br>${safe(shop.address||shop.village||'')}<br>${shop.mobile?`<a href="tel:${safe(shop.mobile)}">Call shop</a>`:''}`);
+      bounds.push([lat,lon]); located++;
+    });
+    if(located){map.fitBounds(bounds,{padding:[30,30],maxZoom:13});mapStatus.textContent=`Showing ${located} shop(s) with map locations.`;}
+    else mapStatus.textContent='No shops with map coordinates were found yet. Search a location to explore the map.';
+  }catch(e){mapStatus.textContent='Could not load shop locations. Please try again later.';}
+}
+loadShopsOnMap();
+// Location search uses OpenStreetMap's geocoding service.
+document.getElementById('locationSearchForm').addEventListener('submit',async e=>{
+ e.preventDefault();const q=document.getElementById('locationSearch').value.trim();if(!q){mapStatus.textContent='Enter a location to search.';return;}
+ mapStatus.textContent='Searching location...';
+ try{const url='https://nominatim.openstreetmap.org/search?format=json&limit=1&q='+encodeURIComponent(q);const res=await fetch(url);if(!res.ok)throw new Error();const items=await res.json();if(!items.length){mapStatus.textContent='Location not found. Try another spelling.';return;}const item=items[0];map.setView([Number(item.lat),Number(item.lon)],13);L.marker([Number(item.lat),Number(item.lon)]).addTo(map).bindPopup(escapeHTML(item.display_name)).openPopup();mapStatus.textContent='Location found: '+item.display_name;}catch(err){mapStatus.textContent='Location search failed. Please retry.';}
 });
+// Product search and category filtering
+const productResults=document.getElementById('productResults');const searchMessage=document.getElementById('searchMessage');
+let selectedCategoryId='';let selectedCategoryName='';
+function productCard(p){
+ const shop=p.stores||{};const name=escapeHTML(p.name||'Product');const desc=escapeHTML(p.description||'');const price=escapeHTML(p.price??'');const qty=escapeHTML(p.stock_quantity??'');const unit=escapeHTML(p.unit||'');const shopname=escapeHTML(shop.store_name||'Local shop');const place=escapeHTML(shop.village||shop.address||'');const mobile=String(shop.mobile||'').replace(/[^0-9]/g,'');
+ const image=p.image_url?`<img src="${escapeHTML(p.image_url)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">`:`<div class="d-flex align-items-center justify-content-center" style="height:190px;background:#eef5ef;font-size:40px;color:#176b45"><i class="bi bi-bag"></i></div>`;
+ const contact=mobile?`<a class="btn btn-sm btn-outline-success" href="tel:${mobile}"><i class="bi bi-telephone"></i> Call</a>`:'';
+ return `<div class="col-sm-6 col-lg-4"><article class="product-card">${image}<div class="product-body"><h5 class="fw-bold">${name}</h5><p class="small text-muted">${desc}</p><p class="mb-1"><strong>₹${price}</strong> / ${unit}</p><p class="small mb-1">Available: ${qty} ${unit}</p><hr><div class="fw-semibold">${shopname}</div><div class="small text-muted mb-2">${place}</div>${contact}</div></article></div>`;
+}
+async function fetchProducts(search='',categoryId=''){
+ searchMessage.textContent='Loading products...';productResults.innerHTML='';
+ try{const params=new URLSearchParams();if(search)params.set('search',search);if(categoryId)params.set('category_id',categoryId);const response=await fetch('/api/customer/products?'+params.toString());if(!response.ok)throw new Error();const data=await response.json();const products=data.products||[];
+ if(!products.length){searchMessage.textContent=selectedCategoryName?`${selectedCategoryName}: Not Available`:'No matching products currently available.';return;}
+ searchMessage.textContent=`${products.length} product(s) found${selectedCategoryName?' in '+selectedCategoryName:''}.`;productResults.innerHTML=products.map(productCard).join('');
+ }catch(err){searchMessage.textContent='Unable to load products. Please try again.';}
+}
+document.getElementById('searchForm').addEventListener('submit',e=>{e.preventDefault();selectedCategoryId='';selectedCategoryName='';document.querySelectorAll('.category-button').forEach(b=>b.classList.remove('active'));fetchProducts(document.getElementById('productSearch').value.trim(),'');document.getElementById('results').scrollIntoView({behavior:'smooth'});});
+document.querySelectorAll('.category-button').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.category-button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');selectedCategoryId=btn.dataset.categoryId;selectedCategoryName=btn.dataset.categoryName;document.getElementById('productSearch').value='';fetchProducts('',selectedCategoryId);document.getElementById('results').scrollIntoView({behavior:'smooth'});}));
 </script>
 
 </body>
