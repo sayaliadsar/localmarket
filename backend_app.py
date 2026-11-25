@@ -522,7 +522,40 @@ def seller():
 @app.route("/admin")
 @role_required("admin")
 def admin_dashboard():
-    return render_template("admin.html")
+    supabase = get_user_supabase()
+
+    if not supabase:
+        return redirect(url_for("login"))
+
+    try:
+        profiles = supabase.table("profiles").select("*").execute().data or []
+        stores = supabase.table("stores").select("*").execute().data or []
+        products = supabase.table("products").select("*").execute().data or []
+        categories = supabase.table("categories").select("*").execute().data or []
+        requests_data = supabase.table("product_requests").select("*").execute().data or []
+        villages = supabase.table("villages").select("*").execute().data or []
+
+        return render_template(
+            "admin.html",
+            users=profiles,
+            shops=stores,
+            products=products,
+            cats=categories,
+            requests=requests_data,
+            villages=villages
+        )
+
+    except Exception as e:
+        return render_template(
+            "admin.html",
+            users=[],
+            shops=[],
+            products=[],
+            cats=[],
+            requests=[],
+            villages=[],
+            error=str(e)
+        )
 
 
 # ---------------- LOGOUT ----------------
