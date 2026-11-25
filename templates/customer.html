@@ -100,6 +100,11 @@ body {
     border-radius:16px;
     z-index:1;
 }
+.farmer-card{background:white;border:1px solid #e8eee8;border-radius:16px;overflow:hidden;height:100%;box-shadow:0 4px 15px rgba(0,0,0,.05)}
+.farmer-card img{width:100%;height:190px;object-fit:cover}
+.farmer-card-body{padding:16px}
+.farmer-market-banner{background:linear-gradient(120deg,#f0fff4,#e1f2e6);border:1px solid #d6e8da;border-radius:16px;padding:20px}
+.farmer-filter{max-width:230px}
 .info-panel {
     background:#e8f3ec;
     border-radius:14px;
@@ -155,6 +160,7 @@ footer {
         <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
             <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="#categories">Categories</a></li>
+            <li class="nav-item"><a class="nav-link" href="#farmer-market">शेतकरी बाजारपेठ</a></li>
             <li class="nav-item"><a class="nav-link" href="#map">Explore Map</a></li>
             <li class="nav-item"><a class="nav-link" href="#requests">My Requests</a></li>
             <li class="nav-item"><a class="nav-link" href="#profile">Profile</a></li>
@@ -289,6 +295,27 @@ footer {
     </div>
 </section>
 
+<!-- FARMER MARKET: Public posts from farmers are loaded through the Flask API. -->
+<section id="farmer-market" class="mb-5">
+    <div class="farmer-market-banner mb-3">
+        <h3 class="section-title mb-2">🌾 शेतकरी बाजारपेठ</h3>
+        <p class="mb-0">शेतकऱ्यांकडून थेट ताजा शेतमाल खरेदी करा. फोन किंवा WhatsApp वर संपर्क साधा.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+        <input type="search" class="form-control farmer-filter" id="farmerSearch" placeholder="माल किंवा गाव शोधा..." aria-label="शेतमाल किंवा गाव शोधा">
+        <select class="form-select farmer-filter" id="farmerCategory" aria-label="शेतमाल प्रकार">
+            <option value="">सर्व प्रकार</option>
+            <option value="भाजीपाला">भाजीपाला</option>
+            <option value="फळे">फळे</option>
+            <option value="धान्य">धान्य</option>
+            <option value="इतर शेतमाल">इतर शेतमाल</option>
+        </select>
+    </div>
+    <div id="farmerProducts" class="row g-3">
+        <div class="col-12"><div class="info-panel">शेतमाल लोड होत आहे...</div></div>
+    </div>
+</section>
+
 <!-- MAP -->
 <section id="map" class="mb-5">
     <h3 class="section-title mb-2">Explore Nearby Shops</h3>
@@ -298,7 +325,7 @@ footer {
 
     <div class="info-panel mt-3">
         <i class="bi bi-info-circle"></i>
-        Shop locations will appear here after connecting the live shop database.
+        नकाशावरील दुकानांची माहिती database integration नंतर उपलब्ध होईल.
     </div>
 </section>
 
@@ -402,7 +429,7 @@ footer {
 
 <footer class="text-center">
     <h5 class="fw-bold">LOCAL MARKET</h5>
-    <p class="mb-0">Support Local Shops. Discover Local Products.</p>
+    <p class="mb-0">Support Local Shops & Farmers. Discover Local Products.</p>
     <small>© 2026 LOCAL MARKET</small>
 </footer>
 
@@ -410,6 +437,67 @@ footer {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+// Load currently available farmer listings from the backend public API.
+const farmerProductsContainer = document.getElementById('farmerProducts');
+const farmerSearchInput = document.getElementById('farmerSearch');
+const farmerCategoryInput = document.getElementById('farmerCategory');
+let farmerProducts = [];
+
+// Escape text before inserting API values into HTML to avoid unsafe markup.
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[ch]));
+}
+function farmerCard(p) {
+    const name = escapeHTML(p.product_name || 'शेतमाल');
+    const category = escapeHTML(p.category || '');
+    const village = escapeHTML(p.village || '');
+    const price = escapeHTML(p.price ?? '');
+    const quantity = escapeHTML(p.quantity ?? '');
+    const unit = escapeHTML(p.unit || '');
+    const description = escapeHTML(p.description || '');
+    const mobileRaw = String(p.mobile || '').replace(/[^0-9]/g, '');
+    const image = p.image_url ? `<img src="${escapeHTML(p.image_url)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">` : '';
+    const phoneLink = mobileRaw ? `<a class="btn btn-outline-success btn-sm" href="tel:${mobileRaw}"><i class="bi bi-telephone"></i> Call</a>` : '';
+    const waLink = mobileRaw ? `<a class="btn btn-success btn-sm" target="_blank" rel="noopener noreferrer" href="https://wa.me/${mobileRaw}"><i class="bi bi-whatsapp"></i> WhatsApp</a>` : '';
+    return `<div class="col-md-6 col-lg-4"><article class="farmer-card">${image}<div class="farmer-card-body">
+        <h5 class="fw-bold mb-1">${name}</h5><span class="badge text-bg-success mb-2">${category}</span>
+        <p class="mb-1"><strong>दर:</strong> ₹${price}/${unit}</p>
+        <p class="mb-1"><strong>उपलब्ध:</strong> ${quantity} ${unit}</p>
+        <p class="mb-1"><i class="bi bi-geo-alt"></i> ${village}</p>
+        <p class="small text-muted">${description}</p><div class="d-flex gap-2 flex-wrap">${phoneLink}${waLink}</div>
+    </div></article></div>`;
+}
+function renderFarmerProducts() {
+    const term = farmerSearchInput.value.trim().toLowerCase();
+    const category = farmerCategoryInput.value;
+    const filtered = farmerProducts.filter(p => {
+        const matchesCategory = !category || p.category === category;
+        const haystack = `${p.product_name || ''} ${p.village || ''} ${p.category || ''} ${p.description || ''}`.toLowerCase();
+        return matchesCategory && haystack.includes(term);
+    });
+    if (!filtered.length) {
+        farmerProductsContainer.innerHTML = '<div class="col-12"><div class="alert alert-info">या शोधासाठी शेतमाल उपलब्ध नाही.</div></div>';
+        return;
+    }
+    farmerProductsContainer.innerHTML = filtered.map(farmerCard).join('');
+}
+async function loadFarmerProducts() {
+    try {
+        const response = await fetch('/api/farmer-products');
+        if (!response.ok) throw new Error('API response error');
+        const data = await response.json();
+        farmerProducts = Array.isArray(data) ? data : (data.products || []);
+        renderFarmerProducts();
+    } catch (error) {
+        farmerProductsContainer.innerHTML = '<div class="col-12"><div class="alert alert-warning">शेतमाल लोड करता आला नाही. कृपया नंतर पुन्हा प्रयत्न करा.</div></div>';
+    }
+}
+farmerSearchInput.addEventListener('input', renderFarmerProducts);
+farmerCategoryInput.addEventListener('change', renderFarmerProducts);
+loadFarmerProducts();
+
 const map = L.map('shopMap').setView([17.6599, 75.9064], 11);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
