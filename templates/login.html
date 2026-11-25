@@ -42,12 +42,16 @@ body{
 }
 .right-panel h2{font-weight:800;color:#203b2b}
 .subtitle{color:var(--muted);font-size:14px}
+
 .role-option{
-    flex:1;border:1.5px solid #e1e9e1;border-radius:12px;
-    padding:13px;text-align:center;cursor:pointer;color:#526158;background:white;
+    flex:1;min-width:0;border:1.5px solid #e1e9e1;
+    border-radius:12px;padding:12px 5px;text-align:center;
+    cursor:pointer;color:#526158;background:white;
+    font-size:14px;transition:.2s;
 }
 .role-option.active{
-    border-color:var(--green);background:#edf5ee;color:var(--green);font-weight:700;
+    border-color:var(--green);background:#edf5ee;
+    color:var(--green);font-weight:700;
 }
 .role-option i{display:block;font-size:24px;margin-bottom:5px}
 .form-label{font-size:13px;font-weight:700}
@@ -64,6 +68,7 @@ body{
 .btn-login:hover{background:#236849;color:white}
 a{color:var(--green);text-decoration:none;font-weight:600}
 .small-text{color:var(--muted);font-size:13px}
+
 @media(max-width:768px){
     .login-wrapper{grid-template-columns:1fr;max-width:460px}
     .left-panel{display:none}
@@ -96,12 +101,28 @@ a{color:var(--green);text-decoration:none;font-weight:600}
             <label class="form-label mt-3">Login As</label>
 
             <div class="d-flex gap-2 mb-4">
-                <div class="role-option active" data-role="customer" onclick="selectRole('customer',this)">
-                    <i class="bi bi-person"></i>Customer
+
+                <div class="role-option active"
+                     data-role="customer"
+                     onclick="selectRole('customer',this)">
+                    <i class="bi bi-person"></i>
+                    Customer
                 </div>
-                <div class="role-option" data-role="seller" onclick="selectRole('seller',this)">
-                    <i class="bi bi-shop"></i>Seller
+
+                <div class="role-option"
+                     data-role="seller"
+                     onclick="selectRole('seller',this)">
+                    <i class="bi bi-shop"></i>
+                    Seller
                 </div>
+
+                <div class="role-option"
+                     data-role="farmer"
+                     onclick="selectRole('farmer',this)">
+                    <i class="bi bi-flower1"></i>
+                    Farmer
+                </div>
+
             </div>
 
             <input type="hidden" name="accountType" id="role" value="customer">
