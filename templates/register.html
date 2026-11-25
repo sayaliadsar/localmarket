@@ -55,6 +55,10 @@ h2{font-weight:800;color:#203b2b}.subtitle{color:var(--muted);font-size:14px}
     <div class="role-option" role="button" tabindex="0" onclick="selectRole('seller',this)">
       <i class="bi bi-shop"></i>Seller<small class="d-block mt-1">Register your shop</small>
     </div>
+    <!-- Farmer account option -->
+    <div class="role-option" role="button" tabindex="0" onclick="selectRole('farmer',this)">
+      <i class="bi bi-flower1"></i>Farmer<small class="d-block mt-1">Sell your farm produce</small>
+    </div>
   </div>
 
   <form id="registerForm" method="POST" action="{{ url_for('register') }}">
@@ -110,7 +114,27 @@ h2{font-weight:800;color:#203b2b}.subtitle{color:var(--muted);font-size:14px}
       </div>
     </div>
 
-    <div class="section-title">Create Password</div>
+
+
+    <!-- Farmer registration fields. Names align with the Flask backend. -->
+    <div id="farmerForm" class="form-section">
+      <div class="section-title">शेतकरी माहिती | Farmer Information</div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">Full Name *</label><input class="form-control" name="farmer_name" placeholder="Enter your name"></div>
+        <div class="col-md-6"><label class="form-label">Mobile Number *</label><input class="form-control" name="farmer_mobile" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" placeholder="10 digit mobile number"></div>
+        <div class="col-md-6"><label class="form-label">Email Address *</label><input class="form-control" name="farmer_email" type="email" placeholder="Enter email"></div>
+      </div>
+      <div class="section-title">Farm Location | शेतीचे ठिकाण</div>
+      <div class="row g-3">
+        <div class="col-md-6"><label class="form-label">State *</label><select class="form-select" name="farmer_state"><option value="">Select State</option><option value="Maharashtra">Maharashtra</option></select></div>
+        <div class="col-md-6"><label class="form-label">District *</label><input class="form-control" name="farmer_district" placeholder="Enter district"></div>
+        <div class="col-md-6"><label class="form-label">Taluka *</label><input class="form-control" name="farmer_taluka" placeholder="Enter taluka"></div>
+        <div class="col-md-6"><label class="form-label">Village *</label><input class="form-control" name="farmer_village" placeholder="Enter village"></div>
+        <div class="col-12"><label class="form-label">Farm / Contact Address *</label><textarea class="form-control" name="farmer_address" rows="2" placeholder="Farm location or address"></textarea></div>
+      </div>
+      <p class="small text-secondary mt-3">Registration झाल्यानंतर तुम्ही तुमचा शेतमाल, quantity आणि price Farmer Dashboard वर पोस्ट करू शकता.</p>
+    </div>
+\n    <div class="section-title">Create Password</div>
     <div class="row g-3">
       <div class="col-md-6"><label class="form-label">Password *</label><div class="password-box"><input class="form-control" type="password" id="password" name="password" minlength="8" required placeholder="Minimum 8 characters"><button type="button" onclick="togglePassword('password','eye1')"><i class="bi bi-eye" id="eye1"></i></button></div></div>
       <div class="col-md-6"><label class="form-label">Confirm Password *</label><div class="password-box"><input class="form-control" type="password" id="confirmPassword" name="confirmPassword" minlength="8" required placeholder="Re-enter password"><button type="button" onclick="togglePassword('confirmPassword','eye2')"><i class="bi bi-eye" id="eye2"></i></button></div></div>
@@ -124,26 +148,35 @@ h2{font-weight:800;color:#203b2b}.subtitle{color:var(--muted);font-size:14px}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Switch between customer, seller and farmer registration forms.
 function selectRole(role, element) {
   document.getElementById('accountType').value = role;
   document.querySelectorAll('.role-option').forEach(el => el.classList.remove('active'));
   element.classList.add('active');
 
-  const customer = document.getElementById('customerForm');
-  const seller = document.getElementById('sellerForm');
-  customer.classList.toggle('active', role === 'customer');
-  seller.classList.toggle('active', role === 'seller');
+  const sections = {
+    customer: document.getElementById('customerForm'),
+    seller: document.getElementById('sellerForm'),
+    farmer: document.getElementById('farmerForm')
+  };
 
-  customer.querySelectorAll('input,select,textarea').forEach(el => {
-    el.disabled = role !== 'customer';
-    el.required = role === 'customer' && ['full_name','mobile','email','customer_state','customer_district','customer_taluka','customer_village','customer_address'].includes(el.name);
-  });
-  seller.querySelectorAll('input,select,textarea').forEach(el => {
-    el.disabled = role !== 'seller';
-    el.required = role === 'seller' && ['owner_name','seller_mobile','seller_email','shop_name','shop_category','seller_state','seller_district','seller_taluka','seller_village','seller_address'].includes(el.name);
+  // Only enable and show the fields for the selected account.
+  Object.entries(sections).forEach(([key, section]) => {
+    section.classList.toggle('active', key === role);
+    section.querySelectorAll('input,select,textarea').forEach(el => {
+      el.disabled = key !== role;
+      el.required = key === role && requiredFields[key].includes(el.name);
+    });
   });
   document.getElementById('message').textContent = '';
 }
+
+// Required fields for each account type.
+const requiredFields = {
+  customer: ['full_name','mobile','email','customer_state','customer_district','customer_taluka','customer_village','customer_address'],
+  seller: ['owner_name','seller_mobile','seller_email','shop_name','shop_category','seller_state','seller_district','seller_taluka','seller_village','seller_address'],
+  farmer: ['farmer_name','farmer_mobile','farmer_email','farmer_state','farmer_district','farmer_taluka','farmer_village','farmer_address']
+};
 function togglePassword(id, iconId) {
   const input = document.getElementById(id);
   const icon = document.getElementById(iconId);
@@ -164,7 +197,7 @@ document.getElementById('registerForm').addEventListener('submit', function(e) {
     message.style.color = 'red';
   }
 });
-selectRole('customer', document.querySelector('.role-option.active'));
+// Initialize registration page with Customer selected.\nselectRole('customer', document.querySelector('.role-option.active'));
 </script>
 </body>
 </html>
