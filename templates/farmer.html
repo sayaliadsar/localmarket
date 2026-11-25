@@ -5,155 +5,161 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>शेतकरी बाजारपेठ | LOCAL MARKET</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <style>
-/* Farmer dashboard's basic theme */
-body{background:#f2f7f1;font-family:Arial,sans-serif;}
-.navbar{background:#185c37;}
-.hero{background:linear-gradient(135deg,#185c37,#4c956c);color:white;border-radius:20px;padding:30px;}
-.card{border:0;border-radius:18px;box-shadow:0 4px 15px rgba(0,0,0,.06);}
-.btn-success{background:#185c37;border-color:#185c37;}
-.btn-success:hover{background:#12472b;border-color:#12472b;}
+:root{--green:#185c37;--green2:#28784a;--light:#f2f7f1;--ink:#203329}
+*{box-sizing:border-box}
+body{background:var(--light);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink)}
+.navbar{background:var(--green)}
+.brand{font-weight:800;letter-spacing:.2px}
+.hero{background:linear-gradient(130deg,#185c37,#438b60);color:#fff;border-radius:24px;padding:clamp(22px,4vw,36px);box-shadow:0 12px 30px #185c3720}
+.card{border:0;border-radius:18px;box-shadow:0 4px 18px rgba(20,60,35,.07)}
+.btn-success{background:var(--green);border-color:var(--green)}
+.btn-success:hover{background:#12472b;border-color:#12472b}
+.section-title{font-weight:750}
+.stat{background:#fff;border-radius:18px;padding:18px;box-shadow:0 4px 16px rgba(20,60,35,.06);height:100%}
+.stat-icon{height:44px;width:44px;border-radius:14px;display:grid;place-items:center;background:#e5f3e8;color:var(--green);font-size:1.2rem}
+.product-image{width:100%;height:210px;object-fit:cover;border-radius:13px;background:#edf2ed}
+#productMap{height:280px;border-radius:15px}
+.form-control,.form-select{border-radius:11px;padding:.65rem .8rem}
+footer{color:#65766b}
 </style>
 </head>
 <body>
-
-<!-- Navigation bar and logout link -->
-<nav class="navbar navbar-dark p-3">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/farmer">🌾 LOCAL MARKET</a>
-    <a href="/logout" class="btn btn-light btn-sm">Logout</a>
-  </div>
+<nav class="navbar navbar-dark py-3">
+ <div class="container">
+  <a class="navbar-brand brand" href="/farmer">🌾 LOCAL MARKET</a>
+  <a href="/logout" class="btn btn-light btn-sm rounded-pill px-3"><i class="bi bi-box-arrow-right"></i> Logout</a>
+ </div>
 </nav>
 
-<div class="container py-4">
-
-  <!-- Greeting: name is passed by Flask when rendering this page -->
-  <div class="hero mb-4">
-    <h2>नमस्कार {{ name }} 🌾</h2>
-    <p class="mb-0">तुमचा शेतमाल थेट ग्राहकांपर्यंत पोहोचवा.</p>
+<main class="container py-4">
+ <section class="hero mb-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+   <div><h2 class="fw-bold mb-2">नमस्कार {{ name }} 🌾</h2>
+   <p class="mb-0">तुमचा शेतमाल थेट ग्राहकांपर्यंत पोहोचवा.</p></div>
+   <a href="#addProduct" class="btn btn-light rounded-pill px-4 fw-semibold"><i class="bi bi-plus-circle"></i> नवीन माल पोस्ट करा</a>
   </div>
+ </section>
 
-  <!-- Farmer product form: POST data to the backend add-product route -->
-  <div class="card p-4 mb-4">
-    <h4>➕ माझा माल पोस्ट करा</h4><form method="POST" action="{{ url_for('farmer_add_product') }}">
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">मालाचे नाव *</label>
-          <input name="product_name" class="form-control" required maxlength="120" placeholder="उदा. टोमॅटो">
-        </div>
+ <section class="row g-3 mb-4">
+  <div class="col-6 col-lg-4"><div class="stat d-flex gap-3 align-items-center">
+   <div class="stat-icon"><i class="bi bi-box-seam"></i></div><div><small class="text-muted">माझ्या एकूण पोस्ट</small><h3 class="fw-bold mb-0">{{ products|length }}</h3></div>
+  </div></div>
+  <div class="col-6 col-lg-4"><div class="stat d-flex gap-3 align-items-center">
+   <div class="stat-icon"><i class="bi bi-geo-alt"></i></div><div><small class="text-muted">बाजारपेठ</small><div class="fw-bold">थेट ग्राहक</div></div>
+  </div></div>
+  <div class="col-12 col-lg-4"><div class="stat d-flex gap-3 align-items-center">
+   <div class="stat-icon"><i class="bi bi-telephone"></i></div><div><small class="text-muted">संपर्क</small><div class="fw-bold">Call / WhatsApp</div></div>
+  </div></div>
+ </section>
 
-        <div class="col-md-6">
-          <label class="form-label">प्रकार *</label>
-          <select name="category" class="form-select" required>
-            <option value="भाजीपाला">भाजीपाला</option>
-            <option value="फळे">फळे</option>
-            <option value="धान्य">धान्य</option>
-            <option value="इतर शेतमाल">इतर शेतमाल</option>
-          </select>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">दर (₹) *</label>
-          <input name="price" type="number" min="0" step="0.01" class="form-control" required placeholder="दर">
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">प्रमाण *</label>
-          <input name="quantity" type="number" min="0" step="0.01" class="form-control" required placeholder="उपलब्ध प्रमाण">
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">एकक *</label>
-          <select name="unit" class="form-select" required>
-            <option value="kg">किलो</option>
-            <option value="quintal">क्विंटल</option>
-            <option value="ton">टन</option>
-            <option value="piece">नग</option>
-            <option value="dozen">डझन</option>
-          </select>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">मोबाईल *</label>
-          <input name="mobile" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required placeholder="10 अंकी मोबाईल नंबर">
-        </div>
-
-        <div class="col-12">
-          <label class="form-label">मालाचा फोटो URL (ऐच्छिक)</label>
-          <input name="image_url" type="url" class="form-control" placeholder="फोटो URL">
-        </div>
-
-        <div class="col-12">
-          <label class="form-label">मालाची माहिती (ऐच्छिक)</label>
-          <textarea name="description" class="form-control" rows="2" maxlength="1000" placeholder="मालाची गुणवत्ता व इतर माहिती"></textarea>
-        </div>
-
-        <div class="col-md-6">
-          <label class="form-label">गाव *</label>
-          <input name="village" class="form-control" required maxlength="120">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">तालुका *</label>
-          <input name="taluka" class="form-control" required maxlength="120">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">जिल्हा *</label>
-          <input name="district" class="form-control" required maxlength="120">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">राज्य</label>
-          <input name="state" class="form-control" value="Maharashtra" maxlength="120">
-        </div>
-
-        <!-- Optional coordinates; location/map integration can be added later -->
-        <div class="col-md-6">
-          <label class="form-label">Latitude (ऐच्छिक)</label>
-          <input name="latitude" type="number" step="any" class="form-control" placeholder="Location Latitude">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Longitude (ऐच्छिक)</label>
-          <input name="longitude" type="number" step="any" class="form-control" placeholder="Location Longitude">
-        </div>
-
-        <div class="col-12">
-          <button class="btn btn-success w-100" type="submit">माल पोस्ट करा</button>
-        </div>
-      </div>
-    </form>
+ <section class="card p-3 p-md-4 mb-4" id="addProduct">
+  <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+   <h4 class="section-title mb-0">➕ माझा माल पोस्ट करा</h4><span class="badge text-bg-success">नवीन पोस्ट</span>
   </div>
+  <form method="POST" action="{{ url_for('farmer_add_product') }}">
+   <div class="row g-3">
+    <div class="col-md-6"><label class="form-label fw-semibold">मालाचे नाव *</label>
+     <input name="product_name" class="form-control" required maxlength="120" placeholder="उदा. टोमॅटो"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">प्रकार *</label>
+     <select name="category" class="form-select" required>
+      <option value="भाजीपाला">भाजीपाला</option><option value="फळे">फळे</option><option value="धान्य">धान्य</option><option value="इतर शेतमाल">इतर शेतमाल</option>
+     </select></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">दर (₹) *</label>
+     <input name="price" type="number" min="0" step="0.01" class="form-control" required placeholder="दर"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">प्रमाण *</label>
+     <input name="quantity" type="number" min="0" step="0.01" class="form-control" required placeholder="उपलब्ध प्रमाण"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">एकक *</label>
+     <select name="unit" class="form-select" required><option value="kg">किलो</option><option value="quintal">क्विंटल</option><option value="ton">टन</option><option value="piece">नग</option><option value="dozen">डझन</option></select></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">मोबाईल *</label>
+     <input name="mobile" class="form-control" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" required placeholder="10 अंकी मोबाईल नंबर"></div>
+    <div class="col-12"><label class="form-label fw-semibold">मालाचा फोटो URL (ऐच्छिक)</label>
+     <input id="imageUrl" name="image_url" type="url" class="form-control" placeholder="फोटो URL">
+     <div id="previewWrap" class="mt-2 d-none"><img id="imagePreview" alt="मालाचा फोटो preview" class="rounded" style="max-width:180px;max-height:180px;object-fit:cover"></div></div>
+    <div class="col-12"><label class="form-label fw-semibold">मालाची माहिती (ऐच्छिक)</label>
+     <textarea name="description" class="form-control" rows="2" maxlength="1000" placeholder="मालाची गुणवत्ता व इतर माहिती"></textarea></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">गाव *</label><input name="village" class="form-control" required maxlength="120"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">तालुका *</label><input name="taluka" class="form-control" required maxlength="120"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">जिल्हा *</label><input name="district" class="form-control" required maxlength="120"></div>
+    <div class="col-md-6"><label class="form-label fw-semibold">राज्य</label><input name="state" class="form-control" value="Maharashtra" maxlength="120"></div>
+    <div class="col-12"><div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <label class="form-label fw-semibold mb-0">नकाशावर मालाचे ठिकाण (ऐच्छिक)</label>
+      <button type="button" class="btn btn-outline-success btn-sm" id="locateBtn"><i class="bi bi-crosshair"></i> माझे Location शोधा</button>
+    </div><small class="text-muted">नकाशावर क्लिक करूनही ठिकाण निवडता येईल.</small></div>
+    <div class="col-md-6"><label class="form-label">Latitude</label><input id="latitude" name="latitude" type="number" step="any" class="form-control" placeholder="Location Latitude"></div>
+    <div class="col-md-6"><label class="form-label">Longitude</label><input id="longitude" name="longitude" type="number" step="any" class="form-control" placeholder="Location Longitude"></div>
+    <div class="col-12"><div id="productMap"></div></div>
+    <div class="col-12"><button class="btn btn-success w-100 py-2 fw-semibold" type="submit"><i class="bi bi-cloud-upload"></i> माल पोस्ट करा</button></div>
+   </div>
+  </form>
+ </section>
 
-  <!-- Existing posts belonging to the logged-in farmer -->
-  <h4 class="mb-3">📦 माझ्या मालाच्या पोस्ट</h4>
+ <section class="mb-4">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+   <h4 class="section-title mb-0">📦 माझ्या मालाच्या पोस्ट</h4>
+   <span class="text-muted small">तुम्ही पोस्ट केलेला माल</span>
+  </div>
   <div class="row g-3">
-    {% for p in products %}
-    <div class="col-md-6 col-lg-4">
-      <div class="card p-3 h-100">
-        {% if p.image_url %}
-        <img src="{{ p.image_url }}" class="img-fluid rounded mb-3" style="height:200px;object-fit:cover" alt="{{ p.product_name }}" loading="lazy">
-        {% endif %}
-
-        <h5>{{ p.product_name }}</h5>
-        <p class="mb-1"><strong>प्रकार:</strong> {{ p.category }}</p>
-        <p class="mb-1"><strong>दर:</strong> ₹{{ p.price }}/{{ p.unit }}</p>
-        <p class="mb-1"><strong>प्रमाण:</strong> {{ p.quantity }} {{ p.unit }}</p>
-        <p class="mb-1"><strong>गाव:</strong> {{ p.village }}</p>
-        <p class="mb-1"><strong>मोबाईल:</strong> {{ p.mobile }}</p>
-        <p>{{ p.description or '' }}</p>
-
-        <!-- Delete is a POST request; backend/RLS must verify ownership -->
-        <form method="POST" action="{{ url_for('farmer_delete', product_id=p.id) }}" onsubmit="return confirm('पोस्ट हटवायची का?')">
-          <button class="btn btn-outline-danger btn-sm" type="submit">पोस्ट हटवा</button>
-        </form>
-      </div>
+  {% for p in products %}
+   <div class="col-md-6 col-lg-4">
+    <div class="card p-3 h-100">
+     {% if p.image_url %}<img src="{{ p.image_url }}" class="product-image mb-3" alt="{{ p.product_name }}" loading="lazy" onerror="this.style.display='none'">
+     {% else %}<div class="product-image mb-3 d-flex align-items-center justify-content-center text-muted"><div class="text-center"><i class="bi bi-image fs-1"></i><div>फोटो उपलब्ध नाही</div></div></div>{% endif %}
+     <h5 class="fw-bold">{{ p.product_name }}</h5>
+     <span class="badge text-bg-light border align-self-start mb-2">{{ p.category }}</span>
+     <p class="mb-1"><strong>दर:</strong> ₹{{ p.price }}/{{ p.unit }}</p>
+     <p class="mb-1"><strong>प्रमाण:</strong> {{ p.quantity }} {{ p.unit }}</p>
+     <p class="mb-1"><i class="bi bi-geo-alt"></i> {{ p.village }}{% if p.taluka %}, {{ p.taluka }}{% endif %}</p>
+     <p class="mb-1"><i class="bi bi-telephone"></i> {{ p.mobile }}</p>
+     <p class="text-muted small">{{ p.description or '' }}</p>
+     <form class="mt-auto" method="POST" action="{{ url_for('farmer_delete', product_id=p.id) }}" onsubmit="return confirm('पोस्ट हटवायची का?')">
+      <button class="btn btn-outline-danger btn-sm w-100" type="submit"><i class="bi bi-trash"></i> पोस्ट हटवा</button>
+     </form>
     </div>
-    {% else %}
-    <div class="col-12">
-      <div class="alert alert-info">अजून माल पोस्ट केलेला नाही.</div>
-    </div>
-    {% endfor %}
+   </div>
+  {% else %}
+   <div class="col-12"><div class="card p-4 text-center text-muted"><i class="bi bi-box fs-1 mb-2"></i><p class="mb-0">अजून माल पोस्ट केलेला नाही.</p></div></div>
+  {% endfor %}
   </div>
+ </section>
+ <footer class="text-center py-3 small">LOCAL MARKET • शेतकरी ते ग्राहक</footer>
+</main>
 
-</div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function(){
+ const latInput=document.getElementById('latitude'),lngInput=document.getElementById('longitude');
+ const map=L.map('productMap').setView([17.6599,75.9064],8);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+ let marker=null;
+ function setPoint(lat,lng){
+  latInput.value=Number(lat).toFixed(7);lngInput.value=Number(lng).toFixed(7);
+  if(marker)marker.setLatLng([lat,lng]);else marker=L.marker([lat,lng]).addTo(map);
+  marker.bindPopup('निवडलेले ठिकाण').openPopup();
+ }
+ map.on('click',e=>setPoint(e.latlng.lat,e.latlng.lng));
+ document.getElementById('locateBtn').addEventListener('click',()=>{
+  if(!navigator.geolocation){alert('तुमच्या browser मध्ये location उपलब्ध नाही.');return}
+  navigator.geolocation.getCurrentPosition(pos=>{
+   const lat=pos.coords.latitude,lng=pos.coords.longitude;
+   map.setView([lat,lng],15);setPoint(lat,lng);
+  },()=>alert('Location मिळाले नाही. Browser मध्ये location permission द्या.'),{enableHighAccuracy:true,timeout:10000});
+ });
+ function syncInputs(){
+  const lat=parseFloat(latInput.value),lng=parseFloat(lngInput.value);
+  if(Number.isFinite(lat)&&Number.isFinite(lng)){map.setView([lat,lng],14);setPoint(lat,lng)}
+ }
+ latInput.addEventListener('change',syncInputs);lngInput.addEventListener('change',syncInputs);
+ const imageUrl=document.getElementById('imageUrl'),previewWrap=document.getElementById('previewWrap'),preview=document.getElementById('imagePreview');
+ imageUrl.addEventListener('input',()=>{
+  const url=imageUrl.value.trim();
+  if(url){preview.src=url;previewWrap.classList.remove('d-none')}else{previewWrap.classList.add('d-none');preview.removeAttribute('src')}
+ });
+ preview.addEventListener('error',()=>previewWrap.classList.add('d-none'));
+ setTimeout(()=>map.invalidateSize(),250);
+})();
+</script>
 </body>
 </html>
