@@ -36,8 +36,7 @@ body{background:#f2f7f1;font-family:Arial,sans-serif;}
 
   <!-- Farmer product form: POST data to the backend add-product route -->
   <div class="card p-4 mb-4">
-    <h4>➕ माझा माल पोस्ट करा</h4>
-    <form method="POST" action="{{ url_for('farmer_add') }}">
+    <h4>➕ माझा माल पोस्ट करा</h4><form method="POST" action="{{ url_for('farmer_add_product') }}">
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label">मालाचे नाव *</label>
