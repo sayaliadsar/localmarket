@@ -1,109 +1,309 @@
+
 <!DOCTYPE html>
-<html lang="mr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel - LOCAL MARKET</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<title>LOCAL MARKET | Admin</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
 <style>
-body{background:#F8FFF9;font-family:'Segoe UI',sans-serif}
-.navbar{background:#0A2342!important}
-.logo{font-weight:900;font-size:22px;color:#fff!important}
-.logo span{color:#FF6B00}
-.stat{background:#fff;border-radius:16px;padding:16px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.05)}
-.stat h3{font-weight:900;color:#0A2342;margin:0}
-.btn-green{background:#0B6B3A;color:#fff;font-weight:700;border-radius:12px;border:none;padding:10px}
+:root{
+  --green:#176b45;
+  --light:#f4f7f5;
+  --dark:#18352a;
+}
+body{
+  background:var(--light);
+  font-family:Arial,sans-serif;
+  margin:0;
+}
+.sidebar{
+  background:var(--dark);
+  color:white;
+  min-height:100vh;
+  padding:25px 16px;
+}
+.sidebar a{
+  color:#dce9e1;
+  text-decoration:none;
+  display:block;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:8px;
+}
+.sidebar a:hover{
+  background:#285641;
+  color:white;
+}
+.brand{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:30px;
+}
+.main{
+  padding:25px;
+}
+.stat{
+  background:white;
+  padding:22px;
+  border-radius:15px;
+  box-shadow:0 3px 15px rgba(0,0,0,.04);
+  height:100%;
+}
+.stat i{
+  font-size:25px;
+  color:var(--green);
+}
+.stat h3{
+  margin-top:15px;
+  font-weight:bold;
+}
+.section{
+  background:white;
+  border-radius:15px;
+  padding:20px;
+  margin-top:25px;
+  box-shadow:0 3px 15px rgba(0,0,0,.04);
+}
+.table th{
+  background:#edf4ef;
+  white-space:nowrap;
+}
+.table td{
+  vertical-align:middle;
+}
+.badge-role{
+  background:#e2f3e8;
+  color:#176b45;
+}
+@media(max-width:767px){
+  .sidebar{min-height:auto;}
+  .main{padding:15px;}
+}
 </style>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark">
-<div class="container">
-<a class="navbar-brand logo" href="/">LOCAL <span>MARKET</span> <span class="badge bg-warning text-dark">ADMIN</span></a>
-<a href="/" class="btn btn-light btn-sm fw-bold">Home</a>
+<div class="container-fluid">
+<div class="row">
+
+<!-- SIDEBAR -->
+<div class="col-md-2 sidebar">
+    <div class="brand">
+        <i class="bi bi-shop"></i> LOCAL MARKET
+    </div>
+
+    <div class="small text-white-50 mb-3">ADMIN PANEL</div>
+
+    <a href="#overview"><i class="bi bi-grid me-2"></i> Overview</a>
+    <a href="#users"><i class="bi bi-people me-2"></i> Users</a>
+    <a href="#shops"><i class="bi bi-shop me-2"></i> Shops</a>
+    <a href="#products"><i class="bi bi-box-seam me-2"></i> Products</a>
+    <a href="#requests"><i class="bi bi-bell me-2"></i> Requests</a>
+    <a href="#categories"><i class="bi bi-tags me-2"></i> Categories</a>
+    <a href="#villages"><i class="bi bi-geo-alt me-2"></i> Villages</a>
+
+    <hr class="border-secondary">
+
+    <a href="{{ url_for('logout') }}">
+        <i class="bi bi-box-arrow-right me-2"></i> Logout
+    </a>
 </div>
-</nav>
 
-<div class="container py-3">
+<!-- MAIN -->
+<div class="col-md-10 main">
 
-<h3 class="fw-bold">🛡️ Admin Panel</h3>
-<p class="text-muted">Sagla control ithe ahe.</p>
-
-{% if msg %}<div class="alert alert-success fw-bold" style="border-radius:14px">{{ msg }}</div>{% endif %}
-
-<!-- STATS -->
-<div class="row g-3">
-<div class="col-6 col-md-3"><div class="stat"><h3>{{ users|length }}</h3><div class="small text-muted">Total Users</div></div></div>
-<div class="col-6 col-md-3"><div class="stat"><h3>{{ shops|length }}</h3><div class="small text-muted">Shops</div></div></div>
-<div class="col-6 col-md-3"><div class="stat"><h3>{{ products|length }}</h3><div class="small text-muted">Products</div></div></div>
-<div class="col-6 col-md-3"><div class="stat"><h3>{{ orders|length }}</h3><div class="small text-muted">Orders</div></div></div>
+<div class="d-flex flex-wrap justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold">Admin Dashboard</h2>
+        <p class="text-secondary">Manage your LOCAL MARKET platform</p>
+    </div>
+    <div class="text-success fw-semibold">
+        <i class="bi bi-shield-check"></i> Administrator
+    </div>
 </div>
 
-<!-- ALL USERS -->
-<h4 class="fw-bold mt-4 mb-3">👥 All Users ({{ users|length }})</h4>
-<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+{% if error %}
+<div class="alert alert-danger">
+    Database error: {{ error }}
+</div>
+{% endif %}
+
+<!-- OVERVIEW -->
+<div id="overview" class="row g-3 mt-2">
+
+<div class="col-md-3 col-6">
+<div class="stat">
+<i class="bi bi-people"></i>
+<h3>{{ users|length }}</h3>
+<div class="text-secondary">Total Users</div>
+</div>
+</div>
+
+<div class="col-md-3 col-6">
+<div class="stat">
+<i class="bi bi-shop"></i>
+<h3>{{ shops|length }}</h3>
+<div class="text-secondary">Total Shops</div>
+</div>
+</div>
+
+<div class="col-md-3 col-6">
+<div class="stat">
+<i class="bi bi-box-seam"></i>
+<h3>{{ products|length }}</h3>
+<div class="text-secondary">Total Products</div>
+</div>
+</div>
+
+<div class="col-md-3 col-6">
+<div class="stat">
+<i class="bi bi-bell"></i>
+<h3>{{ requests|length }}</h3>
+<div class="text-secondary">Product Requests</div>
+</div>
+</div>
+
+</div>
+
+<!-- USERS -->
+<div class="section" id="users">
+<h4 class="fw-bold mb-3"><i class="bi bi-people text-success"></i> Users</h4>
+
 <div class="table-responsive">
-<table class="table table-hover mb-0 small">
-<thead class="table-dark"><tr><th>Name</th><th>Role</th><th>Phone</th><th>Village</th><th>Shop</th><th>Action</th></tr></thead>
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Name</th>
+<th>Mobile</th>
+<th>Role</th>
+<th>Village</th>
+<th>Status</th>
+</tr>
+</thead>
 <tbody>
 {% for u in users %}
 <tr>
-<td><b>{{ u.name }}</b><br><span class="text-muted">{{ u.phone }}</span></td>
-<td><span class="badge {% if u.role=='seller' %}bg-success{% elif u.role=='admin' %}bg-dark{% else %}bg-secondary{% endif %}">{{ u.role }}</span></td>
-<td>{{ u.phone }}</td>
-<td>{{ u.village }}</td>
-<td>{{ u.shop_name or '-' }}</td>
+<td>{{ u.full_name or 'N/A' }}</td>
+<td>{{ u.mobile or 'N/A' }}</td>
+<td><span class="badge badge-role">{{ u.role }}</span></td>
+<td>{{ u.village or 'N/A' }}</td>
 <td>
-<div class="d-flex gap-1 flex-wrap">
-{% if u.role != 'admin' %}
-<a href="/admin/verify/{{ u.id }}" class="btn btn-sm btn-success">{% if u.is_verified %}✅ Verified{% else %}Verify{% endif %}</a>
-<a href="/admin/delete-user/{{ u.id }}" class="btn btn-sm btn-danger" onclick="return confirm('User delete?')">Delete</a>
+{% if u.is_active %}
+<span class="text-success">Active</span>
 {% else %}
-<span class="badge bg-dark">Admin</span>
+<span class="text-danger">Inactive</span>
 {% endif %}
-</div>
 </td>
 </tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-</div>
-<!-- ALL PRODUCTS -->
-<h4 class="fw-bold mt-4 mb-3">🛒 All Products ({{ products|length }})</h4>
-<div class="bg-white rounded-4 shadow-sm overflow-hidden">
-<div class="table-responsive">
-<table class="table table-hover mb-0 small">
-<thead class="table-dark"><tr><th>Product</th><th>Price</th><th>Shop</th><th>Views</th><th>Action</th></tr></thead>
-<tbody>
-{% for p in products %}
-<tr>
-<td><b>{{ p.title }}</b><br><span class="text-muted">{{ p.category }}</span></td>
-<td>₹{{ p.price }} <s class="text-muted">₹{{ p.mrp }}</s></td>
-<td>{{ p.shop_name or p.shop.shop_name if p.shop else '-' }}</td>
-<td>{{ p.views }}</td>
-<td><a href="/admin/delete-product/{{ p.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Product delete?')">Delete</a></td>
-</tr>
+{% else %}
+<tr><td colspan="5" class="text-center text-secondary">No users found</td></tr>
 {% endfor %}
 </tbody>
 </table>
 </div>
 </div>
 
-<!-- ALL ORDERS -->
-<h4 class="fw-bold mt-4 mb-3">📦 All Orders ({{ orders|length }})</h4>
-<div class="bg-white rounded-4 shadow-sm overflow-hidden">
+<!-- SHOPS -->
+<div class="section" id="shops">
+<h4 class="fw-bold mb-3"><i class="bi bi-shop text-success"></i> Shops</h4>
+
 <div class="table-responsive">
-<table class="table table-hover mb-0 small">
-<thead class="table-dark"><tr><th>Product</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead>
-<tbody>
-{% for o in orders %}
+<table class="table table-hover">
+<thead>
 <tr>
-<td>{{ o.product_title }}</td>
-<td>{{ o.customer_name }} - {{ o.customer_phone }}</td>
-<td><b>₹{{ o.total }}</b></td>
-<td><span class="badge bg-secondary">{{ o.status }}</span></td>
+<th>Shop Name</th>
+<th>Owner ID</th>
+<th>Mobile</th>
+<th>Village</th>
+<th>Status</th>
 </tr>
+</thead>
+<tbody>
+{% for s in shops %}
+<tr>
+<td>{{ s.store_name or 'N/A' }}</td>
+<td>{{ s.owner_id or 'N/A' }}</td>
+<td>{{ s.mobile or 'N/A' }}</td>
+<td>{{ s.village or 'N/A' }}</td>
+<td>{{ s.status or 'N/A' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="text-center text-secondary">No shops found</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- PRODUCTS -->
+<div class="section" id="products">
+<h4 class="fw-bold mb-3"><i class="bi bi-box-seam text-success"></i> Products</h4>
+
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Product</th>
+<th>Category ID</th>
+<th>Price</th>
+<th>Stock</th>
+<th>Available</th>
+</tr>
+</thead>
+<tbody>
+{% for p in products %}
+<tr>
+<td>{{ p.name or 'N/A' }}</td>
+<td>{{ p.category_id or 'N/A' }}</td>
+<td>₹{{ p.price or 0 }}</td>
+<td>{{ p.stock_quantity or 0 }} {{ p.unit or '' }}</td>
+<td>
+{% if p.is_available and p.is_active %}
+<span class="text-success">Available</span>
+{% else %}
+<span class="text-danger">Unavailable</span>
+{% endif %}
+</td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="text-center text-secondary">No products found</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- REQUESTS -->
+<div class="section" id="requests">
+<h4 class="fw-bold mb-3"><i class="bi bi-bell text-success"></i> Product Requests</h4>
+
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Request ID</th>
+<th>Product</th>
+<th>Customer ID</th>
+<th>Quantity</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+{% for r in requests %}
+<tr>
+<td>{{ r.id }}</td>
+<td>{{ r.product_name or r.product_title or 'N/A' }}</td>
+<td>{{ r.customer_id or r.user_id or 'N/A' }}</td>
+<td>{{ r.quantity or 'N/A' }}</td>
+<td>{{ r.status or 'Pending' }}</td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="text-center text-secondary">No requests found</td></tr>
 {% endfor %}
 </tbody>
 </table>
@@ -111,61 +311,74 @@ body{background:#F8FFF9;font-family:'Segoe UI',sans-serif}
 </div>
 
 <!-- CATEGORIES -->
-<h4 class="fw-bold mt-4 mb-3">📂 Categories</h4>
-<div class="row g-3">
-<div class="col-md-4">
-<div class="bg-white p-3 rounded-4 shadow-sm">
-<h6 class="fw-bold">+ Navin Category</h6>
-<form method="POST" action="/admin/add-category">
-<input name="name" class="form-control mb-2" placeholder="Category Name - Kirana" required>
-<input name="icon" class="form-control mb-2" placeholder="Icon - 🛒" value="🛒">
-<input name="image" class="form-control mb-2" placeholder="Category Image URL">
-<button class="btn btn-green w-100">Add Category</button>
-</form>
-</div>
-</div>
-<div class="col-md-8">
-<div class="bg-white p-3 rounded-4 shadow-sm">
+<div class="section" id="categories">
+<h4 class="fw-bold mb-3"><i class="bi bi-tags text-success"></i> Categories</h4>
+
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
 {% for c in cats %}
-<div class="d-flex justify-content-between align-items-center border-bottom py-2">
-<span>{{ c.icon }} <b>{{ c.name }}</b></span>
-<a href="/admin/delete-category/{{ c.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')">Delete</a>
-</div>
+<tr>
+<td>{{ c.id }}</td>
+<td>{{ c.name }}</td>
+<td>{{ c.description or 'N/A' }}</td>
+<td>
+{% if c.is_active %}
+<span class="text-success">Active</span>
 {% else %}
-<p class="text-muted mb-0">Category nahi.</p>
+<span class="text-danger">Inactive</span>
+{% endif %}
+</td>
+</tr>
+{% else %}
+<tr><td colspan="4" class="text-center text-secondary">No categories found</td></tr>
 {% endfor %}
+</tbody>
+</table>
 </div>
 </div>
-</div>
+
 <!-- VILLAGES -->
-<h4 class="fw-bold mt-4 mb-3">📍 Villages / Areas</h4>
-<div class="row g-3">
-<div class="col-md-4">
-<div class="bg-white p-3 rounded-4 shadow-sm">
-<h6 class="fw-bold">+ Navin Village</h6>
-<form method="POST" action="/admin/add-village">
-<input name="name" class="form-control mb-2" placeholder="Village Name - Malshiras" required>
-<input name="taluka" class="form-control mb-2" placeholder="Taluka - Malshiras">
-<button class="btn btn-green w-100">Add Village</button>
-</form>
-</div>
-</div>
-<div class="col-md-8">
-<div class="bg-white p-3 rounded-4 shadow-sm">
+<div class="section" id="villages">
+<h4 class="fw-bold mb-3"><i class="bi bi-geo-alt text-success"></i> Villages</h4>
+
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Village</th>
+<th>Taluka</th>
+</tr>
+</thead>
+<tbody>
 {% for v in villages %}
-<div class="d-flex justify-content-between align-items-center border-bottom py-2">
-<span>📍 <b>{{ v.name }}</b> <span class="text-muted small">{{ v.taluka }}</span></span>
-<a href="/admin/delete-village/{{ v.id }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')">Delete</a>
-</div>
+<tr>
+<td>{{ v.name or v.village or 'N/A' }}</td>
+<td>{{ v.taluka or 'N/A' }}</td>
+</tr>
 {% else %}
-<p class="text-muted mb-0">Village nahi.</p>
+<tr><td colspan="2" class="text-center text-secondary">No villages found</td></tr>
 {% endfor %}
+</tbody>
+</table>
+</div>
+</div>
+
+<footer class="text-center text-secondary mt-4 mb-3">
+LOCAL MARKET | Admin Panel
+</footer>
+
 </div>
 </div>
 </div>
 
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
